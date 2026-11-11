@@ -81,6 +81,12 @@ interface NibmarkBridge {
     /** Trả về thông báo lỗi, hoặc null nếu mở được */
     open(id: string, name: string, bytes: Uint8Array): Promise<string | null>
   }
+  web: {
+    /** Tiêu đề trang web (og:title hoặc <title>), null nếu không lấy được */
+    title(url: string): Promise<string | null>
+    /** Đoạn code từ link GitHub có dải dòng (#L10-L25) */
+    githubSnippet(url: string): Promise<{ code: string; path: string; start: number; end: number } | null>
+  }
   themes: {
     list(): Promise<{ id: string; name: string; base: 'mist' | 'night' | 'paper' | 'ink' | 'indigo' | 'stone'; css: string }[]>
     /** Cho cửa sổ (lớp trong mờ) theo sáng/tối của theme; 'system' = theo macOS */

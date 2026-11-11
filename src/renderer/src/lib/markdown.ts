@@ -8,6 +8,7 @@ import DOMPurify from 'dompurify'
 import katex from '@vscode/markdown-it-katex'
 import alerts from 'markdown-it-github-alerts'
 import 'katex/dist/katex.min.css'
+import { parseImageAlt } from './imageTools'
 
 const escapeHtml = (s: string): string =>
   s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;')
@@ -41,6 +42,18 @@ md.renderer.rules.code_inline = (tokens, idx, options, env, self) => {
   const value = tokens[idx].content.trim()
   if (!COLOR.test(value)) return html
   return `<span class="color-code"><span class="color-swatch" style="background:${value}"></span>${html}</span>`
+}
+
+// Kích thước ảnh trong chữ thay thế: ![ảnh|small](…), |half, |full, |320
+// Chỉ dùng class hoặc thuộc tính width là số, không bao giờ ghi style tự do.
+md.renderer.rules.image = (tokens, idx, options, env, self) => {
+  const token = tokens[idx]
+  const { alt, size } = parseImageAlt(self.renderInlineAsText(token.children ?? [], options, env))
+  token.attrSet('alt', alt)
+  token.children = []
+  if (typeof size === 'number') token.attrSet('width', String(Math.min(size, 4000)))
+  else if (size) token.attrJoin('class', `img-${size}`)
+  return self.renderToken(tokens, idx, options)
 }
 
 // Khối ```mermaid: giữ nguyên mã nguồn, Preview sẽ vẽ sơ đồ sau khi trang hiển thị

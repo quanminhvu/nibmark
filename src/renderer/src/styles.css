@@ -2790,3 +2790,24 @@ html.strike-done .markdown-body .task-list-item:has(> input:checked):not(:has(ul
   color: var(--ink);
   font: inherit;
 }
+
+/* ── Kích thước ảnh ── */
+.markdown-body img.img-small {
+  width: 240px;
+  max-width: 100%;
+}
+.markdown-body img.img-half {
+  width: 50%;
+}
+.markdown-body img.img-full {
+  width: 100%;
+}
+.cm-image-toolbar .tb-label {
+  padding: 0 6px;
+  color: var(--ink-3);
+  font-size: 11px;
+}
+.cm-image-toolbar button.active {
+  background: var(--accent-soft);
+  color: var(--accent);
+}

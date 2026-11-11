@@ -9,11 +9,11 @@ Ký hiệu: `[x]` đã xong · `[ ]` chưa làm · *(một phần: …)* đã l�
 | Giai đoạn | Số mục | Đã xong |
 |---|---|---|
 | 1. Ứng dụng desktop (đã phát hành tới 0.3) | 53 | 53 |
-| 2. Hoàn thiện trải nghiệm (đang làm) | 38 | 8 |
+| 2. Hoàn thiện trải nghiệm (đang làm) | 38 | 10 |
 | 3. Đồng bộ và bảo mật | 8 | 0 |
 | 4. Mobile, plugin và AI | 20 | 0 |
 | 5. Phát hành rộng và mô hình kinh doanh | 9 | 0 |
-| **Tổng** | **128** | **61** |
+| **Tổng** | **128** | **63** |
 
 ---
 
@@ -34,7 +34,7 @@ Ký hiệu: `[x]` đã xong · `[ ]` chưa làm · *(một phần: …)* đã l�
 - [x] Alert kiểu GitHub (`[!NOTE]`, `[!TIP]`, `[!IMPORTANT]`, `[!WARNING]`, `[!CAUTION]`) *(hiển thị trong preview, tô màu trong editor, chèn bằng slash command hoặc thanh công cụ)*
 - [x] Liên kết giữa ghi chú bằng `[[`, tạo ghi chú mới nếu chưa có
 - [x] Highlight đoạn chữ (`<mark>`) từ thanh công cụ
-- [x] Dán hoặc kéo thả ảnh và mọi loại file vào ghi chú *(một phần: chưa có cú pháp kích thước ảnh và thanh chỉnh kích thước)*
+- [x] Dán hoặc kéo thả ảnh và mọi loại file vào ghi chú
 - [x] Danh sách: thụt lề bằng Tab/⇧Tab, tự đánh lại số thứ tự
 - [x] Thanh công cụ bảng: căn cột, thêm/xóa/di chuyển hàng và cột, căn lề
 - [x] Đa con trỏ và chọn vùng chữ nhật
@@ -113,8 +113,8 @@ Làm được ngay, không phụ thuộc đồng bộ.
 ### Soạn thảo
 
 - [x] Nút chèn alert trên thanh công cụ nổi; tô màu alert ngay trong editor
-- [ ] Dán link thông minh: chọn định dạng link, tự lấy tiêu đề trang
-- [ ] Cú pháp kích thước ảnh và thanh chỉnh kích thước (Tự động / Nhỏ / Nửa / Đầy)
+- [x] Dán link thông minh: chọn định dạng link, tự lấy tiêu đề trang
+- [x] Cú pháp kích thước ảnh và thanh chỉnh kích thước (Tự động / Nhỏ / Nửa / Đầy)
 - [x] Các chế độ ngắt dòng: ngắt tất cả, chỉ ngắt văn bản (giữ nguyên dòng của khối code và bảng), không ngắt
 - [x] Menu hành động của ghi chú (⌘J)
 - [x] Bật/tắt số dòng, giới hạn độ rộng dòng, bật/tắt kiểm tra chính tả, gạch ngang task đã xong

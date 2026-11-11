@@ -8,6 +8,7 @@ import type { ExportFile } from './exporter'
 import { backupDir, defaultBackupDir, getSettings, updateSettings } from './settings'
 import { ensureStylesFile, ensureThemesDir, listUserThemes, readUserStyles } from './themes'
 import { scanImport } from './importer'
+import { fetchGithubSnippet, fetchTitle } from './web'
 
 export interface SettingsView {
   backupEnabled: boolean
@@ -117,6 +118,8 @@ export function registerIpc(): void {
     return scanImport(res.filePaths)
   })
 
+  ipcMain.handle('web:title', (_e, url: unknown) => fetchTitle(url))
+  ipcMain.handle('web:githubSnippet', (_e, url: unknown) => fetchGithubSnippet(url))
   ipcMain.handle('app:openDataFolder', async () => (await shell.openPath(app.getPath('userData'))) || null)
   ipcMain.handle('themes:list', () => listUserThemes())
   // Lớp trong mờ của macOS (vibrancy) theo giao diện hệ thống; đổi sang sáng/tối

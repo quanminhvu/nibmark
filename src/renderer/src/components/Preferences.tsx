@@ -10,7 +10,7 @@ import { cx } from '@/lib/util'
 import { relativeTime } from '@/lib/util'
 import { runImport } from '@/lib/importer'
 import { useEditorPrefs } from '@/lib/editorPrefs'
-import type { WrapMode } from '@/lib/editorPrefs'
+import type { PasteLink, WrapMode } from '@/lib/editorPrefs'
 
 export function Preferences(): React.JSX.Element | null {
   const open = useStore((s) => s.prefsOpen)
@@ -257,6 +257,17 @@ function EditorSection(): React.JSX.Element {
           <option value="none">Don&rsquo;t wrap</option>
         </select>
       </div>
+      <div className="pref-row">
+        <span className="pref-label">Pasting a URL</span>
+        <select className="pref-select" value={p.pasteLink} onChange={(e) => p.set({ pasteLink: e.target.value as PasteLink })}>
+          <option value="title">Make a link with the page title</option>
+          <option value="url">Make a link with the URL as text</option>
+          <option value="plain">Paste the URL as is</option>
+        </select>
+      </div>
+      {p.pasteLink === 'title' && (
+        <p className="pref-note">Nibmark fetches the page once to read its title. Pasting onto selected text always links that text.</p>
+      )}
     </section>
   )
 }
