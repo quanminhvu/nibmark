@@ -82,7 +82,9 @@ interface NibmarkBridge {
     open(id: string, name: string, bytes: Uint8Array): Promise<string | null>
   }
   themes: {
-    list(): Promise<{ id: string; name: string; base: 'paper' | 'ink' | 'indigo' | 'stone'; css: string }[]>
+    list(): Promise<{ id: string; name: string; base: 'mist' | 'night' | 'paper' | 'ink' | 'indigo' | 'stone'; css: string }[]>
+    /** Cho cửa sổ (lớp trong mờ) theo sáng/tối của theme; 'system' = theo macOS */
+    setAppearance(mode: 'light' | 'dark' | 'system'): void
     /** Trả về thông báo lỗi, hoặc null nếu mở được */
     openFolder(): Promise<string | null>
     getUserStyles(): Promise<string>

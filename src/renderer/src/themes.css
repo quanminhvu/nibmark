@@ -37,6 +37,8 @@
   --syn-type: #7a5bb8;
   --syn-attr: #8a6a2a;
   --syn-link: #2f6f8f;
+  --syn-heading: #b63a2a;
+  --syn-mark: #3f6fb5;
 }
 
 :root[data-theme='ink'],
@@ -71,6 +73,8 @@
   --syn-type: #b9a3ea;
   --syn-attr: #d8b878;
   --syn-link: #7fc1de;
+  --syn-heading: #ef8a74;
+  --syn-mark: #7fa6e0;
 }
 
 /* Indigo: mực xanh chàm, tối và lạnh */
@@ -106,6 +110,8 @@
   --syn-type: #c0a8f5;
   --syn-attr: #e0c48a;
   --syn-link: #82c8f0;
+  --syn-heading: #f29a82;
+  --syn-mark: #82aaf0;
 }
 
 /* Stone: đá xám sáng, trung tính và mát */
@@ -141,4 +147,80 @@
   --syn-type: #6f52b5;
   --syn-attr: #7f6327;
   --syn-link: #2a6a92;
+  --syn-heading: #b0402e;
+  --syn-mark: #3f6fb5;
+}
+
+/* Mist: sáng, kiểu macOS — xám trong mờ, trắng, màu nhấn xanh dương. Mặc định khi máy ở chế độ sáng. */
+:root[data-theme='mist'],
+[data-theme='mist'] {
+  color-scheme: light;
+  --paper: #e9e9ec;
+  --surface: #f6f6f8;
+  --surface-2: #fcfcfd;
+  --ink: #1d1d1f;
+  --ink-2: #4b4b51;
+  --ink-3: #8e8e93;
+  --line: rgba(0, 0, 0, 0.08);
+  --hover: rgba(0, 0, 0, 0.04);
+  --selected: rgba(0, 0, 0, 0.07);
+  --accent: #2f6fe4;
+  --accent-soft: rgba(47, 111, 228, 0.12);
+  --on-accent: #ffffff;
+  --code-bg: #f0f1f4;
+  --mark: rgba(255, 204, 0, 0.35);
+  --shadow: 0 10px 30px rgba(0, 0, 0, 0.14);
+  --backdrop: rgba(0, 0, 0, 0.22);
+
+  --status-active: #7d9cc9;
+  --status-onhold: #f2a33a;
+  --status-completed: #34c759;
+  --status-dropped: #ff6b6b;
+
+  --syn-keyword: #ad3da4;
+  --syn-string: #c41a16;
+  --syn-number: #1c00cf;
+  --syn-function: #326d74;
+  --syn-type: #703daa;
+  --syn-attr: #836c28;
+  --syn-link: #2f6fe4;
+  --syn-heading: #d6336c;
+  --syn-mark: #2f6fe4;
+}
+
+/* Night: bản tối của Mist. Mặc định khi máy ở chế độ tối. */
+:root[data-theme='night'],
+[data-theme='night'] {
+  color-scheme: dark;
+  --paper: #232326;
+  --surface: #1f1f22;
+  --surface-2: #1a1a1c;
+  --ink: #f2f2f7;
+  --ink-2: #c4c4ca;
+  --ink-3: #8a8a91;
+  --line: rgba(255, 255, 255, 0.09);
+  --hover: rgba(255, 255, 255, 0.05);
+  --selected: rgba(255, 255, 255, 0.09);
+  --accent: #4a8dff;
+  --accent-soft: rgba(74, 141, 255, 0.18);
+  --on-accent: #ffffff;
+  --code-bg: #26262a;
+  --mark: rgba(255, 214, 10, 0.28);
+  --shadow: 0 10px 30px rgba(0, 0, 0, 0.55);
+  --backdrop: rgba(0, 0, 0, 0.45);
+
+  --status-active: #8fb0e0;
+  --status-onhold: #ffb347;
+  --status-completed: #30d158;
+  --status-dropped: #ff6b6b;
+
+  --syn-keyword: #fc5fa3;
+  --syn-string: #fc6a5d;
+  --syn-number: #d0bf69;
+  --syn-function: #67b7a4;
+  --syn-type: #d0a8ff;
+  --syn-attr: #d9c97c;
+  --syn-link: #6aa7ff;
+  --syn-heading: #ff7aa2;
+  --syn-mark: #6aa7ff;
 }

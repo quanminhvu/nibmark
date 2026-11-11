@@ -9,11 +9,11 @@ import { join } from 'node:path'
 export interface UserTheme {
   id: string
   name: string
-  base: 'paper' | 'ink' | 'indigo' | 'stone'
+  base: 'mist' | 'night' | 'paper' | 'ink' | 'indigo' | 'stone'
   css: string
 }
 
-const BASES = ['paper', 'ink', 'indigo', 'stone'] as const
+const BASES = ['mist', 'night', 'paper', 'ink', 'indigo', 'stone'] as const
 
 const EXAMPLE = `/* name: Moss */
 /* base: paper */

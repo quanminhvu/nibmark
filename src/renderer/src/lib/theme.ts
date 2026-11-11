@@ -1,6 +1,6 @@
 import { create } from 'zustand'
 
-export type BaseThemeId = 'paper' | 'ink' | 'indigo' | 'stone'
+export type BaseThemeId = 'mist' | 'night' | 'paper' | 'ink' | 'indigo' | 'stone'
 
 export interface ThemeInfo {
   id: string
@@ -12,17 +12,19 @@ export interface ThemeInfo {
 }
 
 export const BUILTIN_THEMES: ThemeInfo[] = [
+  { id: 'mist', name: 'Mist', dark: false, base: 'mist' },
+  { id: 'night', name: 'Night', dark: true, base: 'night' },
   { id: 'paper', name: 'Paper', dark: false, base: 'paper' },
   { id: 'stone', name: 'Stone', dark: false, base: 'stone' },
   { id: 'ink', name: 'Ink', dark: true, base: 'ink' },
   { id: 'indigo', name: 'Indigo', dark: true, base: 'indigo' }
 ]
 
-const DARK_BASES: BaseThemeId[] = ['ink', 'indigo']
+const DARK_BASES: BaseThemeId[] = ['night', 'ink', 'indigo']
 const KEY = 'nibmark:theme'
 const media = window.matchMedia('(prefers-color-scheme: dark)')
 
-/** 'system' = Paper khi macOS sáng, Ink khi macOS tối */
+/** 'system' = Mist khi macOS sáng, Night khi macOS tối */
 export type ThemeChoice = string
 
 function readChoice(): ThemeChoice {
@@ -45,11 +47,20 @@ interface ThemeState {
 }
 
 function resolve(choice: ThemeChoice, userThemes: ThemeInfo[]): ThemeInfo {
-  if (choice === 'system') return BUILTIN_THEMES.find((t) => t.id === (media.matches ? 'ink' : 'paper'))!
+  if (choice === 'system') return BUILTIN_THEMES.find((t) => t.id === (media.matches ? 'night' : 'mist'))!
   return [...BUILTIN_THEMES, ...userThemes].find((t) => t.id === choice) ?? BUILTIN_THEMES[0]
 }
 
-function apply(theme: ThemeInfo): void {
+let lastAppearance = ''
+function syncAppearance(mode: 'light' | 'dark' | 'system'): void {
+  if (mode === lastAppearance) return
+  lastAppearance = mode
+  window.nibmark?.themes.setAppearance(mode)
+}
+
+/** followSystem: theme đang theo macOS, để cửa sổ cũng theo macOS (giữ cho media query còn đúng) */
+function apply(theme: ThemeInfo, followSystem: boolean): void {
+  syncAppearance(followSystem ? 'system' : theme.dark ? 'dark' : 'light')
   const root = document.documentElement
   const userTheme = theme.id.startsWith('user:') ? theme.id.slice(5) : undefined
   // Không đổi gì thì thôi, để các phần vẽ lại theo theme (ví dụ Mermaid) không bị kích hoạt thừa
@@ -86,11 +97,12 @@ export const useTheme = create<ThemeState>((set, get) => {
       }
       const active = resolve(choice, get().userThemes)
       set({ choice, active })
-      apply(active)
+      apply(active, choice === 'system')
     },
 
     preview: (choice) => {
-      apply(resolve(choice ?? get().choice, get().userThemes))
+      const c = choice ?? get().choice
+      apply(resolve(c, get().userThemes), c === 'system')
     },
 
     reloadUserFiles: async () => {
@@ -117,20 +129,21 @@ export const useTheme = create<ThemeState>((set, get) => {
       setStyle('nibmark-user-styles', userCss)
       const active = resolve(get().choice, userThemes)
       set({ userThemes, active })
-      apply(active)
+      apply(active, get().choice === 'system')
     }
   }
 })
 
 /** Gọi đồng bộ trước khi React vẽ lần đầu, để không bị nháy sai màu. */
 export function initTheme(): void {
-  apply(useTheme.getState().active)
+  apply(useTheme.getState().active, useTheme.getState().choice === 'system')
   media.addEventListener('change', () => {
     const { choice, userThemes } = useTheme.getState()
-    if (choice !== 'system') return
+    // Đang xem thử theme khác (cửa sổ bị ép sáng/tối) thì media query không phản ánh macOS
+    if (choice !== 'system' || lastAppearance !== 'system') return
     const active = resolve(choice, userThemes)
     useTheme.setState({ active })
-    apply(active)
+    apply(active, true)
   })
   void useTheme.getState().reloadUserFiles()
   // Người dùng sửa file theme/styles.css ở editor khác rồi quay lại app

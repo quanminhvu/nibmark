@@ -30,6 +30,7 @@ contextBridge.exposeInMainWorld('nibmark', {
   },
   themes: {
     list: () => ipcRenderer.invoke('themes:list'),
+    setAppearance: (mode: 'light' | 'dark' | 'system') => ipcRenderer.send('themes:appearance', mode),
     openFolder: () => ipcRenderer.invoke('themes:openFolder'),
     getUserStyles: () => ipcRenderer.invoke('styles:get'),
     openUserStyles: () => ipcRenderer.invoke('styles:open')

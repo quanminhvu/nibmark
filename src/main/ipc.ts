@@ -1,4 +1,4 @@
-import { app, BrowserWindow, dialog, ipcMain, shell } from 'electron'
+import { app, BrowserWindow, dialog, ipcMain, nativeTheme, shell } from 'electron'
 import { existsSync, mkdirSync } from 'node:fs'
 import { dirname, join } from 'node:path'
 import { writeFile } from 'node:fs/promises'
@@ -119,6 +119,11 @@ export function registerIpc(): void {
 
   ipcMain.handle('app:openDataFolder', async () => (await shell.openPath(app.getPath('userData'))) || null)
   ipcMain.handle('themes:list', () => listUserThemes())
+  // Lớp trong mờ của macOS (vibrancy) theo giao diện hệ thống; đổi sang sáng/tối
+  // cho khớp theme đang dùng, nếu không sidebar sẽ sáng mà chữ lại sáng.
+  ipcMain.on('themes:appearance', (_e, mode: unknown) => {
+    if (mode === 'light' || mode === 'dark' || mode === 'system') nativeTheme.themeSource = mode
+  })
   ipcMain.handle('themes:openFolder', async () => (await shell.openPath(ensureThemesDir())) || null)
   ipcMain.handle('styles:get', () => readUserStyles())
   ipcMain.handle('styles:open', async () => (await shell.openPath(ensureStylesFile())) || null)
