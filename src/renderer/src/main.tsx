@@ -15,7 +15,12 @@ if (window.nibmark?.platform === 'darwin') document.documentElement.classList.ad
 // Gạch ngang task đã xong trong preview theo tùy chọn editor
 const syncStrike = (on: boolean): void => void document.documentElement.classList.toggle('strike-done', on)
 syncStrike(useEditorPrefs.getState().strikeDone)
-useEditorPrefs.subscribe((s) => syncStrike(s.strikeDone))
+const syncCodeLn = (on: boolean): void => void document.documentElement.classList.toggle('no-code-ln', !on)
+syncCodeLn(useEditorPrefs.getState().codeLineNumbers)
+useEditorPrefs.subscribe((s) => {
+  syncStrike(s.strikeDone)
+  syncCodeLn(s.codeLineNumbers)
+})
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>

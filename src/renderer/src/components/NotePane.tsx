@@ -190,6 +190,7 @@ export function NotePane(): React.JSX.Element {
               <KanbanBoard source={note.body} onChange={readOnly ? undefined : (body) => updateNote(note._id, { body })} />
             ) : (
               <Preview
+                findable
                 source={note.body}
                 onToggleTask={readOnly ? undefined : (index) => updateNote(note._id, { body: toggleTask(note.body, index) })}
               />

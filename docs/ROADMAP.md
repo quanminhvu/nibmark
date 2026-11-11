@@ -9,11 +9,11 @@ Ký hiệu: `[x]` đã xong · `[ ]` chưa làm · *(một phần: …)* đã l�
 | Giai đoạn | Số mục | Đã xong |
 |---|---|---|
 | 1. Ứng dụng desktop (đã phát hành tới 0.3) | 53 | 53 |
-| 2. Hoàn thiện trải nghiệm (đang làm) | 38 | 10 |
+| 2. Hoàn thiện trải nghiệm (đang làm) | 38 | 14 |
 | 3. Đồng bộ và bảo mật | 8 | 0 |
 | 4. Mobile, plugin và AI | 20 | 0 |
 | 5. Phát hành rộng và mô hình kinh doanh | 9 | 0 |
-| **Tổng** | **128** | **63** |
+| **Tổng** | **128** | **67** |
 
 ---
 
@@ -122,10 +122,10 @@ Làm được ngay, không phụ thuộc đồng bộ.
 
 ### Preview
 
-- [ ] Tô màu cú pháp cho nhiều ngôn ngữ hơn, icon ngôn ngữ, số dòng và tên file trên khối code
-- [ ] Tô màu Markdown bên trong khối ```markdown
-- [ ] Tìm kiếm trong preview (kể cả trong khối code)
-- [ ] Nhúng đoạn code từ GitHub qua link có dải dòng
+- [x] Tô màu cú pháp cho nhiều ngôn ngữ hơn, icon ngôn ngữ, số dòng và tên file trên khối code
+- [x] Tô màu Markdown bên trong khối ```markdown
+- [x] Tìm kiếm trong preview (kể cả trong khối code)
+- [x] Nhúng đoạn code từ GitHub qua link có dải dòng
 
 ### Tổ chức và điều hướng
 

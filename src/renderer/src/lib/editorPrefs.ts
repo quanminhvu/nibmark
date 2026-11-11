@@ -21,6 +21,8 @@ export interface EditorPrefs {
   strikeDone: boolean
   wrap: WrapMode
   pasteLink: PasteLink
+  /** Số dòng trong khối code ở preview */
+  codeLineNumbers: boolean
 }
 
 const KEY = 'nibmark:editor'
@@ -31,7 +33,8 @@ const defaults: EditorPrefs = {
   spellcheck: true,
   strikeDone: true,
   wrap: 'all',
-  pasteLink: 'title'
+  pasteLink: 'title',
+  codeLineNumbers: true
 }
 
 function read(): EditorPrefs {
@@ -62,7 +65,8 @@ useEditorPrefs.subscribe((s) => {
     spellcheck: s.spellcheck,
     strikeDone: s.strikeDone,
     wrap: s.wrap,
-    pasteLink: s.pasteLink
+    pasteLink: s.pasteLink,
+    codeLineNumbers: s.codeLineNumbers
   }
   try {
     localStorage.setItem(KEY, JSON.stringify(prefs))
