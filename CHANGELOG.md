@@ -6,26 +6,22 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
-### Fixed
-
-- Refined the note filter styling and kept it full-width when the sidebar is hidden on macOS
-
-- Long notebook/tag/status headings no longer cover sidebar and note-list toolbar buttons; full titles remain available on hover
-
-- Distraction-free mode now fills the available editor and preview width instead of leaving a large empty area on the right
+## [0.5.0] - 2026-11-11
 
 ### Added
 
-- Delete built-in and custom statuses from the sidebar; affected notes and templates move to No status without losing content
-
-- Redesigned status/tag editor with live preview, searchable icon grid and inline rename, including built-in statuses; duplicate names are rejected without changing note assignments
-
-- Choose colors and icons for built-in and custom statuses, and colors for tags, from sidebar context menus
-
-- Create custom statuses and tags from the sidebar; custom statuses are available across note actions, filters, imports, exports and backups
-
-- Draggable sidebar, note-list and editor/preview dividers with remembered widths, keyboard adjustment and double-click reset; available in normal and distraction-free modes
 - Bidirectional synchronized scrolling between the Markdown editor and preview in split view
+- Draggable sidebar, note-list and editor/preview dividers with remembered widths, keyboard adjustment and double-click reset
+- Create custom statuses and tags directly from the sidebar
+- Edit names, colors and icons for built-in and custom statuses; edit tag names and colors in a redesigned dialog with live preview and searchable icons
+- Delete built-in and custom statuses; affected notes and templates move to No status without losing content
+- Custom status support across filters, bulk actions, command palette, imports, exports and backup/restore
+
+### Fixed
+
+- Distraction-free editor and preview now fill the available width
+- Long collection headings no longer cover sidebar and note-list toolbar buttons; full titles are available on hover
+- Refined note filter styling and corrected its alignment when the sidebar is hidden on macOS
 
 ## [0.4.1] - 2026-11-11
 
