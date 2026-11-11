@@ -9,11 +9,11 @@ Ký hiệu: `[x]` đã xong · `[ ]` chưa làm · *(một phần: …)* đã l�
 | Giai đoạn | Số mục | Đã xong |
 |---|---|---|
 | 1. Ứng dụng desktop (đã phát hành tới 0.3) | 53 | 53 |
-| 2. Hoàn thiện trải nghiệm (đang làm) | 38 | 20 |
+| 2. Hoàn thiện trải nghiệm (đang làm) | 38 | 23 |
 | 3. Đồng bộ và bảo mật | 8 | 0 |
 | 4. Mobile, plugin và AI | 20 | 0 |
 | 5. Phát hành rộng và mô hình kinh doanh | 9 | 0 |
-| **Tổng** | **128** | **73** |
+| **Tổng** | **128** | **76** |
 
 ---
 
@@ -150,9 +150,9 @@ Làm được ngay, không phụ thuộc đồng bộ.
 
 ### Dữ liệu
 
-- [ ] Export ra HTML
-- [ ] Import từ Apple Notes
-- [ ] Import highlight từ Kindle (lần sau chỉ lấy highlight mới)
+- [x] Export ra HTML
+- [x] Import từ Apple Notes
+- [x] Import highlight từ Kindle (lần sau chỉ lấy highlight mới)
 
 ### Desktop
 

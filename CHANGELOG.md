@@ -30,6 +30,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 - Activity (chart button in the sidebar or “Show Activity” in the palette): notes, words and task totals, current and longest writing streak, and a year grid of notes created, notes edited and tasks completed. Edits and completed tasks are read from the version history kept on this computer
 - Template preview: `⌘T` shows each template's content (or board) next to the list before you pick it
 - Your templates can put new notes into a chosen notebook (Preferences → Templates)
+- Export a note as a single HTML file (File menu, `⌘J`, note list menu): images are embedded, Mermaid diagrams become SVG, code keeps its colors, and it follows light/dark mode when opened
+- Import from Apple Notes (macOS, File → Import from Apple Notes…): folders become notebooks and pictures become attachments. macOS asks for permission the first time; locked notes and Recently Deleted are skipped, and Apple Notes is not changed
+- Import Kindle highlights from `My Clippings.txt`: one note per book in “Kindle Highlights”, with page, location and date. Importing the file again only adds new highlights
 - Mist and Night themes: a clean white and light-gray look with a blue accent, and its dark counterpart. They are now the default when the theme follows macOS (Paper, Stone, Ink and Indigo are still available)
 
 ### Changed

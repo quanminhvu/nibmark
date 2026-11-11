@@ -19,6 +19,7 @@ contextBridge.exposeInMainWorld('nibmark', {
   },
   exporter: {
     note: (title: string, content: string, attachments: unknown[] = []) => ipcRenderer.invoke('export:note', title, content, attachments),
+    html: (title: string, html: string) => ipcRenderer.invoke('export:html', title, html),
     tree: (label: string, files: unknown[], attachments: unknown[] = []) => ipcRenderer.invoke('export:tree', label, files, attachments)
   },
   files: {
@@ -31,7 +32,9 @@ contextBridge.exposeInMainWorld('nibmark', {
   openDataFolder: () => ipcRenderer.invoke('app:openDataFolder'),
   openNoteWindow: (id: string) => ipcRenderer.send('window:openNote', id),
   importer: {
-    pick: () => ipcRenderer.invoke('import:pick')
+    pick: () => ipcRenderer.invoke('import:pick'),
+    appleNotes: () => ipcRenderer.invoke('import:appleNotes'),
+    kindlePick: () => ipcRenderer.invoke('import:kindlePick')
   },
   themes: {
     list: () => ipcRenderer.invoke('themes:list'),

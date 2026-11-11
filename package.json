@@ -103,7 +103,10 @@
         }
       ],
       "identity": "-",
-      "hardenedRuntime": false
+      "hardenedRuntime": false,
+      "extendInfo": {
+        "NSAppleEventsUsageDescription": "Nibmark reads your notes from Apple Notes only when you choose File → Import from Apple Notes."
+      }
     },
     "artifactName": "${productName}-${version}-${os}-${arch}.${ext}",
     "dmg": {

@@ -8,6 +8,7 @@ import { STATUSES } from '@/lib/types'
 import type { Note, SortKey } from '@/lib/types'
 import { cx, relativeTime, snippet } from '@/lib/util'
 import { openInNewWindow } from '@/lib/windowMode'
+import { exportNoteHtml } from '@/lib/exportHtml'
 import { exportNote } from '@/lib/actions'
 import { openHistory } from './HistoryPanel'
 import { copyId, copyNoteLink } from '@/lib/clipboard'
@@ -54,6 +55,7 @@ export function noteMenu(note: Note): MenuItem[] {
     { label: 'Duplicate', onClick: () => a.duplicateNote(note._id) },
     ...(window.nibmark ? [{ label: 'Open in New Window', onClick: () => openInNewWindow(note._id) }] : []),
     { label: 'Export as Markdown…', onClick: () => void exportNote(note._id) },
+    { label: 'Export as HTML…', onClick: () => void exportNoteHtml(note._id) },
     { label: 'Version History…', onClick: () => openHistory(note._id) },
     { label: 'Copy Link', onClick: () => copyNoteLink(note._id) },
     { label: 'Copy Note ID', onClick: () => copyId(note._id) },

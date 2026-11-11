@@ -3,7 +3,9 @@ import { useStore } from '@/lib/store'
 import { cx, isMac } from '@/lib/util'
 import { backupNow, exportNote, exportNotes, restoreFromBackup } from '@/lib/actions'
 import { flushBackup, startBackup } from '@/lib/backup'
-import { runImport } from '@/lib/importer'
+import { runAppleNotesImport, runImport } from '@/lib/importer'
+import { runKindleImport } from '@/lib/kindle'
+import { exportNoteHtml } from '@/lib/exportHtml'
 import { goBack, goForward } from '@/lib/navigation'
 import { startSwipeNavigation } from '@/lib/swipe'
 import { startHistory } from '@/lib/history'
@@ -85,6 +87,9 @@ export function App(): React.JSX.Element {
       else if (command === 'export-all') void exportNotes(null)
       else if (command === 'backup-now') void backupNow()
       else if (command === 'restore') void restoreFromBackup()
+      else if (command === 'import-apple-notes') void runAppleNotesImport()
+      else if (command === 'import-kindle') void runKindleImport()
+      else if (command === 'export-html') void exportNoteHtml()
       else if (command === 'back') goBack()
       else if (command === 'forward') goForward()
     })

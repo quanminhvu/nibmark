@@ -2,7 +2,7 @@ import { app, BrowserWindow, Menu } from 'electron'
 import type { MenuItemConstructorOptions } from 'electron'
 import { getMainWindow } from './windows'
 
-export type MenuCommand = 'preferences' | 'new-note' | 'import' | 'export-note' | 'export-all' | 'backup-now' | 'restore' | 'back' | 'forward'
+export type MenuCommand = 'preferences' | 'new-note' | 'import' | 'export-note' | 'export-all' | 'backup-now' | 'restore' | 'back' | 'forward' | 'import-apple-notes' | 'import-kindle' | 'export-html'
 
 const send = (command: MenuCommand) => (): void => {
   // Lệnh menu luôn chạy ở cửa sổ chính (cửa sổ ghi chú riêng không có danh sách ghi chú)
@@ -45,7 +45,11 @@ export function buildMenu(): void {
         { label: 'New Note', click: send('new-note') },
         { type: 'separator' },
         { label: 'Import…', click: send('import') },
+        ...(isMac ? ([{ label: 'Import from Apple Notes…', click: send('import-apple-notes') }] as MenuItemConstructorOptions[]) : []),
+        { label: 'Import Kindle Highlights…', click: send('import-kindle') },
+        { type: 'separator' },
         { label: 'Export Note as Markdown…', click: send('export-note') },
+        { label: 'Export Note as HTML…', click: send('export-html') },
         { label: 'Export All Notes as Markdown…', click: send('export-all') },
         { type: 'separator' },
         { label: 'Back Up Now', click: send('backup-now') },

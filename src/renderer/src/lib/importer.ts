@@ -299,7 +299,7 @@ function rewriteLinks(body: string, refs: Map<string, string>): string {
   return out
 }
 
-export async function importScan(scan: NibmarkImportScan, targetBookId: string | null): Promise<ImportReport> {
+export async function importScan(scan: NibmarkImportScan, targetBookId: string | null, rootLabel = 'Imported'): Promise<ImportReport> {
   const store = useStore.getState()
   const skipped = [...scan.skipped]
   let failed = 0
@@ -341,8 +341,8 @@ export async function importScan(scan: NibmarkImportScan, targetBookId: string |
   let rootId = targetBookId && store.books[targetBookId] ? targetBookId : null
   // Tên notebook gốc không trùng với notebook đã có ("Imported 2026-11-11 2"…)
   const taken = new Set(Object.values(store.books).filter((b) => !b.parentId).map((b) => b.name))
-  let notebookName = rootId ? store.books[rootId].name : `Imported ${today()}`
-  if (!rootId) for (let i = 2; taken.has(notebookName); i++) notebookName = `Imported ${today()} ${i}`
+  let notebookName = rootId ? store.books[rootId].name : `${rootLabel} ${today()}`
+  if (!rootId) for (let i = 2; taken.has(notebookName); i++) notebookName = `${rootLabel} ${today()} ${i}`
   if (!rootId) {
     rootId = newId('book')
     newBooks.push({ _id: rootId, type: 'book', name: notebookName, parentId: null, createdAt: now, updatedAt: now })
@@ -408,6 +408,42 @@ export async function importScan(scan: NibmarkImportScan, targetBookId: string |
 
   useStore.getState().select({ kind: 'book', id: rootId })
   return { notes: notes.length, notebooks: newBooks.length, attachments, failed, skipped, notebookName }
+}
+
+/** Import toàn bộ Apple Notes (macOS hỏi quyền ở lần đầu) vào notebook "Apple Notes <ngày>". */
+export async function runAppleNotesImport(): Promise<ImportReport | null> {
+  const bridge = window.nibmark
+  const s = useStore.getState()
+  if (!bridge) return null
+  if (
+    !window.confirm(
+      'Import all notes from Apple Notes?\n\nmacOS will ask whether Nibmark may control Notes. Locked notes and Recently Deleted are skipped. Your notes in Apple Notes are not changed.'
+    )
+  )
+    return null
+  s.showNotice('Reading Apple Notes… this can take a minute for a large library.')
+  const scan = await bridge.importer.appleNotes()
+  if ('error' in scan) {
+    s.showNotice(scan.error, 'error')
+    return null
+  }
+  if (!scan.docs.length) {
+    s.showNotice(scan.skipped.length ? `Nothing to import: ${scan.skipped.length} locked notes were skipped.` : 'No notes found in Apple Notes.', 'error')
+    return null
+  }
+  const report = await importScan(scan, null, 'Apple Notes')
+  notifyReport(report)
+  return report
+}
+
+function notifyReport(report: ImportReport): void {
+  const plural = (n: number, w: string): string => `${n} ${w}${n === 1 ? '' : 's'}`
+  let text = `Imported ${plural(report.notes, 'note')}`
+  if (report.attachments) text += ` and ${plural(report.attachments, 'attachment')}`
+  text += ` into “${report.notebookName}”.`
+  if (report.skipped.length) text += ` ${plural(report.skipped.length, 'item')} skipped (see the console for details).`
+  if (report.skipped.length) console.warn('Import skipped:', report.skipped)
+  useStore.getState().showNotice(text, report.failed ? 'error' : 'info')
 }
 
 /** Mở hộp thoại chọn file rồi import; báo kết quả bằng thông báo */
