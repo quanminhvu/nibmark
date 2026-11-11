@@ -76,7 +76,7 @@ On Windows and Linux, use `Ctrl` instead of `⌘`.
 
 ## Getting started
 
-Requirements: Node.js 20 or newer and npm.
+Requirements: Node.js 22 (see `.nvmrc`) and npm.
 
 ```bash
 npm install
@@ -90,8 +90,12 @@ Other scripts:
 | `npm run build` | Build main, preload and renderer into `out/` |
 | `npm run start` | Run the built app |
 | `npm run typecheck` | Type-check the whole project |
-| `npm run pack` | Build `dist/mac-arm64/Nibmark.app` (ad-hoc signed, for local use) |
-| `npm run dist` | Build distributable packages with electron-builder |
+| `npm run verify` | Typecheck, build and check that main/preload bundle all their dependencies |
+| `npm run pack` | Package an unpacked app into `dist/` (on macOS: `dist/mac-arm64/Nibmark.app`) |
+| `npm run test:smoke` | Launch the packaged app on a temporary profile and check that it starts |
+| `npm run dist` | Build installers: `.dmg`/`.zip` (macOS), `.exe` (Windows), `.AppImage` (Linux) |
+
+See [CONTRIBUTING.md](CONTRIBUTING.md) for the development workflow, CI and the release process.
 
 To run against a throwaway profile (useful when testing, so your real notes are never touched):
 
