@@ -3,6 +3,7 @@ export type NoteStatus = 'none' | 'active' | 'onHold' | 'completed' | 'dropped' 
 export interface CustomStatus {
   _id: `status:${string}`
   type: 'status'
+  order?: number
   deleted?: boolean
   icon?: string
   name: string
@@ -41,6 +42,7 @@ export interface Book {
 export interface Tag {
   _id: string // "tag:<id>"
   type: 'tag'
+  order?: number
   name: string
   color: string
   createdAt: number

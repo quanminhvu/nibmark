@@ -91,9 +91,9 @@ const defaultFence = md.renderer.rules.fence!
 md.renderer.rules.fence = (tokens, idx, options, env, self) => {
   const token = tokens[idx]
   if (token.info.trim().split(/\s+/)[0] === 'mermaid') {
-    return `<div class="mermaid-block"><pre class="mermaid-src">${escapeHtml(token.content)}</pre><div class="mermaid-out"></div></div>\n`
+    return `<div data-source-line="${token.map?.[0] ?? 0}" class="mermaid-block"><pre class="mermaid-src">${escapeHtml(token.content)}</pre><div class="mermaid-out"></div></div>\n`
   }
-  return defaultFence(tokens, idx, options, env, self)
+  return defaultFence(tokens, idx, options, env, self).replace(/<(pre|div)(?=[ >])/, `<$1 data-source-line="${token.map?.[0] ?? 0}"`)
 }
 
 // Link GitHub tới một dải dòng, đứng riêng một đoạn, được nhúng thành khối code.
@@ -109,6 +109,7 @@ md.core.ruler.push('github_embed', (state) => {
     if (!GITHUB_LINES.test(href) || kids[1].content.trim() !== href) continue
     const block = new state.Token('html_block', '', 0)
     const safe = escapeHtml(href)
+    block.map = t[i].map
     block.content = `<div class="gh-embed" data-src="${safe}"><a href="${safe}">${safe}</a></div>\n`
     t.splice(i, 3, block)
   }
@@ -139,6 +140,17 @@ export function fillGithubEmbeds(root: HTMLElement): void {
     })
   }
 }
+
+// Source line anchors for mapping preview blocks back to CodeMirror.
+md.core.ruler.push('source_lines', (state) => {
+  for (const token of state.tokens) {
+    if (!token.map || token.type === 'inline' || token.nesting < 0) continue
+    const line = token.map[0]
+    if (token.type === 'html_block') {
+      token.content = `<div data-source-line="${line}">${token.content}</div>`
+    } else token.attrSet('data-source-line', String(line))
+  }
+})
 
 export function renderMarkdown(source: string): string {
   return DOMPurify.sanitize(md.render(source), { ADD_ATTR: ['target'], ALLOWED_URI_REGEXP: ALLOWED_URI })
@@ -191,4 +203,25 @@ export function countTasks(source: string): { done: number; total: number } {
     if (m[2] !== ' ') done++
   }
   return { done, total }
+}
+
+/** Actual links only: fenced/inline code and comments do not create backlinks. */
+export function linkedNoteIds(source: string): Set<string> {
+  const ids = new Set<string>()
+  const add = (href: string): void => {
+    const match = /^nibmark:\/\/note\/([A-Za-z0-9_-]{1,64})(?:[/?#].*)?$/.exec(href)
+    if (match) ids.add(`note:${match[1]}`)
+  }
+  const walk = (tokens: ReturnType<typeof md.parse>): void => {
+    for (const token of tokens) {
+      if (token.type === 'link_open') add(String(token.attrGet('href') ?? ''))
+      if (token.type === 'html_block' || token.type === 'html_inline') {
+        const doc = new DOMParser().parseFromString(token.content, 'text/html')
+        doc.querySelectorAll('a[href]').forEach((a) => add(a.getAttribute('href') ?? ''))
+      }
+      if (token.children) walk(token.children)
+    }
+  }
+  walk(md.parse(source, {}))
+  return ids
 }
