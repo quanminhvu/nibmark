@@ -8,6 +8,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ### Added
 
+- Import notes from Markdown files and folders (Obsidian vaults, Notion exports including `.zip`, Bear TextBundles), HTML files and Evernote `.enex` exports, with their images and attachments. Folders become nested notebooks inside a new “Imported” notebook, or inside the notebook you right-click. Nibmark's own Markdown exports keep their tags, status, pin and dates
 - Copy a note link or a note, notebook or tag ID from context menus and the command palette
 - Color swatches next to `#hex`, `rgb()` and `hsl()` values in inline code
 - Preferences → Open Data Folder

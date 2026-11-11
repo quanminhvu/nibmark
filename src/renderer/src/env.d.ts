@@ -31,6 +31,20 @@ interface NibmarkSettings {
   lastBackupAt: number | null
 }
 
+interface NibmarkImportScan {
+  label: string
+  docs: {
+    folders: string[]
+    name: string
+    ext: string
+    text: string
+    created: number | null
+    modified: number | null
+    assets: Record<string, { name: string; mime: string; data: Uint8Array }>
+  }[]
+  skipped: { path: string; reason: string }[]
+}
+
 interface NibmarkShortcutStatus {
   accelerator: string
   registered: boolean
@@ -81,10 +95,22 @@ interface NibmarkBridge {
   ready(): void
   /** Mở thư mục dữ liệu của app; trả về thông báo lỗi hoặc null */
   openDataFolder(): Promise<string | null>
+  importer: {
+    /** null = người dùng hủy */
+    pick(): Promise<NibmarkImportScan | null>
+  }
   onMenu(callback: (command: string) => void): () => void
 }
 
 interface Window {
   /** Không có khi chạy giao diện ngoài Electron (ví dụ bản xem thử trên trình duyệt) */
   nibmark?: NibmarkBridge
+}
+
+declare module 'turndown-plugin-gfm' {
+  import type TurndownService from 'turndown'
+  export const gfm: TurndownService.Plugin
+  export const tables: TurndownService.Plugin
+  export const strikethrough: TurndownService.Plugin
+  export const taskListItems: TurndownService.Plugin
 }

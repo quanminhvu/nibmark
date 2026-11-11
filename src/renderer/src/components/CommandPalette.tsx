@@ -1,6 +1,7 @@
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import { FileText, Hash, Heading, LayoutTemplate, Notebook, Palette, Search, TerminalSquare } from 'lucide-react'
 import { backupNow, exportNote, exportNotes, restoreFromBackup } from '@/lib/actions'
+import { runImport } from '@/lib/importer'
 import { fuzzyMatch } from '@/lib/fuzzy'
 import { useStore } from '@/lib/store'
 import { allTemplates, applyTemplate } from '@/lib/templates'
@@ -82,6 +83,7 @@ function commandItems(): Item[] {
     cmd('split', 'Toggle Side-by-Side View', () => s.setViewMode(useStore.getState().viewMode === 'split' ? 'edit' : 'split'), `${mod()}P`, 'split'),
     cmd('focus', 'Toggle Distraction-Free Mode', () => s.toggleDistractionFree(), `${mod()}${shift()}D`, 'focus zen fullscreen'),
     cmd('prefs', 'Open Preferences', () => s.setPrefsOpen(true), `${mod()},`, 'settings options'),
+    cmd('import', 'Import Notes…', () => void runImport(), undefined, 'markdown html evernote enex notion bear obsidian'),
     cmd('export-all', 'Export All Notes as Markdown…', () => void exportNotes(null), undefined, 'save download'),
     cmd('backup', 'Back Up Now', () => void backupNow(), undefined, 'save'),
     cmd('restore', 'Restore from Backup…', () => void restoreFromBackup())

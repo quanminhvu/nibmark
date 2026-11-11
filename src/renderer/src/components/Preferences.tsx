@@ -8,6 +8,7 @@ import { BUILTIN_THEMES, useTheme } from '@/lib/theme'
 import type { ThemeInfo } from '@/lib/theme'
 import { cx } from '@/lib/util'
 import { relativeTime } from '@/lib/util'
+import { runImport } from '@/lib/importer'
 
 export function Preferences(): React.JSX.Element | null {
   const open = useStore((s) => s.prefsOpen)
@@ -135,6 +136,9 @@ export function Preferences(): React.JSX.Element | null {
                   }}
                 >
                   Open Data Folder
+                </button>
+                <button className="btn" onClick={() => void runImport()}>
+                  Import Notes…
                 </button>
               </div>
             </section>

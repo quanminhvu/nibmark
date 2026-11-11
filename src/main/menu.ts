@@ -1,7 +1,7 @@
 import { app, BrowserWindow, Menu } from 'electron'
 import type { MenuItemConstructorOptions } from 'electron'
 
-export type MenuCommand = 'preferences' | 'new-note' | 'export-note' | 'export-all' | 'backup-now' | 'restore'
+export type MenuCommand = 'preferences' | 'new-note' | 'import' | 'export-note' | 'export-all' | 'backup-now' | 'restore'
 
 const send = (command: MenuCommand) => (): void => {
   const win = BrowserWindow.getFocusedWindow() ?? BrowserWindow.getAllWindows()[0]
@@ -40,6 +40,7 @@ export function buildMenu(): void {
       submenu: [
         { label: 'New Note', click: send('new-note') },
         { type: 'separator' },
+        { label: 'Import…', click: send('import') },
         { label: 'Export Note as Markdown…', click: send('export-note') },
         { label: 'Export All Notes as Markdown…', click: send('export-all') },
         { type: 'separator' },

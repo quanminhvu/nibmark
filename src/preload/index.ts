@@ -25,6 +25,9 @@ contextBridge.exposeInMainWorld('nibmark', {
     open: (id: string, name: string, bytes: Uint8Array) => ipcRenderer.invoke('file:open', id, name, bytes)
   },
   openDataFolder: () => ipcRenderer.invoke('app:openDataFolder'),
+  importer: {
+    pick: () => ipcRenderer.invoke('import:pick')
+  },
   themes: {
     list: () => ipcRenderer.invoke('themes:list'),
     openFolder: () => ipcRenderer.invoke('themes:openFolder'),

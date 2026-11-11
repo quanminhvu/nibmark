@@ -7,6 +7,7 @@ import { freshDir, isAttachmentList, safeName, writeAttachments, writeTree } fro
 import type { ExportFile } from './exporter'
 import { backupDir, defaultBackupDir, getSettings, updateSettings } from './settings'
 import { ensureStylesFile, ensureThemesDir, listUserThemes, readUserStyles } from './themes'
+import { scanImport } from './importer'
 
 export interface SettingsView {
   backupEnabled: boolean
@@ -101,6 +102,19 @@ export function registerIpc(): void {
     })
     if (res.canceled || !res.filePaths[0]) return null
     return readBackup(res.filePaths[0])
+  })
+
+  // Import: main chỉ đọc những gì hộp thoại trả về
+  ipcMain.handle('import:pick', async (event) => {
+    const res = await dialog.showOpenDialog(win(event)!, {
+      title: 'Import Notes',
+      buttonLabel: 'Import',
+      message: 'Choose Markdown or HTML files, a folder (Obsidian, Notion, Bear export), a .zip export or an Evernote .enex file.',
+      properties: ['openFile', 'openDirectory', 'multiSelections'],
+      filters: [{ name: 'Notes', extensions: ['md', 'markdown', 'txt', 'html', 'htm', 'enex', 'zip', 'textbundle'] }]
+    })
+    if (res.canceled || !res.filePaths.length) return null
+    return scanImport(res.filePaths)
   })
 
   ipcMain.handle('app:openDataFolder', async () => (await shell.openPath(app.getPath('userData'))) || null)

@@ -3,6 +3,7 @@ import { useStore } from '@/lib/store'
 import { cx, isMac } from '@/lib/util'
 import { backupNow, exportNote, exportNotes, restoreFromBackup } from '@/lib/actions'
 import { flushBackup, startBackup } from '@/lib/backup'
+import { runImport } from '@/lib/importer'
 import { goBack, goForward } from '@/lib/navigation'
 import { startHistory } from '@/lib/history'
 import { HistoryPanel, isHistoryOpen } from './components/HistoryPanel'
@@ -61,6 +62,7 @@ export function App(): React.JSX.Element {
         s.createNote()
         setTimeout(() => document.querySelector<HTMLInputElement>('.note-title')?.focus(), 0)
       }
+      else if (command === 'import') void runImport()
       else if (command === 'export-note') void exportNote()
       else if (command === 'export-all') void exportNotes(null)
       else if (command === 'backup-now') void backupNow()

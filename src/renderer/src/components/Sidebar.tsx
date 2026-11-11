@@ -7,6 +7,7 @@ import type { Book, NoteStatus, Selection } from '@/lib/types'
 import { cx } from '@/lib/util'
 import { exportNotes } from '@/lib/actions'
 import { copyId } from '@/lib/clipboard'
+import { runImport } from '@/lib/importer'
 import { BookIcon, openIconPicker } from './BookIcon'
 import { openMenu } from './ContextMenu'
 import { StatusIcon } from './StatusIcon'
@@ -174,6 +175,7 @@ export function Sidebar(): React.JSX.Element {
       { label: 'Change Icon…', onClick: () => openIconPicker(book._id) },
       { label: 'Rename', onClick: () => setEditing({ kind: 'rename', id: book._id }) },
       ...(book.parentId ? [{ label: 'Move to Top Level', onClick: () => actions.moveBook(book._id, null) }] : []),
+      { label: 'Import into Notebook…', onClick: () => void runImport(book._id) },
       { label: 'Export as Markdown…', onClick: () => void exportNotes(book._id) },
       { label: 'Copy Notebook ID', onClick: () => copyId(book._id) },
       { separator: true },
