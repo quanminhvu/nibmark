@@ -24,6 +24,10 @@ contextBridge.exposeInMainWorld('nibmark', {
   files: {
     open: (id: string, name: string, bytes: Uint8Array) => ipcRenderer.invoke('file:open', id, name, bytes)
   },
+  web: {
+    title: (url: string) => ipcRenderer.invoke('web:title', url),
+    githubSnippet: (url: string) => ipcRenderer.invoke('web:githubSnippet', url)
+  },
   openDataFolder: () => ipcRenderer.invoke('app:openDataFolder'),
   importer: {
     pick: () => ipcRenderer.invoke('import:pick')

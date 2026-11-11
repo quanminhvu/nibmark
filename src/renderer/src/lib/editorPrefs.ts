@@ -9,6 +9,8 @@ import { create } from 'zustand'
  *       'none'  = không ngắt dòng nào
  */
 export type WrapMode = 'all' | 'prose' | 'none'
+/** Dán một URL: lấy tiêu đề trang làm chữ link, dùng chính URL làm chữ link, hoặc giữ nguyên URL */
+export type PasteLink = 'title' | 'url' | 'plain'
 
 export interface EditorPrefs {
   lineNumbers: boolean
@@ -18,6 +20,7 @@ export interface EditorPrefs {
   /** Gạch ngang task đã xong, trong editor và preview */
   strikeDone: boolean
   wrap: WrapMode
+  pasteLink: PasteLink
 }
 
 const KEY = 'nibmark:editor'
@@ -27,7 +30,8 @@ const defaults: EditorPrefs = {
   readableWidth: false,
   spellcheck: true,
   strikeDone: true,
-  wrap: 'all'
+  wrap: 'all',
+  pasteLink: 'title'
 }
 
 function read(): EditorPrefs {
@@ -35,6 +39,7 @@ function read(): EditorPrefs {
     const saved = JSON.parse(localStorage.getItem(KEY) ?? '{}') as Partial<EditorPrefs>
     const merged = { ...defaults, ...saved }
     if (!['all', 'prose', 'none'].includes(merged.wrap)) merged.wrap = 'all'
+    if (!['title', 'url', 'plain'].includes(merged.pasteLink)) merged.pasteLink = 'title'
     return merged
   } catch {
     return defaults
@@ -56,7 +61,8 @@ useEditorPrefs.subscribe((s) => {
     readableWidth: s.readableWidth,
     spellcheck: s.spellcheck,
     strikeDone: s.strikeDone,
-    wrap: s.wrap
+    wrap: s.wrap,
+    pasteLink: s.pasteLink
   }
   try {
     localStorage.setItem(KEY, JSON.stringify(prefs))

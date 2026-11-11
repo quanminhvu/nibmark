@@ -5,7 +5,7 @@ import { EditorView, keymap, drawSelection, highlightActiveLine, highlightActive
 import { defaultKeymap, history, historyKeymap, indentWithTab } from '@codemirror/commands'
 import { markdown, markdownLanguage, markdownKeymap } from '@codemirror/lang-markdown'
 import { languages } from '@codemirror/language-data'
-import { HighlightStyle, syntaxHighlighting, indentOnInput, bracketMatching, foldGutter, foldKeymap } from '@codemirror/language'
+import { HighlightStyle, syntaxHighlighting, syntaxTree, indentOnInput, bracketMatching, foldGutter, foldKeymap } from '@codemirror/language'
 import { autocompletion, closeBrackets, closeBracketsKeymap, completionKeymap } from '@codemirror/autocomplete'
 import { followNoteLink, NOTE_LINK_PREFIX, noteLinkCompletions } from '@/lib/noteLinks'
 import { emojiCompletions, fenceLanguageCompletions, slashCompletions } from '@/lib/completions'
@@ -15,6 +15,7 @@ import { extraSlashItems } from '@/lib/completions'
 import { setActiveEditor } from '@/lib/editorCommands'
 import { listRenumber } from '@/lib/listRenumber'
 import { tableToolbar } from '@/lib/tableTools'
+import { imageToolbar } from '@/lib/imageTools'
 import { alertBlocks, noWrapBlocks, strikeDoneTasks } from '@/lib/editorDecorations'
 import { useEditorPrefs } from '@/lib/editorPrefs'
 import type { EditorPrefs } from '@/lib/editorPrefs'
@@ -32,6 +33,40 @@ function spellExt(p: EditorPrefs): Extension {
 }
 function strikeExt(p: EditorPrefs): Extension {
   return p.strikeDone ? strikeDoneTasks : []
+}
+
+/** Dán một URL vào chỗ trống: biến thành link Markdown theo tùy chọn. */
+function pasteUrl(view: EditorView, url: string): boolean {
+  const mode = useEditorPrefs.getState().pasteLink
+  if (mode === 'plain') return false
+  const pos = view.state.selection.main.head
+  const before = view.state.sliceDoc(Math.max(0, pos - 2), pos)
+  // Đang trong cú pháp link/ảnh hay <…>, hoặc trong code: giữ nguyên URL
+  if (/\]\($|\($|<$|`$/.test(before) || inCodeAt(view, pos)) return false
+  const insert = mode === 'url' ? `[${url}](${url})` : url
+  view.dispatch({ changes: { from: pos, insert }, selection: { anchor: pos + insert.length }, userEvent: 'input.paste' })
+  if (mode === 'title' && window.nibmark) {
+    void window.nibmark.web.title(url).then((title) => {
+      // Chỉ thay khi URL vẫn còn nguyên ở chỗ vừa dán
+      if (!title || !view.dom.isConnected || view.state.sliceDoc(pos, pos + url.length) !== url) return
+      const label = title.replace(/([[\]\\])/g, '\\$1')
+      const link = `[${label}](${url})`
+      const head = view.state.selection.main.head
+      view.dispatch({
+        changes: { from: pos, to: pos + url.length, insert: link },
+        selection: head === pos + url.length ? { anchor: pos + link.length } : undefined,
+        userEvent: 'input.paste'
+      })
+    })
+  }
+  return true
+}
+
+function inCodeAt(view: EditorView, pos: number): boolean {
+  for (let node: ReturnType<ReturnType<typeof syntaxTree>['resolveInner']> | null = syntaxTree(view.state).resolveInner(pos, -1); node; node = node.parent) {
+    if (['FencedCode', 'CodeBlock', 'InlineCode', 'CodeText'].includes(node.name)) return true
+  }
+  return false
 }
 
 /** Chèn đoạn Markdown của file vào vị trí `pos` (sau khi lưu xong). */
@@ -138,6 +173,7 @@ export function MarkdownEditor({ value, readOnly = false, onChange }: Props): Re
           highlightActiveLine(),
           formatToolbar(),
           tableToolbar(),
+          imageToolbar(),
           highlightSelectionMatches(),
           search({ top: true }),
           prefConf.current.wrap.of(wrapExt(useEditorPrefs.getState())),
@@ -201,7 +237,8 @@ export function MarkdownEditor({ value, readOnly = false, onChange }: Props): Re
               }
               const text = event.clipboardData?.getData('text/plain').trim() ?? ''
               const { main } = view.state.selection
-              if (main.empty || view.state.selection.ranges.length > 1 || !/^https?:\/\/\S+$/.test(text)) return false
+              if (view.state.selection.ranges.length > 1 || !/^https?:\/\/\S+$/.test(text)) return false
+              if (main.empty) return pasteUrl(view, text)
               const selected = view.state.sliceDoc(main.from, main.to)
               if (selected.includes('\n') || /^https?:\/\//.test(selected.trim())) return false
               const insert = `[${selected}](${text})`

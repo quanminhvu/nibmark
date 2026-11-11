@@ -18,6 +18,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 - Alert button in the formatting toolbar; alert blocks are colored in the editor too
 - Note actions menu (`⌘J`): pin, duplicate, move to a notebook, add or remove tags, set status, copy link, export, history, save as template, trash
 - `⌘D` outside the editor duplicates the current note (inside the editor it still selects the next match)
+- Pasting a URL makes a Markdown link titled with the page's title (Preferences → Editor: title, URL as text, or paste as is). URLs pasted inside code or link syntax stay as they are
+- Image sizes: `![alt|small](…)`, `|half`, `|full` or `|320` for a width in pixels, plus a size bar when the cursor is on an image
 - Mist and Night themes: a clean white and light-gray look with a blue accent, and its dark counterpart. They are now the default when the theme follows macOS (Paper, Stone, Ink and Indigo are still available)
 
 ### Changed
