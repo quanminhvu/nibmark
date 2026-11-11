@@ -54,6 +54,8 @@ export interface State extends Prefs {
   books: Record<string, Book>
   statuses: Record<string, CustomStatus>
   ensureStatus: (name: string) => NoteStatus
+  setStatusAppearance: (id: NoteStatus, color: string, icon: string) => void
+  setTagColor: (id: string, color: string) => void
   tags: Record<string, Tag>
   templates: Record<string, Template>
   query: string
@@ -486,6 +488,24 @@ export const useStore = create<State>((set, get) => {
         }
       })
       for (const bid of ids) erase(bid)
+    },
+
+    setStatusAppearance: (id, color, icon) => {
+      if (id === 'none' || !/^#[0-9a-f]{6}$/i.test(color) || !/^[A-Z][A-Za-z0-9]{1,60}$/.test(icon)) return
+      const key = (id.startsWith('status:') ? id : `status:${id}`) as CustomStatus['_id']
+      const existing = get().statuses[key]
+      const builtin = STATUSES.find((s) => s.id === id)
+      if (!existing && !builtin) return
+      const now = Date.now()
+      const status: CustomStatus = { _id: key, type: 'status', name: existing?.name ?? builtin!.label,
+        createdAt: existing?.createdAt ?? now, updatedAt: now, color, icon }
+      set((s) => ({ statuses: { ...s.statuses, [key]: status } }))
+      persist(status)
+    },
+
+    setTagColor: (id, color) => {
+      const tag = get().tags[id]
+      if (tag && /^#[0-9a-f]{6}$/i.test(color)) putTag({ ...tag, color, updatedAt: Date.now() })
     },
 
     ensureStatus: (name) => {

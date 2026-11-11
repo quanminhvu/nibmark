@@ -1,3 +1,5 @@
+import { AppearancePicker } from './AppearancePicker'
+import type { AppearanceTarget } from './AppearancePicker'
 import { useMemo, useState } from 'react'
 import { openActivity } from './ActivityPanel'
 import { ChartNoAxesColumn, ChevronDown, ChevronRight, Files, LayoutTemplate, Plus, Search, Settings, Trash2, X } from 'lucide-react'
@@ -215,6 +217,7 @@ export function Sidebar(): React.JSX.Element {
   const tags = useStore((s) => s.tags)
   const collapsed = useStore((s) => s.collapsedBooks)
   const actions = useStore.getState()
+  const [appearance, setAppearance] = useState<AppearanceTarget | null>(null)
   const [editing, setEditing] = useState<Editing>(null)
   const [sections, setSections] = useState<Record<string, boolean>>(readCollapsedSections)
   const [bookFilter, setBookFilter] = useState<string | null>(null)
@@ -360,6 +363,7 @@ export function Sidebar(): React.JSX.Element {
 
   return (
     <aside className="sidebar">
+      {appearance && <AppearancePicker target={appearance} onClose={() => setAppearance(null)} />}
       <div className="titlebar-drag sidebar-top">
         <span className="flex-1" />
         <button className="icon-btn" title="Activity" onClick={openActivity}>
@@ -432,6 +436,11 @@ export function Sidebar(): React.JSX.Element {
             key={status.id}
             selection={{ kind: 'status', status: status.id }}
             icon={<StatusIcon status={status.id} size={15} />}
+            onContextMenu={(e) => openMenu(e, [{ label: 'Change Color and Icon…', onClick: () => setAppearance({
+              name: status.label, color: status.color ?? (({ active: '#80A4CD', onHold: '#F5A623', completed: '#2FB457', dropped: '#E5484D' } as Record<string, string>)[status.id] ?? '#2F6FE4'),
+              icon: status.icon ?? (({ active: 'Play', onHold: 'Pause', completed: 'Check', dropped: 'X' } as Record<string, string>)[status.id] ?? 'Circle'),
+              onSave: (color, icon) => actions.setStatusAppearance(status.id, color, icon)
+            }) }])}
             label={status.label}
             count={counts.byStatus.get(status.id) ?? 0}
             accept={[NOTE_MIME]}
@@ -482,6 +491,7 @@ export function Sidebar(): React.JSX.Element {
               onContextMenu={(e) =>
                 openMenu(e, [
                   { label: 'Rename', onClick: () => setEditing({ kind: 'renameTag', id: tag._id }) },
+                  { label: 'Change Color…', onClick: () => setAppearance({ name: tag.name, color: tag.color, onSave: (color) => actions.setTagColor(tag._id, color) }) },
                   { label: 'Copy Tag ID', onClick: () => copyId(tag._id) },
                   { separator: true },
                   {

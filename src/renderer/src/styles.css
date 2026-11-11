@@ -3343,3 +3343,32 @@ html.resizing-panes, html.resizing-panes * {
   cursor: col-resize !important;
   user-select: none !important;
 }
+
+.appearance-picker {
+  width: min(420px, calc(100vw - 32px));
+  padding: 24px;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  background: var(--surface-2);
+  color: var(--ink);
+  box-shadow: 0 16px 60px #0003;
+}
+.appearance-picker h3 { margin: 0 0 16px; }
+.appearance-picker label, .appearance-sample, .appearance-actions, .appearance-colors {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 14px 0;
+}
+.appearance-picker label input { margin-left: auto; min-width: 0; }
+.appearance-colors button { width: 26px; height: 26px; border: 2px solid transparent; border-radius: 50%; cursor: pointer; }
+.appearance-colors button[aria-pressed=true] { outline: 2px solid var(--ink); outline-offset: 2px; }
+.appearance-picker .icon-grid { max-height: 240px; overflow: auto; }
+.appearance-actions { justify-content: flex-end; margin-bottom: 0; }
+.status-icon.filled.custom-glyph svg { width: 68%; height: 68%; }
+.status-icon.filled.custom-glyph svg > * { stroke: var(--on-status); fill: none; }
+.appearance-picker .icon-grid button[aria-pressed=true] {
+  color: var(--syn-mark);
+  background: var(--selection-bg);
+  outline: 1px solid var(--syn-mark);
+}
