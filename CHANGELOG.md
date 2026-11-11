@@ -12,6 +12,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ### Added
 
+- Draggable sidebar, note-list and editor/preview dividers with remembered widths, keyboard adjustment and double-click reset; available in normal and distraction-free modes
 - Bidirectional synchronized scrolling between the Markdown editor and preview in split view
 
 ## [0.4.1] - 2026-11-11

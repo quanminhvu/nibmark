@@ -3292,3 +3292,54 @@ html.vibrant .app.distraction-free {
   width: 100%;
   box-sizing: border-box;
 }
+
+/* Pane boundaries remain draggable without adding columns to the layout. */
+.app {
+  position: relative;
+  --sidebar-width: clamp(160px, var(--sidebar-size, 228px), 28vw);
+  --list-width: clamp(200px, var(--list-size, 300px), 34vw);
+  grid-template-columns: var(--sidebar-width) var(--list-width) minmax(0, 1fr);
+}
+.app.sidebar-hidden {
+  --sidebar-width: 0px;
+  grid-template-columns: 0 var(--list-width) minmax(0, 1fr);
+}
+.app.distraction-free,
+.app.distraction-free.sidebar-hidden,
+.app.note-window {
+  grid-template-columns: minmax(0, 1fr);
+}
+.note-body { position: relative; }
+.note-body.mode-split {
+  grid-template-columns: minmax(0, var(--editor-split, 50%)) minmax(0, 1fr);
+}
+.sidebar, .notelist, .notepane, .note-editor, .note-preview { min-width: 0; }
+.pane-resizer {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 8px;
+  transform: translateX(-50%);
+  cursor: col-resize;
+  touch-action: none;
+  z-index: 20;
+  -webkit-app-region: no-drag;
+}
+.pane-resizer::after {
+  content: '';
+  position: absolute;
+  left: 3px;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+}
+.pane-resizer:hover::after, .pane-resizer:focus-visible::after {
+  background: var(--syn-mark);
+}
+.resize-sidebar { left: var(--sidebar-width); }
+.resize-notelist { left: calc(var(--sidebar-width) + var(--list-width)); }
+.resize-editor { left: var(--editor-split, 50%); }
+html.resizing-panes, html.resizing-panes * {
+  cursor: col-resize !important;
+  user-select: none !important;
+}

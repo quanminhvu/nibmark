@@ -1,3 +1,5 @@
+import type { CSSProperties } from 'react'
+import { ResizeHandle, usePaneSize } from './ResizeHandle'
 import { useEffect, useRef } from 'react'
 import { syncScroll } from '@/lib/scrollSync'
 import { ArrowLeft, ArrowRight, CircleDashed, Columns2, EllipsisVertical, Eye, LayoutTemplate, Maximize2, Minimize2, Pencil, Pin, RotateCcw, Trash2 } from 'lucide-react'
@@ -26,6 +28,7 @@ const VIEW_MODES: { mode: ViewMode; title: string; icon: React.ReactNode }[] = [
 
 
 export function NotePane(): React.JSX.Element {
+  const [split, setSplit] = usePaneSize('nibmark:editor-split', 50)
   const note = useStore((s) => (s.selectedNoteId ? s.notes[s.selectedNoteId] : undefined))
   const books = useStore((s) => s.books)
   const viewMode = useStore((s) => s.viewMode)
@@ -160,7 +163,7 @@ export function NotePane(): React.JSX.Element {
         </div>
       )}
 
-      <div ref={bodyRef} className={cx('note-body', `mode-${mode}`)}>
+      <div ref={bodyRef} style={{ '--editor-split': `${Math.max(20, Math.min(80, split))}%` } as CSSProperties} className={cx('note-body', `mode-${mode}`)}>
         {mode !== 'preview' && (
           <div className="note-editor">
             <MarkdownEditor key={note._id} value={note.body} onChange={(body) => {
@@ -170,6 +173,7 @@ export function NotePane(): React.JSX.Element {
             />
           </div>
         )}
+        {mode === 'split' && <ResizeHandle className="resize-editor" label="Editor width" value={split} min={20} max={80} reset={50} percent onChange={setSplit} />}
         {mode !== 'edit' && (
           <div className={cx('note-preview', kanban && 'is-kanban')}>
             {kanban ? (
