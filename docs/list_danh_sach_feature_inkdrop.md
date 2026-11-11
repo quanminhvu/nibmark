@@ -9,21 +9,21 @@
 
 | Nhóm | Số feature | Đã xong |
 |---|---|---|
-| 1. Editor | 20 | 5 |
-| 2. Preview / Rendering | 8 | 2 |
-| 3. Tổ chức ghi chú | 14 | 7 |
-| 4. Tìm kiếm & điều hướng | 6 | 3 |
+| 1. Editor | 20 | 12 |
+| 2. Preview / Rendering | 8 | 3 |
+| 3. Tổ chức ghi chú | 14 | 9 |
+| 4. Tìm kiếm & điều hướng | 6 | 4 |
 | 5. Template | 4 | 3 |
 | 6. AI & Agent | 7 | 0 |
 | 7. Sync, bảo mật, backup | 10 | 2 |
 | 8. Nhập, thu thập, chia sẻ | 9 | 0 |
-| 9. Phím tắt & tùy biến | 5 | 1 |
+| 9. Phím tắt & tùy biến | 5 | 2 |
 | 10. Theme | 4 | 4 |
 | 11. Plugin & developer | 6 | 0 |
 | 12. Desktop | 5 | 0 |
 | 13. Mobile | 9 | 0 |
 | 14. Tài khoản & thanh toán | 8 | 0 |
-| **Tổng** | **115** | **27** |
+| **Tổng** | **115** | **39** |
 
 ---
 
@@ -32,16 +32,16 @@
 - [x] GitHub Flavored Markdown: bảng (căn cột), task list, gạch ngang, footnote, sub/superscript, comment HTML ẩn
 - [x] 3 chế độ xem: chỉ editor / chỉ preview (Cmd+E) / song song (Cmd+P)
 - [x] Distraction Free Mode (Cmd+Shift+D)
-- [ ] Thanh công cụ nổi khi bôi đen (bold, italic, inline code, link, heading, list, task list, GitHub alert, highlight)
-- [ ] Slash command (`/`) trên dòng trống: heading, list, task list, code block, quote, hr, ảnh, alert, note link
+- [x] Thanh công cụ nổi khi bôi đen (bold, italic, inline code, link, heading, list, task list, GitHub alert, highlight) — chưa có nút GitHub alert
+- [x] Slash command (`/`) trên dòng trống: heading, list, task list, code block, quote, hr, ảnh, alert, note link
 - [x] Phím tắt định dạng (Cmd+B, Cmd+I); dán URL lên chữ đang chọn thì tạo thành link
-- [ ] Gợi ý ngôn ngữ cho code block khi gõ ```
-- [ ] Autocomplete emoji (`:` + 2 ký tự)
-- [ ] GitHub alerts (`[!NOTE]`, `[!TIP]`, `[!IMPORTANT]`, `[!WARNING]`, `[!CAUTION]`) có highlight và autocomplete
+- [x] Gợi ý ngôn ngữ cho code block khi gõ ```
+- [x] Autocomplete emoji (`:` + 2 ký tự)
+- [x] GitHub alerts (`[!NOTE]`, `[!TIP]`, `[!IMPORTANT]`, `[!WARNING]`, `[!CAUTION]`) có highlight và autocomplete — preview + slash command; chưa tô màu riêng trong editor
 - [x] Liên kết ghi chú bằng `[[`: tìm ghi chú, chèn link kèm preview, tạo ghi chú mới nếu chưa có
-- [ ] Reading highlight (bọc `<mark>`)
+- [x] Reading highlight (bọc `<mark>`) — qua thanh công cụ nổi
 - [ ] Dán link thông minh: chọn định dạng link, tự lấy tiêu đề trang ở nền
-- [ ] Ảnh: dán/kéo thả thành attachment; cú pháp kích thước `![w:320 h:240](...)`; thanh resize (Auto/Small/Half/Full)
+- [x] Ảnh: dán/kéo thả thành attachment; cú pháp kích thước `![w:320 h:240](...)`; thanh resize (Auto/Small/Half/Full) — dán/kéo thả ảnh và mọi loại file; chưa có cú pháp kích thước và thanh resize
 - [ ] Tự thụt lề list (Tab/Shift+Tab), tự đánh lại số thứ tự, màu marker cho list lồng nhau — một phần: tự nối list và thụt lề, chưa đánh lại số
 - [ ] Thanh công cụ chỉnh bảng: format, căn cột, thêm/xóa/di chuyển hàng và cột
 - [ ] 3 chế độ ngắt dòng: wrap tất cả / chỉ văn bản / Unwrap at Cursor (mặc định)
@@ -59,7 +59,7 @@
 - [ ] Ô màu cho mã hex / rgb() / hsl() trong backtick
 - [ ] Nhúng code từ GitHub qua link có dải dòng; kết nối GitHub để dùng repo private và hiện tiêu đề phong phú (repo, issue, PR, commit)
 - [ ] Tìm kiếm trong preview (kể cả trong code block)
-- [ ] Trình xem ảnh (double-click)
+- [x] Trình xem ảnh (double-click) — bấm một lần để xem ảnh lớn
 
 ## 3. Tổ chức ghi chú
 
@@ -71,10 +71,10 @@
 - [x] Tag không giới hạn, gợi ý khi gõ, cho phép emoji
 - [x] Status: Active / On Hold / Completed / Dropped, có lọc
 - [x] Ghim ghi chú lên đầu
-- [ ] Thao tác hàng loạt: di chuyển, gắn tag, đổi status, xóa nhiều ghi chú
+- [x] Thao tác hàng loạt: di chuyển, gắn tag, đổi status, xóa nhiều ghi chú
 - [x] Nhân bản ghi chú (Cmd+D) — có trong menu, chưa có phím tắt
 - [x] Thùng rác: khôi phục / xóa vĩnh viễn
-- [ ] Lịch sử phiên bản: lưu khi ngừng gõ, xem diff, khôi phục, hoàn tác khôi phục
+- [x] Lịch sử phiên bản: lưu khi ngừng gõ, xem diff, khôi phục, hoàn tác khôi phục
 - [ ] Tự gộp xung đột giữa thiết bị (title, notebook, status, tag); chỉ tạo bản sao khi sửa trùng dòng
 - [ ] Thống kê hoạt động 52 tuần (ghi chú tạo mới, task, streak hiện tại và dài nhất)
 
@@ -83,7 +83,7 @@
 - [x] Full-text search với bộ lọc `book:`, `tag:`, `status:`, `title:`, `body:`, `"cụm từ"`, `-loại trừ`, highlight kết quả
 - [x] Command palette "Telescope" (Cmd+K): fuzzy search lệnh, notebook, tag, theme, heading và to-do; plugin thêm được nguồn — có lệnh, ghi chú, notebook, tag, theme, heading; chưa có to-do và nguồn từ plugin
 - [x] Outline / mục lục ghi chú — qua command palette (gõ `:`)
-- [ ] Back/forward (phím, nút chuột phụ, vuốt trackpad)
+- [x] Back/forward (phím, nút chuột phụ, vuốt trackpad) — chưa có vuốt trackpad
 - [ ] Fuzzy matching ở menu notebook, menu tag, ô nhập tag
 - [ ] Mở ghi chú mới trong cửa sổ riêng (Cmd+Shift+N)
 
@@ -132,7 +132,7 @@
 ## 9. Phím tắt & tùy biến
 
 - [ ] Keymap tùy chỉnh theo ngữ cảnh (editor, note list, toàn app), hỗ trợ chuỗi nhiều phím
-- [ ] Phím tắt toàn cục: ẩn/hiện cửa sổ, quick note khi app chạy nền
+- [x] Phím tắt toàn cục: ẩn/hiện cửa sổ, quick note khi app chạy nền — có quick note, chưa có ẩn/hiện cửa sổ
 - [ ] Vim keybinding (cả relative line number)
 - [ ] Sublime Text keymap
 - [x] `init.js` (script khởi động qua API) và `styles.css` (CSS tùy chỉnh) — mới có styles.css, chưa có init.js

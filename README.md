@@ -22,12 +22,19 @@ Nibmark keeps your notes as plain Markdown, organized in nested notebooks, tags 
 - Mermaid diagrams (with a zoomable full-screen viewer) and KaTeX math (`$…$`, `$$…$$`)
 - Note links: type `[[` to link to another note, or create one on the fly
 - Paste a URL over selected text to turn it into a link
+- Slash commands (`/`) for headings, lists, tasks, code, tables, diagrams, math, alerts, links and files
+- A floating toolbar on selected text, emoji (`:smile`) and code-language suggestions
+- GitHub alerts (`> [!NOTE]`, `[!TIP]`, `[!WARNING]`…) in the preview
+- Paste or drop images and files (PDFs, archives, anything up to 100 MB) straight into a note
 - Click a checkbox in the preview to tick the task in the source
 
 **Organizing**
 
 - Nested notebooks, tags, and statuses (Active, On Hold, Completed, Dropped)
 - Pin, duplicate, trash and restore notes; drag notes onto notebooks, statuses, tags or the Trash
+- Select several notes (`⌘`-click, `⇧`-click, `⌘A`) to move, tag, set status, pin or trash them together
+- Version history with a line diff and one-click restore
+- Back and forward between notes, like a browser
 - Search with qualifiers: `book:` `tag:` `status:` `title:` `body:` `"exact phrase"` `-exclude`
 - Templates with `{{date}}`, `{{time}}` and `{{weekday}}` placeholders, plus five built-in templates
 
@@ -36,6 +43,7 @@ Nibmark keeps your notes as plain Markdown, organized in nested notebooks, tags 
 - Local-first storage in PouchDB (IndexedDB), ready for CouchDB sync
 - Continuous JSON backup to a folder of your choice; backups never delete files
 - Restore from a backup folder (merge: newer notes in the app are never overwritten)
+- Attachments are backed up as their original files and exported to an `attachments/` folder
 - Export a note, a notebook or everything as Markdown files with YAML front matter
 
 **Make it yours**
@@ -55,6 +63,8 @@ Nibmark keeps your notes as plain Markdown, organized in nested notebooks, tags 
 | `⌘P` | Toggle side-by-side view |
 | `⌘⇧D` | Distraction-free mode |
 | `⌘⇧F` | Search notes |
+| `⌘⌥N` | Quick Note from anywhere (global, configurable) |
+| `⌘⌥←` / `⌘⌥→` | Back / forward between notes |
 | `⌘,` | Preferences |
 | `⌘B` / `⌘I` | Bold / italic |
 | `⌘`-click | Follow a note link in the editor |
@@ -92,7 +102,7 @@ Everything is stored in the app's user data folder (`~/Library/Application Suppo
 
 | Path | Contents |
 | --- | --- |
-| `IndexedDB/` | The note database |
+| `IndexedDB/` | The note database, attachments and version history |
 | `Backups/` | Default continuous backup folder (change it in Preferences) |
 | `themes/*.css` | Your own themes |
 | `styles.css` | Your personal CSS overrides |
@@ -147,7 +157,8 @@ docs/                     Feature checklist and notes
 
 - [x] **Phase 1 — Desktop app:** editor, notebooks, tags, statuses, search, backup, export
 - [x] Themes, command palette, templates, note links, Mermaid and math
-- [ ] **Phase 2 — Sync and security:** CouchDB sync, end-to-end encryption, image attachments, revision history
+- [x] Attachments, version history, slash commands, bulk actions, quick note
+- [ ] **Phase 2 — Sync and security:** CouchDB sync, end-to-end encryption
 - [ ] **Phase 3 — Mobile and extensibility:** iOS and Android apps, plugin system
 - [ ] **Phase 4 — Distribution:** signed builds, accounts
 
