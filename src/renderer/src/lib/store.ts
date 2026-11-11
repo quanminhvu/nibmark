@@ -53,6 +53,9 @@ export interface State extends Prefs {
   query: string
   distractionFree: boolean
   prefsOpen: boolean
+  /** Các ghi chú đang được chọn cùng lúc (rỗng hoặc 1 phần tử = chọn một) */
+  multi: string[]
+  setMulti: (ids: string[]) => void
   /** Command palette đang mở ở chế độ nào */
   palette: 'commands' | 'templates' | null
   notice: { text: string; tone: 'info' | 'error'; id: number } | null
@@ -198,6 +201,8 @@ export const useStore = create<State>((set, get) => {
     distractionFree: false,
     prefsOpen: false,
     palette: null,
+    multi: [],
+    setMulti: (multi) => set({ multi }),
     notice: null,
 
     init: async () => {
@@ -251,9 +256,9 @@ export const useStore = create<State>((set, get) => {
       for (const id of [...saveTimers.keys()]) saveNoteNow(id)
     },
 
-    select: (selection) => set({ selection, query: '' }),
+    select: (selection) => set({ selection, query: '', multi: [] }),
     selectNote: (id) => set({ selectedNoteId: id }),
-    setQuery: (query) => set({ query }),
+    setQuery: (query) => set({ query, multi: [] }),
     setSort: (sort) => set({ sort }),
     setViewMode: (viewMode) => set({ viewMode }),
     toggleDistractionFree: () => set((s) => ({ distractionFree: !s.distractionFree })),

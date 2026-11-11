@@ -1729,3 +1729,76 @@ mark {
   opacity: 0.3;
   pointer-events: none;
 }
+
+/* ───────── Chọn nhiều ghi chú ───────── */
+.notepane.bulk {
+  align-items: center;
+}
+.bulk-card {
+  width: min(460px, calc(100% - 48px));
+  margin-top: 12vh;
+  padding: 18px 20px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--surface);
+}
+.bulk-head {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 14px;
+  color: var(--accent);
+}
+.bulk-head h2 {
+  margin: 0;
+  font-size: 15px;
+  color: var(--ink);
+}
+.bulk-head p {
+  margin: 2px 0 0;
+  font-size: 12px;
+  color: var(--ink-3);
+}
+.bulk-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 0;
+  border-top: 1px solid var(--line);
+}
+.bulk-row > span {
+  width: 64px;
+  flex: none;
+  color: var(--ink-2);
+  font-size: 12px;
+}
+.bulk-row select,
+.bulk-row input {
+  flex: 1;
+  min-width: 0;
+  height: 28px;
+  padding: 0 8px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: var(--surface-2);
+  user-select: text;
+}
+.bulk-row input:focus,
+.bulk-row select:focus {
+  border-color: var(--accent);
+}
+.bulk-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding-top: 12px;
+  border-top: 1px solid var(--line);
+}
+.bulk-actions .btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.btn.danger {
+  color: var(--accent);
+}

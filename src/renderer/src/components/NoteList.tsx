@@ -11,6 +11,7 @@ import { exportNote } from '@/lib/actions'
 import { openMenu } from './ContextMenu'
 import type { MenuItem } from './ContextMenu'
 import { NOTE_MIME } from './Sidebar'
+import { bulkMenu } from './BulkPanel'
 import { StatusIcon } from './StatusIcon'
 
 const SORTS: { key: SortKey; label: string }[] = [
@@ -79,10 +80,47 @@ export function NoteList({ searchRef }: { searchRef: React.RefObject<HTMLInputEl
   )
   const words = useMemo(() => highlightWords(parseQuery(query)), [query])
 
+  const multi = useStore((s) => s.multi)
+  const multiSet = useMemo(() => new Set(multi), [multi])
+
   // Luôn có một ghi chú được chọn nếu danh sách không rỗng
   useEffect(() => {
     if (!list.some((n) => n._id === selectedNoteId)) selectNote(list[0]?._id ?? null)
   }, [list, selectedNoteId, selectNote])
+
+  // Bỏ khỏi vùng chọn những ghi chú không còn trong danh sách (ví dụ vừa chuyển vào thùng rác)
+  useEffect(() => {
+    if (!multi.length) return
+    const visible = new Set(list.map((n) => n._id))
+    const kept = multi.filter((id) => visible.has(id))
+    if (kept.length !== multi.length) useStore.getState().setMulti(kept.length > 1 ? kept : [])
+  }, [list, multi])
+
+  const clickNote = (e: React.MouseEvent, id: string): void => {
+    const s = useStore.getState()
+    if (e.metaKey || e.ctrlKey) {
+      // Cmd/Ctrl+click: thêm hoặc bỏ một ghi chú khỏi vùng chọn
+      const base = s.multi.length ? s.multi : s.selectedNoteId ? [s.selectedNoteId] : []
+      const next = base.includes(id) ? base.filter((x) => x !== id) : [...base, id]
+      s.setMulti(next.length > 1 ? next : [])
+      if (next.length === 1) selectNote(next[0])
+      else if (!next.includes(s.selectedNoteId ?? '')) selectNote(next[next.length - 1] ?? null)
+      return
+    }
+    if (e.shiftKey && s.selectedNoteId) {
+      // Shift+click: chọn một dải liền nhau
+      const a = list.findIndex((n) => n._id === s.selectedNoteId)
+      const b = list.findIndex((n) => n._id === id)
+      if (a >= 0 && b >= 0) {
+        const [from, to] = a < b ? [a, b] : [b, a]
+        const range = list.slice(from, to + 1).map((n) => n._id)
+        s.setMulti(range.length > 1 ? range : [])
+        return
+      }
+    }
+    s.setMulti([])
+    selectNote(id)
+  }
 
   useEffect(() => {
     listRef.current?.querySelector('.note-item.selected')?.scrollIntoView({ block: 'nearest' })
@@ -100,7 +138,18 @@ export function NoteList({ searchRef }: { searchRef: React.RefObject<HTMLInputEl
             : (STATUSES.find((s) => s.id === selection.status)?.label ?? '')
 
   const onKeyDown = (e: React.KeyboardEvent): void => {
+    if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'a') {
+      e.preventDefault()
+      useStore.getState().setMulti(list.length > 1 ? list.map((n) => n._id) : [])
+      return
+    }
+    if (e.key === 'Escape' && multi.length) {
+      e.preventDefault()
+      useStore.getState().setMulti([])
+      return
+    }
     if (e.key !== 'ArrowDown' && e.key !== 'ArrowUp') return
+    useStore.getState().setMulti([])
     e.preventDefault()
     const index = list.findIndex((n) => n._id === selectedNoteId)
     const next = list[Math.max(0, Math.min(list.length - 1, index + (e.key === 'ArrowDown' ? 1 : -1)))]
@@ -179,14 +228,23 @@ export function NoteList({ searchRef }: { searchRef: React.RefObject<HTMLInputEl
           return (
             <div
               key={note._id}
-              className={cx('note-item', note._id === selectedNoteId && 'selected')}
+              className={cx(
+                'note-item',
+                (multi.length > 1 ? multiSet.has(note._id) : note._id === selectedNoteId) && 'selected'
+              )}
               draggable
               onDragStart={(e) => {
-                e.dataTransfer.setData(NOTE_MIME, note._id)
+                const ids = multiSet.has(note._id) && multi.length > 1 ? multi : [note._id]
+                e.dataTransfer.setData(NOTE_MIME, JSON.stringify(ids))
                 e.dataTransfer.effectAllowed = 'move'
               }}
-              onClick={() => selectNote(note._id)}
+              onClick={(e) => clickNote(e, note._id)}
               onContextMenu={(e) => {
+                if (multi.length > 1 && multiSet.has(note._id)) {
+                  openMenu(e, bulkMenu(multi))
+                  return
+                }
+                useStore.getState().setMulti([])
                 selectNote(note._id)
                 openMenu(e, noteMenu(note))
               }}

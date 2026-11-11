@@ -7,6 +7,7 @@ import { STATUSES } from '@/lib/types'
 import type { Book, NoteStatus, ViewMode } from '@/lib/types'
 import { cx, isMac, relativeTime } from '@/lib/util'
 import { goBack, goForward, useNav } from '@/lib/navigation'
+import { BulkPanel } from './BulkPanel'
 import { openMenu } from './ContextMenu'
 import { MarkdownEditor } from './MarkdownEditor'
 import { noteMenu } from './NoteList'
@@ -40,6 +41,9 @@ export function NotePane(): React.JSX.Element {
   const distractionFree = useStore((s) => s.distractionFree)
   const { updateNote, setViewMode, toggleDistractionFree, restoreNote, deleteNoteForever } = useStore.getState()
   const bookOptions = useMemo(() => flattenBooks(books), [books])
+  const multiCount = useStore((s) => s.multi.length)
+
+  if (multiCount > 1) return <BulkPanel />
 
   if (!note) {
     return (

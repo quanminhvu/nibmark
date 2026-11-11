@@ -10,6 +10,17 @@ import { openMenu } from './ContextMenu'
 import { StatusIcon } from './StatusIcon'
 
 export const NOTE_MIME = 'application/x-nibmark-note'
+
+/** Dữ liệu kéo thả ghi chú là một mảng JSON các id (kéo một hoặc nhiều ghi chú) */
+export function noteIdsFromDrag(data: string): string[] {
+  try {
+    const parsed: unknown = JSON.parse(data)
+    if (Array.isArray(parsed)) return parsed.filter((x): x is string => typeof x === 'string')
+  } catch {
+    // dữ liệu cũ: chỉ một id
+  }
+  return data ? [data] : []
+}
 const BOOK_MIME = 'application/x-nibmark-book'
 
 type Editing = { kind: 'new'; parentId: string | null } | { kind: 'rename'; id: string } | { kind: 'renameTag'; id: string } | null
@@ -130,8 +141,8 @@ export function Sidebar(): React.JSX.Element {
     return { byBook, byStatus, byTag, all, trash }
   }, [notes])
 
-  const moveNoteTo = (noteId: string, patch: Parameters<typeof actions.updateNote>[1]): void => {
-    actions.updateNote(noteId, { trashed: false, ...patch })
+  const moveNoteTo = (data: string, patch: Parameters<typeof actions.updateNote>[1]): void => {
+    for (const id of noteIdsFromDrag(data)) actions.updateNote(id, { trashed: false, ...patch })
   }
 
   const bookMenu = (book: Book) => (e: React.MouseEvent) =>
@@ -296,9 +307,11 @@ export function Sidebar(): React.JSX.Element {
               label={tag.name}
               count={counts.byTag.get(tag._id) ?? 0}
               accept={[NOTE_MIME]}
-              onDropItem={(_type, id) => {
-                const note = useStore.getState().notes[id]
-                if (note && !note.tags.includes(tag._id)) actions.updateNote(id, { tags: [...note.tags, tag._id] })
+              onDropItem={(_type, data) => {
+                for (const id of noteIdsFromDrag(data)) {
+                  const note = useStore.getState().notes[id]
+                  if (note && !note.tags.includes(tag._id)) actions.updateNote(id, { tags: [...note.tags, tag._id] })
+                }
               }}
               onContextMenu={(e) =>
                 openMenu(e, [
@@ -324,7 +337,7 @@ export function Sidebar(): React.JSX.Element {
           label="Trash"
           count={counts.trash}
           accept={[NOTE_MIME]}
-          onDropItem={(_type, id) => actions.trashNote(id)}
+          onDropItem={(_type, data) => noteIdsFromDrag(data).forEach((id) => actions.trashNote(id))}
           onContextMenu={(e) =>
             openMenu(e, [
               {
