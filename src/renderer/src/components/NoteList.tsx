@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef } from 'react'
-import { ArrowUpDown, ListChecks, ListFilter, PanelLeft, Pin, SquarePen, X } from 'lucide-react'
+import { ArrowUpDown, CircleDashed, ListChecks, ListFilter, PanelLeft, Pin, SquarePen, X } from 'lucide-react'
 import { useStore } from '@/lib/store'
 import { visibleNotes } from '@/lib/selectors'
 import { highlightWords, parseQuery } from '@/lib/search'
@@ -60,9 +60,10 @@ export function noteMenu(note: Note): MenuItem[] {
     { label: 'Copy Link', onClick: () => copyNoteLink(note._id) },
     { label: 'Copy Note ID', onClick: () => copyId(note._id) },
     { separator: true },
-    { label: 'No Status', checked: note.status === 'none', onClick: () => a.updateNote(note._id, { status: 'none' }) },
+    { label: 'No Status', icon: <CircleDashed size={14} className="status-none" />, checked: note.status === 'none', onClick: () => a.updateNote(note._id, { status: 'none' }) },
     ...getStatuses().map((s) => ({
       label: s.label,
+      icon: <StatusIcon status={s.id} size={14} />,
       checked: note.status === s.id,
       onClick: () => a.updateNote(note._id, { status: s.id })
     })),

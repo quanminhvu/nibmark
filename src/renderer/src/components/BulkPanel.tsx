@@ -1,7 +1,8 @@
 import { useState } from 'react'
-import { Files, Pin, RotateCcw, Trash2, X } from 'lucide-react'
+import { CircleDashed, Files, Pin, RotateCcw, Trash2, X } from 'lucide-react'
 import { useStore } from '@/lib/store'
 import { NotebookPicker } from './NotebookPicker'
+import { StatusIcon } from './StatusIcon'
 import { StatusPicker } from './StatusPicker'
 import { getStatuses } from '@/lib/statuses'
 import type { MenuItem } from './ContextMenu'
@@ -44,9 +45,10 @@ export function bulkMenu(ids: string[]): MenuItem[] {
   return [
     ...getStatuses().map((st) => ({
       label: `Set Status: ${st.label}`,
+      icon: <StatusIcon status={st.id} size={14} />,
       onClick: () => ids.forEach((id) => s.updateNote(id, { status: st.id }))
     })),
-    { label: 'Clear Status', onClick: () => ids.forEach((id) => s.updateNote(id, { status: 'none' })) },
+    { label: 'Clear Status', icon: <CircleDashed size={14} className="status-none" />, onClick: () => ids.forEach((id) => s.updateNote(id, { status: 'none' })) },
     { separator: true },
     { label: `Move ${plural(ids.length)} to Trash`, danger: true, onClick: () => trashMany(ids) }
   ]
