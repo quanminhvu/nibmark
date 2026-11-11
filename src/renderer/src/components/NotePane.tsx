@@ -5,7 +5,7 @@ import { syncScroll } from '@/lib/scrollSync'
 import { ArrowLeft, ArrowRight, CircleDashed, Columns2, EllipsisVertical, Eye, LayoutTemplate, Maximize2, Minimize2, Pencil, Pin, RotateCcw, Trash2 } from 'lucide-react'
 import { useStore } from '@/lib/store'
 import { toggleTask } from '@/lib/markdown'
-import { STATUSES } from '@/lib/types'
+import { getStatuses } from '@/lib/statuses'
 import type { NoteStatus, ViewMode } from '@/lib/types'
 import { cx, isMac, relativeTime } from '@/lib/util'
 import { goBack, goForward, useNav } from '@/lib/navigation'
@@ -29,6 +29,7 @@ const VIEW_MODES: { mode: ViewMode; title: string; icon: React.ReactNode }[] = [
 
 export function NotePane(): React.JSX.Element {
   const [split, setSplit] = usePaneSize('nibmark:editor-split', 50)
+  useStore((s) => s.statuses)
   const note = useStore((s) => (s.selectedNoteId ? s.notes[s.selectedNoteId] : undefined))
   const books = useStore((s) => s.books)
   const viewMode = useStore((s) => s.viewMode)
@@ -140,7 +141,7 @@ export function NotePane(): React.JSX.Element {
             {note.status === 'none' ? <CircleDashed size={15} className="status-none" /> : <StatusIcon status={note.status} size={15} />}
             <select value={note.status} onChange={(e) => updateNote(note._id, { status: e.target.value as NoteStatus })}>
               <option value="none">No status</option>
-              {STATUSES.map((s) => (
+              {getStatuses().map((s) => (
                 <option key={s.id} value={s.id}>
                   {s.label}
                 </option>

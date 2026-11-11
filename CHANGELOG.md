@@ -12,6 +12,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ### Added
 
+- Create custom statuses and tags from the sidebar; custom statuses are available across note actions, filters, imports, exports and backups
+
 - Draggable sidebar, note-list and editor/preview dividers with remembered widths, keyboard adjustment and double-click reset; available in normal and distraction-free modes
 - Bidirectional synchronized scrolling between the Markdown editor and preview in split view
 

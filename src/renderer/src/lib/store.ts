@@ -1,8 +1,8 @@
 import { create } from 'zustand'
 import { loadAll, putDoc, removeDoc, watchChanges } from './db'
-import { TAG_COLORS } from './types'
+import { STATUSES, TAG_COLORS } from './types'
 import { childrenByParent, visibleNotes } from './selectors'
-import type { AnyDoc, Book, Note, NoteStatus, Selection, SortKey, Tag, Template, ViewMode } from './types'
+import type { AnyDoc, CustomStatus, Book, Note, NoteStatus, Selection, SortKey, Tag, Template, ViewMode } from './types'
 import { WELCOME_BODY, WELCOME_TITLE } from './welcome'
 import { noteWindowId } from './windowMode'
 
@@ -52,6 +52,8 @@ export interface State extends Prefs {
   ready: boolean
   notes: Record<string, Note>
   books: Record<string, Book>
+  statuses: Record<string, CustomStatus>
+  ensureStatus: (name: string) => NoteStatus
   tags: Record<string, Tag>
   templates: Record<string, Template>
   query: string
@@ -182,6 +184,8 @@ export const useStore = create<State>((set, get) => {
         ? 'books'
         : id.startsWith('tag:')
           ? 'tags'
+          : id.startsWith('status:')
+            ? 'statuses'
           : id.startsWith('template:')
             ? 'templates'
             : null
@@ -206,6 +210,7 @@ export const useStore = create<State>((set, get) => {
     notes: {},
     books: {},
     tags: {},
+    statuses: {},
     templates: {},
     query: '',
     distractionFree: false,
@@ -219,15 +224,17 @@ export const useStore = create<State>((set, get) => {
       const docs = await loadAll()
       const notes: Record<string, Note> = {}
       const books: Record<string, Book> = {}
+      const statuses: Record<string, CustomStatus> = {}
       const tags: Record<string, Tag> = {}
       const templates: Record<string, Template> = {}
       for (const doc of docs) {
         if (doc.type === 'note') notes[doc._id] = doc
         else if (doc.type === 'book') books[doc._id] = doc
+        else if (doc.type === 'status') statuses[doc._id] = doc
         else if (doc.type === 'tag') tags[doc._id] = doc
         else if (doc.type === 'template') templates[doc._id] = doc
       }
-      set({ notes, books, tags, templates })
+      set({ notes, books, tags, templates, statuses })
 
       if (docs.length === 0) {
         const bookId = get().createBook('Inbox', null)
@@ -479,6 +486,23 @@ export const useStore = create<State>((set, get) => {
         }
       })
       for (const bid of ids) erase(bid)
+    },
+
+    ensureStatus: (name) => {
+      const trimmed = name.trim()
+      if (!trimmed) return 'none'
+      const builtin = STATUSES.find((s) => s.label.toLowerCase() === trimmed.toLowerCase())
+      if (builtin) return builtin.id
+      const existing = Object.values(get().statuses).find((s) => s.name.toLowerCase() === trimmed.toLowerCase())
+      if (existing) return existing._id
+      const now = Date.now()
+      const status: CustomStatus = {
+        _id: newId('status') as CustomStatus['_id'], type: 'status', name: trimmed,
+        color: TAG_COLORS[Object.keys(get().statuses).length % TAG_COLORS.length], createdAt: now, updatedAt: now
+      }
+      set((s) => ({ statuses: { ...s.statuses, [status._id]: status } }))
+      persist(status)
+      return status._id
     },
 
     ensureTag: (name) => {

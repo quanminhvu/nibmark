@@ -4,7 +4,7 @@ import { useStore } from '@/lib/store'
 import { visibleNotes } from '@/lib/selectors'
 import { highlightWords, parseQuery } from '@/lib/search'
 import { countTasks } from '@/lib/markdown'
-import { STATUSES } from '@/lib/types'
+import { getStatuses } from '@/lib/statuses'
 import type { Note, SortKey } from '@/lib/types'
 import { cx, relativeTime, snippet } from '@/lib/util'
 import { openInNewWindow } from '@/lib/windowMode'
@@ -61,7 +61,7 @@ export function noteMenu(note: Note): MenuItem[] {
     { label: 'Copy Note ID', onClick: () => copyId(note._id) },
     { separator: true },
     { label: 'No Status', checked: note.status === 'none', onClick: () => a.updateNote(note._id, { status: 'none' }) },
-    ...STATUSES.map((s) => ({
+    ...getStatuses().map((s) => ({
       label: s.label,
       checked: note.status === s.id,
       onClick: () => a.updateNote(note._id, { status: s.id })
@@ -72,6 +72,7 @@ export function noteMenu(note: Note): MenuItem[] {
 }
 
 export function NoteList({ searchRef }: { searchRef: React.RefObject<HTMLInputElement | null> }): React.JSX.Element {
+  useStore((s) => s.statuses)
   const notes = useStore((s) => s.notes)
   const books = useStore((s) => s.books)
   const tags = useStore((s) => s.tags)
@@ -144,7 +145,7 @@ export function NoteList({ searchRef }: { searchRef: React.RefObject<HTMLInputEl
           ? (books[selection.id]?.name ?? 'Notebook')
           : selection.kind === 'tag'
             ? `#${tags[selection.id]?.name ?? ''}`
-            : (STATUSES.find((s) => s.id === selection.status)?.label ?? '')
+            : (getStatuses().find((s) => s.id === selection.status)?.label ?? '')
 
   const onKeyDown = (e: React.KeyboardEvent): void => {
     if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'a') {

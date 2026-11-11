@@ -1,4 +1,13 @@
-export type NoteStatus = 'none' | 'active' | 'onHold' | 'completed' | 'dropped'
+export type NoteStatus = 'none' | 'active' | 'onHold' | 'completed' | 'dropped' | `status:${string}`
+
+export interface CustomStatus {
+  _id: `status:${string}`
+  type: 'status'
+  name: string
+  color: string
+  createdAt: number
+  updatedAt: number
+}
 
 export interface Note {
   _id: string // "note:<id>"
@@ -62,7 +71,7 @@ export interface FileDoc {
   updatedAt: number
 }
 
-export type AnyDoc = Note | Book | Tag | Template | FileDoc
+export type AnyDoc = Note | Book | Tag | Template | FileDoc | CustomStatus
 
 export type Selection =
   | { kind: 'all' }

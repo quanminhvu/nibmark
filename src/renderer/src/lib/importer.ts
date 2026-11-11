@@ -4,7 +4,7 @@ import SparkMD5 from 'spark-md5'
 import { db } from './db'
 import { fileUrl, saveFile } from './attachments'
 import { useStore } from './store'
-import { STATUSES } from './types'
+import { getStatuses } from './statuses'
 import type { Book, Note, NoteStatus } from './types'
 
 // Chuyển dữ liệu import (Markdown, HTML, Evernote) thành ghi chú Nibmark.
@@ -116,7 +116,8 @@ const asDate = (v: string | string[] | undefined): number | null => {
 function statusFrom(v: string | string[] | undefined): NoteStatus {
   if (typeof v !== 'string') return 'none'
   const key = v.toLowerCase().replace(/[\s_-]/g, '')
-  return STATUSES.find((s) => s.label.toLowerCase().replace(/\s/g, '') === key || s.id.toLowerCase() === key)?.id ?? 'none'
+  if (!key || key === 'none') return 'none'
+  return getStatuses().find((s) => s.label.toLowerCase().replace(/\s/g, '') === key || s.id.toLowerCase() === key)?.id ?? useStore.getState().ensureStatus(v)
 }
 
 /** Bỏ dòng "# Tiêu đề" ở đầu nếu trùng với tiêu đề (Notion, Bear hay lặp lại tiêu đề) */

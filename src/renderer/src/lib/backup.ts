@@ -163,7 +163,7 @@ function normalize(raw: unknown): AnyDoc | null {
       body: str(d.body),
       bookId: str(d.bookId),
       tags: Array.isArray(d.tags) ? d.tags.filter((t): t is string => typeof t === 'string') : [],
-      status: (STATUS_IDS.includes(d.status as string) ? d.status : 'none') as Note['status'],
+      status: ((STATUS_IDS.includes(d.status as string) || /^status:[A-Za-z0-9_-]{1,64}$/.test(str(d.status))) ? d.status : 'none') as Note['status'],
       pinned: d.pinned === true,
       trashed: d.trashed === true
     }
@@ -186,9 +186,12 @@ function normalize(raw: unknown): AnyDoc | null {
       title: str(d.title),
       body: str(d.body),
       tags: Array.isArray(d.tags) ? d.tags.filter((t): t is string => typeof t === 'string') : [],
-      status: (STATUS_IDS.includes(d.status as string) ? d.status : 'none') as Note['status'],
+      status: ((STATUS_IDS.includes(d.status as string) || /^status:[A-Za-z0-9_-]{1,64}$/.test(str(d.status))) ? d.status : 'none') as Note['status'],
       ...(typeof d.bookId === 'string' && d.bookId.startsWith('book:') ? { bookId: d.bookId } : {})
     }
+  }
+  if (d.type === 'status' && /^status:[A-Za-z0-9_-]{1,64}$/.test(base._id)) {
+    return { ...base, _id: base._id as `status:${string}`, type: 'status', name: str(d.name, 'Status'), color: /^#[0-9a-f]{6}$/i.test(str(d.color)) ? str(d.color) : '#2F6FE4' }
   }
   if (d.type === 'tag') {
     return { ...base, type: 'tag', name: str(d.name, 'tag'), color: str(d.color, '#7A7168') }

@@ -3,7 +3,7 @@ import { openActivity } from './ActivityPanel'
 import { ChartNoAxesColumn, ChevronDown, ChevronRight, Files, LayoutTemplate, Plus, Search, Settings, Trash2, X } from 'lucide-react'
 import { useStore } from '@/lib/store'
 import { childrenByParent, descendantIds } from '@/lib/selectors'
-import { STATUSES } from '@/lib/types'
+import { getStatuses } from '@/lib/statuses'
 import type { Book, NoteStatus, Selection } from '@/lib/types'
 import { cx } from '@/lib/util'
 import { exportNotes } from '@/lib/actions'
@@ -28,7 +28,7 @@ export function noteIdsFromDrag(data: string): string[] {
 }
 const BOOK_MIME = 'application/x-nibmark-book'
 
-type Editing = { kind: 'new'; parentId: string | null } | { kind: 'rename'; id: string } | { kind: 'renameTag'; id: string } | null
+type Editing = { kind: 'new'; parentId: string | null } | { kind: 'rename'; id: string } | { kind: 'renameTag'; id: string } | { kind: 'newTag' | 'newStatus' } | null
 
 function sameSelection(a: Selection, b: Selection): boolean {
   if (a.kind !== b.kind) return false
@@ -209,6 +209,7 @@ function FilterInput({ value, onChange, onClose }: { value: string; onChange: (v
 }
 
 export function Sidebar(): React.JSX.Element {
+  useStore((s) => s.statuses)
   const notes = useStore((s) => s.notes)
   const books = useStore((s) => s.books)
   const tags = useStore((s) => s.tags)
@@ -420,8 +421,13 @@ export function Sidebar(): React.JSX.Element {
           </div>
         )}
 
-        <SectionHeading title="Status" collapsed={!!sections.status} onToggle={() => toggleSection('status')} />
-        {!sections.status && STATUSES.map((status) => (
+        <SectionHeading title="Status" collapsed={!!sections.status} onToggle={() => toggleSection('status')}
+          addTitle="New status" onAdd={() => { setSections((s) => ({ ...s, status: false })); setEditing({ kind: 'newStatus' }) }} />
+        {editing?.kind === 'newStatus' && <div className="side-row editing"><NameInput initial="" onDone={(name) => {
+          if (name) actions.select({ kind: 'status', status: actions.ensureStatus(name) })
+          setEditing(null)
+        }} /></div>}
+        {!sections.status && getStatuses().map((status) => (
           <Row
             key={status.id}
             selection={{ kind: 'status', status: status.id }}
@@ -433,14 +439,17 @@ export function Sidebar(): React.JSX.Element {
           />
         ))}
 
-        {sortedTags.length > 0 && (
-          <SectionHeading
+        <SectionHeading
             title="Tags"
+            addTitle="New tag" onAdd={() => { setSections((s) => ({ ...s, tags: false })); setTagFilter(null); setEditing({ kind: 'newTag' }) }}
             collapsed={!!sections.tags}
             onToggle={() => toggleSection('tags')}
             onSearch={() => setTagFilter(tagFilter === null ? '' : null)}
           />
-        )}
+        {editing?.kind === 'newTag' && <div className="side-row editing"><NameInput initial="" onDone={(name) => {
+          if (name) actions.select({ kind: 'tag', id: actions.ensureTag(name) })
+          setEditing(null)
+        }} /></div>}
         {!sections.tags && tagFilter !== null && <FilterInput value={tagFilter} onChange={setTagFilter} onClose={() => setTagFilter(null)} />}
         {!sections.tags &&
           sortedTags
