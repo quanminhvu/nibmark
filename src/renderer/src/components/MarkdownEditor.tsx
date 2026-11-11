@@ -1,10 +1,10 @@
 import { useEffect, useRef } from 'react'
 import { EditorState, Compartment } from '@codemirror/state'
-import { EditorView, keymap, drawSelection, highlightActiveLine, placeholder, dropCursor, rectangularSelection, crosshairCursor } from '@codemirror/view'
+import { EditorView, keymap, drawSelection, highlightActiveLine, highlightActiveLineGutter, lineNumbers, placeholder, dropCursor, rectangularSelection, crosshairCursor } from '@codemirror/view'
 import { defaultKeymap, history, historyKeymap, indentWithTab } from '@codemirror/commands'
 import { markdown, markdownLanguage, markdownKeymap } from '@codemirror/lang-markdown'
 import { languages } from '@codemirror/language-data'
-import { HighlightStyle, syntaxHighlighting, indentOnInput, bracketMatching } from '@codemirror/language'
+import { HighlightStyle, syntaxHighlighting, indentOnInput, bracketMatching, foldGutter, foldKeymap } from '@codemirror/language'
 import { autocompletion, closeBrackets, closeBracketsKeymap, completionKeymap } from '@codemirror/autocomplete'
 import { followNoteLink, NOTE_LINK_PREFIX, noteLinkCompletions } from '@/lib/noteLinks'
 import { emojiCompletions, fenceLanguageCompletions, slashCompletions } from '@/lib/completions'
@@ -52,14 +52,14 @@ import { tags as t } from '@lezer/highlight'
 
 // Màu lấy từ CSS variables nên tự đổi theo chế độ sáng/tối.
 const highlight = HighlightStyle.define([
-  { tag: t.heading, color: 'var(--ink)', fontWeight: '700' },
+  { tag: t.heading, color: 'var(--syn-heading)', fontWeight: '700' },
   { tag: t.strong, fontWeight: '700' },
   { tag: t.emphasis, fontStyle: 'italic' },
   { tag: t.strikethrough, textDecoration: 'line-through', color: 'var(--ink-3)' },
   { tag: [t.link, t.url], color: 'var(--syn-link)' },
   { tag: t.monospace, color: 'var(--syn-string)' },
   { tag: t.quote, color: 'var(--ink-2)', fontStyle: 'italic' },
-  { tag: [t.processingInstruction, t.contentSeparator, t.meta], color: 'var(--ink-3)' },
+  { tag: [t.processingInstruction, t.contentSeparator, t.meta], color: 'var(--syn-mark)' },
   { tag: [t.keyword, t.operatorKeyword, t.modifier], color: 'var(--syn-keyword)' },
   { tag: [t.string, t.special(t.string), t.regexp], color: 'var(--syn-string)' },
   { tag: [t.number, t.bool, t.null, t.atom], color: 'var(--syn-number)' },
@@ -89,6 +89,17 @@ export function MarkdownEditor({ value, readOnly = false, onChange }: Props): Re
         doc: value,
         extensions: [
           history(),
+          lineNumbers(),
+          highlightActiveLineGutter(),
+          // Nút gập ở lề trái: gập một mục (heading) hoặc một khối code
+          foldGutter({
+            markerDOM: (open) => {
+              const el = document.createElement('span')
+              el.className = open ? 'cm-fold-marker open' : 'cm-fold-marker'
+              el.textContent = '›'
+              return el
+            }
+          }),
           drawSelection(),
           // Đa con trỏ: Cmd+click thêm con trỏ, Alt+kéo chọn vùng chữ nhật
           EditorState.allowMultipleSelections.of(true),
@@ -118,6 +129,7 @@ export function MarkdownEditor({ value, readOnly = false, onChange }: Props): Re
             { key: 'Mod-b', run: toggleWrap('**') },
             { key: 'Mod-i', run: toggleWrap('*') },
             ...completionKeymap,
+            ...foldKeymap,
             ...markdownKeymap,
             ...closeBracketsKeymap,
             ...searchKeymap,

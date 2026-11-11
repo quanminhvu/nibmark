@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react'
-import { ChevronDown, ChevronRight, Files, Plus, Trash2 } from 'lucide-react'
+import { ChevronDown, ChevronRight, Files, LayoutTemplate, Plus, Search, Settings, Trash2, X } from 'lucide-react'
 import { useStore } from '@/lib/store'
 import { childrenByParent, descendantIds } from '@/lib/selectors'
 import { STATUSES } from '@/lib/types'
@@ -7,6 +7,7 @@ import type { Book, NoteStatus, Selection } from '@/lib/types'
 import { cx } from '@/lib/util'
 import { exportNotes } from '@/lib/actions'
 import { copyId } from '@/lib/clipboard'
+import { fuzzyMatch } from '@/lib/fuzzy'
 import { runImport } from '@/lib/importer'
 import { BookIcon, openIconPicker } from './BookIcon'
 import { openMenu } from './ContextMenu'
@@ -136,6 +137,76 @@ function Row({ selection, icon, label, count, depth = 0, accept = [], zoned = []
   )
 }
 
+const SECTIONS_KEY = 'nibmark:sidebar-sections'
+
+function readCollapsedSections(): Record<string, boolean> {
+  try {
+    return JSON.parse(localStorage.getItem(SECTIONS_KEY) ?? '{}') as Record<string, boolean>
+  } catch {
+    return {}
+  }
+}
+
+/** Tiêu đề một nhóm trong sidebar: thu gọn được, có nút tìm và nút thêm */
+function SectionHeading({
+  title,
+  collapsed,
+  onToggle,
+  onSearch,
+  onAdd,
+  addTitle,
+  dropProps,
+  dropOver
+}: {
+  title: string
+  collapsed: boolean
+  onToggle: () => void
+  onSearch?: () => void
+  onAdd?: () => void
+  addTitle?: string
+  dropProps?: React.HTMLAttributes<HTMLDivElement>
+  dropOver?: boolean
+}): React.JSX.Element {
+  return (
+    <div className={cx('side-heading', dropOver && 'drop-over')} {...dropProps}>
+      <button className="side-heading-title" onClick={onToggle} title={collapsed ? `Show ${title}` : `Hide ${title}`}>
+        {title}
+        <ChevronDown size={12} className={cx('side-heading-chevron', collapsed && 'collapsed')} />
+      </button>
+      <span className="side-heading-actions">
+        {onSearch && !collapsed && (
+          <button title={`Filter ${title.toLowerCase()}`} onClick={onSearch}>
+            <Search size={13} />
+          </button>
+        )}
+        {onAdd && (
+          <button title={addTitle} onClick={onAdd}>
+            <Plus size={14} />
+          </button>
+        )}
+      </span>
+    </div>
+  )
+}
+
+function FilterInput({ value, onChange, onClose }: { value: string; onChange: (v: string) => void; onClose: () => void }): React.JSX.Element {
+  return (
+    <div className="side-filter">
+      <Search size={12} />
+      <input
+        autoFocus
+        value={value}
+        placeholder="Filter"
+        onChange={(e) => onChange(e.target.value)}
+        onKeyDown={(e) => e.key === 'Escape' && onClose()}
+      />
+      <button title="Close filter" onClick={onClose}>
+        <X size={12} />
+      </button>
+    </div>
+  )
+}
+
 export function Sidebar(): React.JSX.Element {
   const notes = useStore((s) => s.notes)
   const books = useStore((s) => s.books)
@@ -143,6 +214,19 @@ export function Sidebar(): React.JSX.Element {
   const collapsed = useStore((s) => s.collapsedBooks)
   const actions = useStore.getState()
   const [editing, setEditing] = useState<Editing>(null)
+  const [sections, setSections] = useState<Record<string, boolean>>(readCollapsedSections)
+  const [bookFilter, setBookFilter] = useState<string | null>(null)
+  const [tagFilter, setTagFilter] = useState<string | null>(null)
+  const toggleSection = (key: string): void =>
+    setSections((s) => {
+      const next = { ...s, [key]: !s[key] }
+      try {
+        localStorage.setItem(SECTIONS_KEY, JSON.stringify(next))
+      } catch {
+        // chỉ là tiện ích
+      }
+      return next
+    })
 
   const children = useMemo(() => childrenByParent(books), [books])
 
@@ -274,17 +358,52 @@ export function Sidebar(): React.JSX.Element {
 
   return (
     <aside className="sidebar">
-      <div className="titlebar-drag sidebar-top" />
+      <div className="titlebar-drag sidebar-top">
+        <span className="flex-1" />
+        <button className="icon-btn" title="Preferences (⌘,)" onClick={() => actions.setPrefsOpen(true)}>
+          <Settings size={16} />
+        </button>
+      </div>
       <div className="sidebar-scroll">
         <Row selection={{ kind: 'all' }} icon={<Files size={15} />} label="All Notes" count={counts.all} />
-
-        <div className={cx('side-heading', rootDrop.over && 'drop-over')} {...rootDrop.props}>
-          <span>Notebooks</span>
-          <button title="New notebook" onClick={() => setEditing({ kind: 'new', parentId: null })}>
-            <Plus size={14} />
-          </button>
+        <div className="side-row" style={{ paddingLeft: 10 }} onClick={() => actions.setPalette('templates')}>
+          <span className="side-icon">
+            <LayoutTemplate size={15} />
+          </span>
+          <span className="side-label">Note Templates</span>
         </div>
-        {renderBooks(null, 0)}
+
+        <SectionHeading
+          title="Notebooks"
+          collapsed={!!sections.books}
+          onToggle={() => toggleSection('books')}
+          onSearch={() => setBookFilter(bookFilter === null ? '' : null)}
+          onAdd={() => {
+            if (sections.books) toggleSection('books')
+            setEditing({ kind: 'new', parentId: null })
+          }}
+          addTitle="New notebook"
+          dropProps={rootDrop.props}
+          dropOver={rootDrop.over}
+        />
+        {!sections.books && bookFilter !== null && <FilterInput value={bookFilter} onChange={setBookFilter} onClose={() => setBookFilter(null)} />}
+        {!sections.books &&
+          (bookFilter
+            ? Object.values(books)
+                .map((b) => ({ b, m: fuzzyMatch(bookFilter, b.name) }))
+                .filter((x) => x.m)
+                .sort((a, z) => z.m!.score - a.m!.score)
+                .map(({ b }) => (
+                  <Row
+                    key={b._id}
+                    selection={{ kind: 'book', id: b._id }}
+                    icon={<BookIcon name={b.icon} />}
+                    label={b.name}
+                    count={counts.byBook.get(b._id) ?? 0}
+                    onContextMenu={bookMenu(b)}
+                  />
+                ))
+            : renderBooks(null, 0))}
         {editing?.kind === 'new' && editing.parentId === null && (
           <div className="side-row editing" style={{ paddingLeft: 10 }}>
             <NameInput
@@ -297,10 +416,8 @@ export function Sidebar(): React.JSX.Element {
           </div>
         )}
 
-        <div className="side-heading">
-          <span>Status</span>
-        </div>
-        {STATUSES.map((status) => (
+        <SectionHeading title="Status" collapsed={!!sections.status} onToggle={() => toggleSection('status')} />
+        {!sections.status && STATUSES.map((status) => (
           <Row
             key={status.id}
             selection={{ kind: 'status', status: status.id }}
@@ -313,11 +430,18 @@ export function Sidebar(): React.JSX.Element {
         ))}
 
         {sortedTags.length > 0 && (
-          <div className="side-heading">
-            <span>Tags</span>
-          </div>
+          <SectionHeading
+            title="Tags"
+            collapsed={!!sections.tags}
+            onToggle={() => toggleSection('tags')}
+            onSearch={() => setTagFilter(tagFilter === null ? '' : null)}
+          />
         )}
-        {sortedTags.map((tag) =>
+        {!sections.tags && tagFilter !== null && <FilterInput value={tagFilter} onChange={setTagFilter} onClose={() => setTagFilter(null)} />}
+        {!sections.tags &&
+          sortedTags
+            .filter((tag) => !tagFilter || fuzzyMatch(tagFilter, tag.name))
+            .map((tag) =>
           editing?.kind === 'renameTag' && editing.id === tag._id ? (
             <div key={tag._id} className="side-row editing" style={{ paddingLeft: 10 }}>
               <NameInput
@@ -332,7 +456,7 @@ export function Sidebar(): React.JSX.Element {
             <Row
               key={tag._id}
               selection={{ kind: 'tag', id: tag._id }}
-              icon={<span className="tag-dot" style={{ background: tag.color }} />}
+              icon={<span className="tag-dot ring" style={{ '--tag': tag.color } as React.CSSProperties} />}
               label={tag.name}
               count={counts.byTag.get(tag._id) ?? 0}
               accept={[NOTE_MIME]}

@@ -2083,3 +2083,438 @@ mark {
   font-size: 11.5px;
   color: var(--ink-3);
 }
+
+/* ═════════════════════ UI refresh: bo tròn, thẻ mềm, sidebar trong mờ ═════════════════════ */
+:root {
+  --radius-sm: 6px;
+  --radius: 8px;
+  --radius-lg: 12px;
+  /* Nền ô đang chọn: xanh nhạt pha từ màu link, dịu hơn màu nhấn đỏ */
+  --selection-bg: color-mix(in srgb, var(--syn-mark) 13%, var(--surface));
+  --selection-row: color-mix(in srgb, var(--ink) 8%, transparent);
+  --on-status: #fff;
+}
+
+/* macOS: sidebar trong mờ (cửa sổ dùng vibrancy, nền trong suốt) */
+html.vibrant,
+html.vibrant body {
+  background: transparent;
+}
+html.vibrant .sidebar {
+  background: color-mix(in srgb, var(--paper) 58%, transparent);
+}
+
+.icon-btn {
+  width: 30px;
+  height: 30px;
+  border-radius: var(--radius);
+}
+
+/* ── Sidebar ── */
+.sidebar {
+  border-right: 1px solid var(--line);
+}
+.sidebar-top {
+  display: flex;
+  align-items: center;
+  padding: 0 10px 0 0;
+}
+.app.mac .sidebar-top {
+  height: 52px;
+}
+.side-row {
+  height: 30px;
+  border-radius: var(--radius);
+  font-size: 13.5px;
+}
+.side-row.selected {
+  background: var(--selection-row);
+  font-weight: 600;
+}
+.side-heading {
+  margin: 14px 0 2px;
+  padding: 0 2px 0 10px;
+  text-transform: none;
+  letter-spacing: 0;
+  font-size: 12px;
+}
+.side-heading-title {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  height: 22px;
+  color: var(--ink-3);
+  font-weight: 600;
+}
+.side-heading-title:hover {
+  color: var(--ink-2);
+}
+.side-heading-chevron {
+  opacity: 0;
+  transition:
+    transform 0.15s,
+    opacity 0.15s;
+}
+.side-heading:hover .side-heading-chevron,
+.side-heading-chevron.collapsed {
+  opacity: 1;
+}
+.side-heading-chevron.collapsed {
+  transform: rotate(-90deg);
+}
+.side-heading-actions {
+  display: inline-flex;
+  gap: 2px;
+}
+.side-heading-actions button {
+  display: grid;
+  place-items: center;
+  width: 22px;
+  height: 22px;
+  border-radius: var(--radius-sm);
+  color: var(--ink-3);
+}
+.side-heading-actions button:hover {
+  background: var(--hover);
+  color: var(--ink);
+}
+.side-filter {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  height: 28px;
+  margin: 2px 0 4px;
+  padding: 0 6px 0 10px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--surface-2);
+  color: var(--ink-3);
+}
+.side-filter:focus-within {
+  border-color: var(--accent);
+}
+.side-filter input {
+  flex: 1;
+  min-width: 0;
+  border: 0;
+  background: none;
+  font-size: 12.5px;
+  user-select: text;
+}
+.side-filter button {
+  display: grid;
+  place-items: center;
+  color: var(--ink-3);
+}
+
+/* Chấm tag dạng vòng */
+.tag-dot.ring {
+  width: 11px;
+  height: 11px;
+  background: transparent;
+  border: 2.5px solid var(--tag);
+}
+
+/* Icon trạng thái tô đặc: hình tròn màu, ký hiệu trắng */
+.status-icon {
+  display: inline-grid;
+  place-items: center;
+  flex: none;
+}
+.status-icon.filled svg circle {
+  fill: currentColor;
+  stroke: currentColor;
+}
+.status-icon.filled svg > :not(circle) {
+  stroke: var(--on-status);
+}
+.status-icon.filled.status-active svg > :not(circle) {
+  fill: var(--on-status);
+}
+.status-none {
+  color: var(--ink-3);
+}
+
+/* ── Ẩn sidebar ── */
+.app.sidebar-hidden {
+  grid-template-columns: 0 300px minmax(0, 1fr);
+}
+.app.sidebar-hidden .sidebar {
+  visibility: hidden;
+  border: 0;
+}
+.app.mac.sidebar-hidden .notelist-header {
+  padding-left: 80px;
+}
+
+/* ── Danh sách ghi chú ── */
+.notelist-header {
+  padding: 8px 10px 10px;
+  border-bottom: 0;
+}
+.app.mac .notelist-header {
+  padding-top: 11px;
+}
+.notelist-title {
+  gap: 2px;
+  height: 30px;
+  margin-bottom: 10px;
+}
+.notelist-title h2 {
+  flex: 1;
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  gap: 6px;
+  min-width: 0;
+  font-size: 15px;
+}
+.search-box {
+  height: 32px;
+  padding: 0 10px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--surface-2);
+}
+.search-box:focus-within {
+  border-color: color-mix(in srgb, var(--accent) 60%, var(--line));
+  box-shadow: 0 0 0 3px var(--accent-soft);
+}
+.notelist-items {
+  padding: 2px 8px 12px;
+}
+.note-item {
+  position: relative;
+  padding: 11px 12px 12px;
+  border: 0;
+  border-radius: var(--radius-lg);
+}
+.note-item::after {
+  content: '';
+  position: absolute;
+  left: 12px;
+  right: 12px;
+  bottom: 0;
+  height: 1px;
+  background: var(--line);
+}
+.note-item.selected::after,
+.note-item:has(+ .note-item.selected)::after,
+.note-item:last-child::after {
+  display: none;
+}
+.note-item.selected {
+  background: var(--selection-bg);
+}
+.note-item.selected::before {
+  display: none;
+}
+.note-item:hover:not(.selected) {
+  background: var(--hover);
+}
+.note-item-title {
+  font-size: 14px;
+}
+.note-item-meta {
+  gap: 4px 8px;
+  margin-top: 7px;
+  font-size: 11.5px;
+}
+.note-item-time {
+  color: var(--syn-link);
+}
+.note-item-tasks {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  color: var(--ink-2);
+}
+.task-bar {
+  position: relative;
+  width: 36px;
+  height: 5px;
+  overflow: hidden;
+  border-radius: 3px;
+  background: var(--line);
+}
+.task-bar > span {
+  position: absolute;
+  inset: 0 auto 0 0;
+  border-radius: 3px;
+  background: var(--ink-3);
+}
+.note-item-tasks.done .task-bar > span {
+  background: var(--status-completed);
+}
+
+/* Tag dạng viên có viền mảnh */
+.tag-chip {
+  height: 22px;
+  padding: 0 9px;
+  border-radius: 11px;
+  border: 1px solid color-mix(in srgb, var(--tag) 30%, transparent);
+  background: color-mix(in srgb, var(--tag) 11%, transparent);
+  font-weight: 500;
+}
+.tag-chip.small {
+  height: 19px;
+  padding: 0 7px;
+  font-size: 11px;
+}
+
+/* ── Khung ghi chú ── */
+.notepane-header {
+  gap: 2px;
+  height: 52px;
+  padding: 0 12px;
+}
+.nav-buttons {
+  margin: 0;
+}
+.nav-buttons .icon-btn {
+  width: 30px;
+}
+.segmented {
+  margin: 0;
+  padding: 3px;
+  gap: 2px;
+  border: 1px solid var(--line);
+  border-radius: 11px;
+  background: var(--surface);
+}
+.segmented button {
+  width: 36px;
+  height: 28px;
+  border-radius: var(--radius);
+}
+.segmented button.on {
+  background: var(--selection-row);
+  box-shadow: none;
+}
+.note-title-row {
+  flex: none;
+  padding: 2px 24px 0;
+}
+.note-title {
+  width: 100%;
+  font-size: 24px;
+  font-weight: 600;
+  letter-spacing: -0.015em;
+}
+.note-meta {
+  gap: 4px;
+  padding: 6px 18px 10px;
+  border-bottom: 1px solid var(--line);
+}
+.meta-field {
+  gap: 6px;
+  height: 28px;
+  padding: 0 8px;
+  border-radius: var(--radius);
+  font-weight: 550;
+  color: var(--ink);
+}
+.meta-field select {
+  appearance: none;
+  -webkit-appearance: none;
+  padding-right: 4px;
+  font-size: 13px;
+  font-weight: 550;
+  cursor: default;
+}
+.meta-field::after {
+  content: '';
+  width: 10px;
+  height: 10px;
+  background: var(--ink-3);
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E") center / contain no-repeat;
+}
+.tag-input {
+  gap: 5px;
+  margin-left: 4px;
+}
+.template-hint {
+  max-width: none;
+  margin: 12px 0 0;
+}
+
+/* ── Editor: số dòng, nút gập, dòng đang sửa tô cả chiều ngang ── */
+.editor-host .cm-content {
+  max-width: none;
+  margin: 0;
+  padding: 16px 28px 40vh 6px;
+}
+.editor-host .cm-gutters {
+  border: 0;
+  background: transparent;
+  color: color-mix(in srgb, var(--ink-3) 70%, transparent);
+  padding-left: 10px;
+  user-select: none;
+}
+.editor-host .cm-lineNumbers .cm-gutterElement {
+  min-width: 22px;
+  padding: 0 4px 0 0;
+  font-size: 11px;
+  line-height: inherit;
+}
+.editor-host .cm-activeLineGutter {
+  background: transparent;
+  color: var(--ink-2);
+}
+.editor-host .cm-focused .cm-activeLine {
+  background: var(--selection-bg);
+}
+.editor-host .cm-foldGutter .cm-gutterElement {
+  width: 16px;
+  display: grid;
+  place-items: center;
+}
+.cm-fold-marker {
+  display: inline-block;
+  font-size: 15px;
+  line-height: 1;
+  color: var(--ink-3);
+  cursor: pointer;
+  transition: transform 0.12s;
+}
+.cm-fold-marker.open {
+  transform: rotate(90deg);
+  opacity: 0;
+}
+.editor-host .cm-gutters:hover .cm-fold-marker.open {
+  opacity: 1;
+}
+.editor-host .cm-foldPlaceholder {
+  margin: 0 4px;
+  padding: 0 6px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  background: var(--hover);
+  color: var(--ink-3);
+}
+
+/* Preview: canh lề trái cho khớp với editor */
+.preview {
+  margin: 0;
+  padding: 16px 32px 30vh;
+}
+
+/* Icon trạng thái tô đặc: nền tròn màu ở phần tử bao ngoài (hình tròn trong SVG
+   có thể được vẽ đè lên ký hiệu, như ở icon Play), SVG chỉ vẽ ký hiệu màu trắng */
+.status-icon.filled {
+  border-radius: 50%;
+  background: currentColor;
+}
+.status-icon.filled svg {
+  width: 100%;
+  height: 100%;
+}
+.status-icon.filled svg circle {
+  fill: none;
+  stroke: transparent;
+}
+/* Ô chọn notebook/trạng thái co theo chữ đang chọn */
+.meta-field select {
+  field-sizing: content;
+  max-width: 220px;
+}

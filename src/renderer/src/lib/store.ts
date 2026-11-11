@@ -15,6 +15,8 @@ interface Prefs {
   selection: Selection
   selectedNoteId: string | null
   lastBookId: string | null
+  /** Ẩn cột sidebar để có thêm chỗ */
+  sidebarHidden: boolean
 }
 
 const defaultPrefs: Prefs = {
@@ -23,7 +25,8 @@ const defaultPrefs: Prefs = {
   collapsedBooks: {},
   selection: { kind: 'all' },
   selectedNoteId: null,
-  lastBookId: null
+  lastBookId: null,
+  sidebarHidden: false
 }
 
 function readPrefs(): Prefs {
@@ -69,6 +72,7 @@ export interface State extends Prefs {
   setSort: (sort: SortKey) => void
   setViewMode: (mode: ViewMode) => void
   toggleDistractionFree: () => void
+  toggleSidebar: () => void
   setPrefsOpen: (open: boolean) => void
   setPalette: (mode: 'commands' | 'templates' | null) => void
   /** Mở một ghi chú ở bất cứ đâu, đổi sidebar nếu ghi chú đang bị ẩn khỏi danh sách */
@@ -265,6 +269,7 @@ export const useStore = create<State>((set, get) => {
     setSort: (sort) => set({ sort }),
     setViewMode: (viewMode) => set({ viewMode }),
     toggleDistractionFree: () => set((s) => ({ distractionFree: !s.distractionFree })),
+    toggleSidebar: () => set((s) => ({ sidebarHidden: !s.sidebarHidden })),
     setPrefsOpen: (prefsOpen) => set({ prefsOpen, palette: null }),
     setPalette: (palette) => set({ palette }),
 
@@ -553,7 +558,8 @@ useStore.subscribe((s) => {
     collapsedBooks: s.collapsedBooks,
     selection: s.selection,
     selectedNoteId: s.selectedNoteId,
-    lastBookId: s.lastBookId
+    lastBookId: s.lastBookId,
+    sidebarHidden: s.sidebarHidden
   }
   try {
     localStorage.setItem(PREFS_KEY, JSON.stringify(prefs))

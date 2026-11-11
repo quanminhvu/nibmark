@@ -6,6 +6,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
+### Changed
+
+- Softer, rounder interface: rounded note cards, toolbar buttons and fields; a segmented Editor / Side by side / Preview switch; a larger note title with notebook icon, status and tags underneath
+- Sidebar: Preferences gear, a Note Templates row, collapsible Notebooks / Status / Tags sections with their own filter and + buttons, filled status icons and ring-style tag dots. On macOS the sidebar is translucent
+- Note list: button to hide the sidebar, a Filter field, task progress bars (“3 of 4”) and pill-shaped tags on each card
+- Editor: line numbers, folding arrows for headings and lists, full-width active line, colored headings with distinct `#` marks
+
 ## [0.3.1] - 2026-11-11
 
 ### Fixed

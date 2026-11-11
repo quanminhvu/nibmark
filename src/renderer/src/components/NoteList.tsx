@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef } from 'react'
-import { ArrowUpDown, Pin, Search, SquarePen, X } from 'lucide-react'
+import { ArrowUpDown, ListChecks, ListFilter, PanelLeft, Pin, SquarePen, X } from 'lucide-react'
 import { useStore } from '@/lib/store'
 import { visibleNotes } from '@/lib/selectors'
 import { highlightWords, parseQuery } from '@/lib/search'
@@ -165,9 +165,13 @@ export function NoteList({ searchRef }: { searchRef: React.RefObject<HTMLInputEl
     <section className="notelist">
       <header className="notelist-header titlebar-drag">
         <div className="notelist-title">
-          <h2>{heading}</h2>
-          <span className="notelist-count">{list.length}</span>
-          <span className="flex-1" />
+          <button className="icon-btn" title="Show or hide the sidebar" onClick={() => useStore.getState().toggleSidebar()}>
+            <PanelLeft size={16} />
+          </button>
+          <h2>
+            {heading}
+            <span className="notelist-count">{list.length}</span>
+          </h2>
           <button
             className="icon-btn"
             title="Sort"
@@ -198,11 +202,11 @@ export function NoteList({ searchRef }: { searchRef: React.RefObject<HTMLInputEl
           )}
         </div>
         <div className="search-box">
-          <Search size={14} />
+          <ListFilter size={14} />
           <input
             ref={searchRef}
             value={query}
-            placeholder="Search"
+            placeholder="Filter"
             spellCheck={false}
             onChange={(e) => setQuery(e.target.value)}
             onKeyDown={(e) => {
@@ -265,11 +269,18 @@ export function NoteList({ searchRef }: { searchRef: React.RefObject<HTMLInputEl
                 <Highlight text={snippet(note.body)} words={words} />
               </div>
               <div className="note-item-meta">
-                <span>{relativeTime(sort === 'createdAt' ? note.createdAt : note.updatedAt)}</span>
+                <span className="note-item-time">{relativeTime(sort === 'createdAt' ? note.createdAt : note.updatedAt)}</span>
                 {selection.kind !== 'book' && book && <span className="note-item-book">{book.name}</span>}
                 {tasks.total > 0 && (
-                  <span className={cx('note-item-tasks', tasks.done === tasks.total && 'done')}>
-                    {tasks.done}/{tasks.total}
+                  <span
+                    className={cx('note-item-tasks', tasks.done === tasks.total && 'done')}
+                    title={`${tasks.done} of ${tasks.total} tasks done`}
+                  >
+                    <ListChecks size={13} />
+                    <span className="task-bar">
+                      <span style={{ width: `${Math.round((tasks.done / tasks.total) * 100)}%` }} />
+                    </span>
+                    {tasks.done} of {tasks.total}
                   </span>
                 )}
                 {note.tags.slice(0, 3).map((id) =>
