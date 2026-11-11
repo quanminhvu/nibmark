@@ -8,6 +8,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ### Fixed
 
+- Refined the note filter styling and kept it full-width when the sidebar is hidden on macOS
+
 - Long notebook/tag/status headings no longer cover sidebar and note-list toolbar buttons; full titles remain available on hover
 
 - Distraction-free mode now fills the available editor and preview width instead of leaving a large empty area on the right

@@ -3431,3 +3431,31 @@ html.resizing-panes, html.resizing-panes * {
 .notelist-title > button { flex-shrink: 0; position: relative; }
 .note-title-row { min-width: 0; }
 .note-title { display: block; box-sizing: border-box; text-overflow: ellipsis; }
+
+/* Traffic-light spacing belongs to the toolbar, not the filter below it. */
+.app.mac.sidebar-hidden .notelist-header { padding-left: 10px; }
+.app.mac.sidebar-hidden .notelist-title { padding-left: 70px; }
+.notelist-header .search-box {
+  box-sizing: border-box;
+  width: 100%;
+  height: 32px;
+  gap: 8px;
+  padding: 0 10px;
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--ink) 3%, var(--surface));
+  border-color: color-mix(in srgb, var(--line) 65%, transparent);
+  box-shadow: inset 0 1px 2px #00000003;
+  transition: border-color 120ms, background-color 120ms;
+}
+.notelist-header .search-box > svg { width: 14px; height: 14px; flex-shrink: 0; color: var(--ink-3); }
+.notelist-header .search-box input { font-size: 12px; line-height: 18px; height: 100%; padding: 0; }
+.notelist-header .search-box:focus-within {
+  background: var(--surface-2);
+  border-color: color-mix(in srgb, var(--syn-mark) 65%, var(--line));
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--syn-mark) 10%, transparent);
+}
+.notelist-header .search-clear { display: grid; place-items: center; width: 20px; height: 20px; padding: 0; border-radius: 5px; }
+.notelist-header .search-clear:hover { background: var(--selection-row); color: var(--ink); }
+@media (prefers-reduced-motion: reduce) {
+  .notelist-header .search-box { transition: none; }
+}

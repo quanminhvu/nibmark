@@ -211,7 +211,8 @@ export function NoteList({ searchRef }: { searchRef: React.RefObject<HTMLInputEl
           <input
             ref={searchRef}
             value={query}
-            placeholder="Filter"
+            placeholder="Filter notes…"
+            aria-label="Filter notes"
             spellCheck={false}
             onChange={(e) => setQuery(e.target.value)}
             onKeyDown={(e) => {
@@ -225,7 +226,7 @@ export function NoteList({ searchRef }: { searchRef: React.RefObject<HTMLInputEl
             }}
           />
           {query && (
-            <button className="search-clear" title="Clear" onClick={() => setQuery('')}>
+            <button className="search-clear" title="Clear filter" aria-label="Clear filter" onClick={() => setQuery('')}>
               <X size={13} />
             </button>
           )}
