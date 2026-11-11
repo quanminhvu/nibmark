@@ -3081,6 +3081,164 @@ html.vibrant .app.note-window .notepane {
   font-weight: 400;
 }
 
+/* ── Thống kê hoạt động ── */
+.modal.activity {
+  width: min(840px, calc(100vw - 48px));
+}
+.act-stats {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 8px;
+  margin-bottom: 18px;
+}
+.act-stat {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 10px 12px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--surface);
+}
+.act-value {
+  font-size: 19px;
+  font-weight: 650;
+  font-variant-numeric: tabular-nums;
+}
+.act-value small {
+  color: var(--ink-3);
+  font-size: 11.5px;
+  font-weight: 500;
+}
+.act-label {
+  color: var(--ink-3);
+  font-size: 11.5px;
+}
+.act-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 10px;
+  color: var(--ink-2);
+}
+.segmented.small button {
+  width: auto;
+  padding: 0 10px;
+  font-size: 12px;
+}
+.act-grid-wrap {
+  overflow-x: auto;
+  padding-bottom: 4px;
+}
+.act-months,
+.act-grid {
+  display: grid;
+  grid-template-columns: repeat(53, minmax(9px, 1fr));
+  gap: 3px;
+}
+.act-months span {
+  overflow: visible;
+  color: var(--ink-3);
+  font-size: 10.5px;
+  white-space: nowrap;
+}
+.act-col {
+  display: grid;
+  gap: 3px;
+}
+.act-grid .act-cell {
+  width: 100%;
+  height: auto;
+  aspect-ratio: 1;
+}
+.act-cell {
+  width: 12px;
+  height: 12px;
+  border-radius: 3px;
+  background: color-mix(in srgb, var(--ink) 7%, transparent);
+}
+.act-cell.l1 {
+  background: color-mix(in srgb, var(--status-completed) 30%, transparent);
+}
+.act-cell.l2 {
+  background: color-mix(in srgb, var(--status-completed) 55%, transparent);
+}
+.act-cell.l3 {
+  background: color-mix(in srgb, var(--status-completed) 80%, transparent);
+}
+.act-cell.l4 {
+  background: var(--status-completed);
+}
+.act-cell.future {
+  visibility: hidden;
+}
+.act-legend {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 3px;
+  margin-top: 8px;
+  color: var(--ink-3);
+  font-size: 11px;
+}
+.act-legend > span:first-child {
+  margin-right: 4px;
+}
+.act-legend > span:last-child {
+  margin-left: 4px;
+}
+
+/* ── Xem trước template trong palette ── */
+.pal-body {
+  display: flex;
+  flex: 1;
+  min-height: 0;
+}
+.pal-body > .pal-list {
+  flex: 1;
+}
+.palette.with-preview {
+  width: min(920px, calc(100vw - 48px));
+  height: 64vh;
+}
+.palette.with-preview .pal-list {
+  flex: 0 0 300px;
+  border-right: 1px solid var(--line);
+}
+.pal-preview {
+  flex: 1;
+  min-width: 0;
+  overflow-y: auto;
+  padding: 14px 4px 14px 0;
+}
+.pal-preview-title {
+  padding: 0 32px;
+  font-size: 18px;
+  font-weight: 650;
+}
+.pal-preview-book {
+  padding: 2px 32px 0;
+  color: var(--ink-3);
+  font-size: 12px;
+}
+.pal-preview .preview {
+  padding: 10px 32px 20px;
+  font-size: 13px;
+}
+.pal-preview .preview-empty {
+  color: var(--ink-3);
+}
+.pref-tpl-book {
+  display: inline-flex;
+  align-items: center;
+}
+.pref-tpl-book .nbp-trigger {
+  max-width: 180px;
+  font-weight: 400;
+  color: var(--ink-2);
+}
+
 /* Sửa: quy tắc cũ ".side-heading button" (ô vuông 20px, nền khi rê chuột) đè lên nút tiêu đề,
    làm chữ bị bóp và mũi tên rơi xuống dòng dưới */
 .side-heading .side-heading-title {

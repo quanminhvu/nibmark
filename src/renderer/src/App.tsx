@@ -8,6 +8,7 @@ import { goBack, goForward } from '@/lib/navigation'
 import { startSwipeNavigation } from '@/lib/swipe'
 import { startHistory } from '@/lib/history'
 import { HistoryPanel, isHistoryOpen } from './components/HistoryPanel'
+import { ActivityPanel, isActivityOpen } from './components/ActivityPanel'
 import { IconPicker } from './components/BookIcon'
 import { CommandPalette } from './components/CommandPalette'
 import { ContextMenuHost } from './components/ContextMenu'
@@ -92,7 +93,7 @@ export function App(): React.JSX.Element {
   useEffect(() => {
     const onKeyDown = (e: KeyboardEvent): void => {
       const s = useStore.getState()
-      if (s.prefsOpen || s.palette || isHistoryOpen()) return
+      if (s.prefsOpen || s.palette || isHistoryOpen() || isActivityOpen()) return
       if (e.key === 'Escape' && s.distractionFree && !e.defaultPrevented) {
         s.toggleDistractionFree()
         return
@@ -192,6 +193,7 @@ export function App(): React.JSX.Element {
       <ContextMenuHost />
       <CommandPalette />
       <HistoryPanel />
+      <ActivityPanel />
       <IconPicker />
       <Preferences />
       <Notice />

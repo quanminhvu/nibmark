@@ -9,11 +9,11 @@ Ký hiệu: `[x]` đã xong · `[ ]` chưa làm · *(một phần: …)* đã l�
 | Giai đoạn | Số mục | Đã xong |
 |---|---|---|
 | 1. Ứng dụng desktop (đã phát hành tới 0.3) | 53 | 53 |
-| 2. Hoàn thiện trải nghiệm (đang làm) | 38 | 18 |
+| 2. Hoàn thiện trải nghiệm (đang làm) | 38 | 20 |
 | 3. Đồng bộ và bảo mật | 8 | 0 |
 | 4. Mobile, plugin và AI | 20 | 0 |
 | 5. Phát hành rộng và mô hình kinh doanh | 9 | 0 |
-| **Tổng** | **128** | **71** |
+| **Tổng** | **128** | **73** |
 
 ---
 
@@ -130,12 +130,12 @@ Làm được ngay, không phụ thuộc đồng bộ.
 ### Tổ chức và điều hướng
 
 - [ ] Workspace: thu sidebar vào một nhánh notebook
-- [ ] Thống kê hoạt động: ghi chú tạo mới và task theo 52 tuần, chuỗi ngày liên tục
+- [x] Thống kê hoạt động: ghi chú tạo mới và task theo 52 tuần, chuỗi ngày liên tục
 - [x] Tìm mờ trong menu notebook, menu tag và ô nhập tag
 - [x] Mở ghi chú trong cửa sổ riêng (⌘⇧N)
 - [x] Task (to-do) trong command palette
 - [x] Vuốt trackpad để back/forward
-- [ ] Xem trước template khi chọn; đặt sẵn notebook trong template
+- [x] Xem trước template khi chọn; đặt sẵn notebook trong template
 
 ### Phím tắt và tự động hóa
 

@@ -6,13 +6,17 @@ import { backupNow, exportNote, exportNotes, restoreFromBackup } from '@/lib/act
 import { runImport } from '@/lib/importer'
 import { fuzzyMatch } from '@/lib/fuzzy'
 import { useStore } from '@/lib/store'
-import { allTemplates, applyTemplate } from '@/lib/templates'
+import { allTemplates, applyTemplate, fillPlaceholders } from '@/lib/templates'
+import { Preview } from './Preview'
+import { KanbanBoard } from './KanbanBoard'
+import { isKanban } from '@/lib/kanban'
 import { BUILTIN_THEMES, useTheme } from '@/lib/theme'
 import { STATUSES } from '@/lib/types'
 import type { NoteStatus } from '@/lib/types'
 import { cx, isMac, relativeTime } from '@/lib/util'
 import { StatusIcon } from './StatusIcon'
 import { openHistory } from './HistoryPanel'
+import { openActivity } from './ActivityPanel'
 import { copyId, copyNoteLink } from '@/lib/clipboard'
 import { noteWindowId, openInNewWindow } from '@/lib/windowMode'
 import {
@@ -46,6 +50,8 @@ interface Item {
   preview?: () => void
   /** ⌘↵: hành động phụ, palette vẫn mở (ví dụ đánh dấu task xong) */
   altRun?: () => void
+  /** Nội dung xem trước bên phải (template) */
+  template?: { title: string; body: string; book?: string }
 }
 
 function taskItems(): Item[] {
@@ -167,6 +173,7 @@ function commandItems(): Item[] {
     cmd('preview', 'Toggle Preview', () => s.setViewMode(useStore.getState().viewMode === 'preview' ? 'edit' : 'preview'), `${mod()}E`),
     cmd('split', 'Toggle Side-by-Side View', () => s.setViewMode(useStore.getState().viewMode === 'split' ? 'edit' : 'split'), `${mod()}P`, 'split'),
     cmd('focus', 'Toggle Distraction-Free Mode', () => s.toggleDistractionFree(), `${mod()}${shift()}D`, 'focus zen fullscreen'),
+    cmd('activity', 'Show Activity', () => openActivity(), undefined, 'statistics stats streak heatmap calendar words'),
     cmd('tasks', 'Show Open Tasks…', () => s.setPalette('tasks'), undefined, 'todo to-do checklist checkbox'),
     cmd('prefs', 'Open Preferences', () => s.setPrefsOpen(true), `${mod()},`, 'settings options'),
     cmd('import', 'Import Notes…', () => void runImport(), undefined, 'markdown html evernote enex notion bear obsidian'),
@@ -231,7 +238,8 @@ function buildItems(mode: 'commands' | 'templates' | 'actions' | 'tasks', raw: s
       label: t.name,
       detail: t.builtin ? 'Built-in' : 'Your template',
       icon: <LayoutTemplate size={15} />,
-      run: () => applyTemplate(t)
+      run: () => applyTemplate(t),
+      template: { title: fillPlaceholders(t.title), body: fillPlaceholders(t.body), book: t.bookId ? s.books[t.bookId]?.name : undefined }
     }))
     if (note && !note.trashed && (note.title || note.body)) {
       items.push({
@@ -420,7 +428,7 @@ function PaletteBody({ mode }: { mode: 'commands' | 'templates' | 'actions' | 't
 
   return (
     <div className="palette-backdrop" onMouseDown={close}>
-      <div className="palette" role="dialog" aria-label="Command palette" onMouseDown={(e) => e.stopPropagation()}>
+      <div className={cx('palette', mode === 'templates' && 'with-preview')} role="dialog" aria-label="Command palette" onMouseDown={(e) => e.stopPropagation()}>
         <div className="pal-input">
           {mode === 'templates' ? <LayoutTemplate size={16} /> : mode === 'tasks' ? <ListChecks size={16} /> : <Search size={16} />}
           <input
@@ -440,6 +448,7 @@ function PaletteBody({ mode }: { mode: 'commands' | 'templates' | 'actions' | 't
             onKeyDown={onKeyDown}
           />
         </div>
+        <div className="pal-body">
         <div className="pal-list" ref={listRef}>
           {results.length === 0 && <div className="pal-empty">No matches</div>}
           {results.map(({ item, indices }, i) => {
@@ -463,6 +472,14 @@ function PaletteBody({ mode }: { mode: 'commands' | 'templates' | 'actions' | 't
               </div>
             )
           })}
+        </div>
+        {mode === 'templates' && current?.template && (
+          <div className="pal-preview">
+            <div className="pal-preview-title">{current.template.title || 'Untitled'}</div>
+            {current.template.book && <div className="pal-preview-book">Goes into “{current.template.book}”</div>}
+            {isKanban(current.template.body) ? <KanbanBoard source={current.template.body} /> : <Preview source={current.template.body} />}
+          </div>
+        )}
         </div>
         {(mode === 'tasks' || (mode === 'commands' && raw.startsWith('['))) && (
           <div className="pal-footer">

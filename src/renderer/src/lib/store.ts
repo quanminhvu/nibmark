@@ -105,6 +105,8 @@ export interface State extends Prefs {
 
   saveTemplate: (fromNoteId: string) => string | null
   renameTemplate: (id: string, name: string) => void
+  /** Đặt (hoặc bỏ, khi null) notebook mặc định của template */
+  setTemplateBook: (id: string, bookId: string | null) => void
   deleteTemplate: (id: string) => void
 }
 
@@ -532,6 +534,13 @@ export const useStore = create<State>((set, get) => {
       }
       putTemplate(template)
       return template._id
+    },
+
+    setTemplateBook: (id, bookId) => {
+      const template = get().templates[id]
+      if (!template) return
+      const { bookId: _old, ...rest } = template
+      putTemplate({ ...rest, ...(bookId ? { bookId } : {}), updatedAt: Date.now() })
     },
 
     renameTemplate: (id, name) => {

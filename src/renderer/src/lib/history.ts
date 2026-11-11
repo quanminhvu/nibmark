@@ -130,3 +130,45 @@ export async function restoreRevision(rev: Revision): Promise<void> {
   useStore.getState().updateNote(note._id, { title: rev.title, body: rev.body })
   useStore.getState().flush()
 }
+
+export interface HistoryActivity {
+  /** Ngày (YYYY-MM-DD, giờ địa phương) → các ghi chú được sửa hôm đó */
+  edited: Map<string, Set<string>>
+  /** Ngày → số task được đánh dấu xong (so sánh hai phiên bản liền nhau) */
+  completed: Map<string, number>
+  /** Phiên bản cũ nhất trên máy này (để nói rõ dữ liệu tính từ khi nào) */
+  since: number | null
+}
+
+const DONE_TASK = /^\s*(?:>\s*)*(?:[-*+]|\d+[.)])\s+\[[xX]\]/gm
+
+export function dayKey(at: number): string {
+  const d = new Date(at)
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
+}
+
+/** Đọc toàn bộ lịch sử phiên bản để dựng thống kê hoạt động. */
+export async function historyActivity(): Promise<HistoryActivity> {
+  const res = await historyDb.allDocs({ include_docs: true })
+  const edited = new Map<string, Set<string>>()
+  const completed = new Map<string, number>()
+  let since: number | null = null
+  // Khóa "rev:<noteId>:<thời điểm>" đã sắp theo ghi chú rồi theo thời gian
+  let prevNote = ''
+  let prevDone = 0
+  for (const row of res.rows) {
+    const rev = row.doc
+    if (!rev?.noteId) continue
+    const day = dayKey(rev.createdAt)
+    since = since === null ? rev.createdAt : Math.min(since, rev.createdAt)
+    const done = (rev.body.match(DONE_TASK) ?? []).length
+    if (rev.noteId === prevNote) {
+      if (!edited.has(day)) edited.set(day, new Set())
+      edited.get(day)!.add(rev.noteId)
+      if (done > prevDone) completed.set(day, (completed.get(day) ?? 0) + (done - prevDone))
+    }
+    prevNote = rev.noteId
+    prevDone = done
+  }
+  return { edited, completed, since }
+}
