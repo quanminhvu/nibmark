@@ -13,6 +13,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 - Preferences → Open Data Folder
 - Multiple cursors (`⌘`-click, `⌘⌥↑/↓`) and rectangular selection (`⌥`-drag)
 - Numbered lists renumber themselves when items are added, deleted, pasted or moved; lazy `1. 1. 1.` lists and custom start numbers are kept
+- Table toolbar when the cursor is in a table: format and align columns (accounting for wide CJK characters and emoji), insert, delete and move rows and columns, and set column alignment
 - Editor commands in the palette: sort, reverse and dedupe lines, join lines, duplicate line, upper/lower/title case, select all occurrences
 
 ## [0.2.0] - 2026-11-11

@@ -13,6 +13,7 @@ import { attachFiles, fileIdFromUrl, openAttachment } from '@/lib/attachments'
 import { extraSlashItems } from '@/lib/completions'
 import { setActiveEditor } from '@/lib/editorCommands'
 import { listRenumber } from '@/lib/listRenumber'
+import { tableToolbar } from '@/lib/tableTools'
 
 /** Chèn đoạn Markdown của file vào vị trí `pos` (sau khi lưu xong). */
 async function insertFiles(view: EditorView, files: File[], pos: number, replaceTo = pos): Promise<void> {
@@ -105,6 +106,7 @@ export function MarkdownEditor({ value, readOnly = false, onChange }: Props): Re
           }),
           highlightActiveLine(),
           formatToolbar(),
+          tableToolbar(),
           highlightSelectionMatches(),
           search({ top: true }),
           EditorView.lineWrapping,
