@@ -31,6 +31,8 @@ export function App(): React.JSX.Element {
         .then(() => {
           startBackup()
           startHistory()
+          // Báo cho main là đã sẵn sàng nhận lệnh (ví dụ phím tắt ghi nhanh)
+          window.nibmark?.ready()
         })
     }
     const flush = (): void => {
@@ -51,6 +53,13 @@ export function App(): React.JSX.Element {
       const s = useStore.getState()
       if (command === 'preferences') s.setPrefsOpen(true)
       else if (command === 'new-note') s.createNote()
+      else if (command === 'quick-note') {
+        s.setPrefsOpen(false)
+        s.setPalette(null)
+        if (s.distractionFree) s.toggleDistractionFree()
+        s.createNote()
+        setTimeout(() => document.querySelector<HTMLInputElement>('.note-title')?.focus(), 0)
+      }
       else if (command === 'export-note') void exportNote()
       else if (command === 'export-all') void exportNotes(null)
       else if (command === 'backup-now') void backupNow()

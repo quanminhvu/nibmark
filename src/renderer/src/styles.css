@@ -1968,3 +1968,13 @@ mark {
   user-select: none;
   -webkit-user-drag: none;
 }
+
+/* Ô ghi phím tắt trong Preferences */
+.btn.shortcut-field {
+  min-width: 120px;
+  font-variant-numeric: tabular-nums;
+}
+.btn.shortcut-field.recording {
+  border-color: var(--accent);
+  color: var(--accent);
+}

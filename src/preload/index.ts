@@ -30,6 +30,12 @@ contextBridge.exposeInMainWorld('nibmark', {
     getUserStyles: () => ipcRenderer.invoke('styles:get'),
     openUserStyles: () => ipcRenderer.invoke('styles:open')
   },
+  shortcuts: {
+    get: () => ipcRenderer.invoke('shortcuts:get'),
+    set: (accelerator: string) => ipcRenderer.invoke('shortcuts:set', accelerator)
+  },
+  /** Renderer báo đã sẵn sàng nhận lệnh (dùng cho phím tắt ghi nhanh khi cửa sổ vừa mở) */
+  ready: () => ipcRenderer.send('renderer:ready'),
   onMenu: (callback: (command: string) => void) => {
     const listener = (_event: Electron.IpcRendererEvent, command: string): void => callback(command)
     ipcRenderer.on('menu', listener)

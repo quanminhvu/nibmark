@@ -2,6 +2,7 @@ import { app, BrowserWindow, shell, nativeImage } from 'electron'
 import { isAbsolute, join } from 'node:path'
 import { registerIpc } from './ipc'
 import { buildMenu } from './menu'
+import { registerShortcuts } from './shortcuts'
 
 const isDev = !app.isPackaged && !!process.env['ELECTRON_RENDERER_URL']
 
@@ -10,7 +11,7 @@ const isDev = !app.isPackaged && !!process.env['ELECTRON_RENDERER_URL']
 const customUserData = process.env['NIBMARK_USER_DATA']
 if (customUserData && isAbsolute(customUserData)) app.setPath('userData', customUserData)
 
-function createWindow(): void {
+function createWindow(): BrowserWindow {
   const win = new BrowserWindow({
     width: 1280,
     height: 800,
@@ -49,6 +50,12 @@ function createWindow(): void {
   } else {
     void win.loadFile(join(__dirname, '../renderer/index.html'))
   }
+  return win
+}
+
+/** Cửa sổ chính; trên macOS app có thể đang chạy mà không còn cửa sổ nào */
+function getOrCreateWindow(): BrowserWindow {
+  return BrowserWindow.getAllWindows()[0] ?? createWindow()
 }
 
 app.whenReady().then(() => {
@@ -60,6 +67,7 @@ app.whenReady().then(() => {
   registerIpc()
   buildMenu()
   createWindow()
+  registerShortcuts(getOrCreateWindow)
   app.on('activate', () => {
     if (BrowserWindow.getAllWindows().length === 0) createWindow()
   })

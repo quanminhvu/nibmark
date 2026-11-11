@@ -31,6 +31,13 @@ interface NibmarkSettings {
   lastBackupAt: number | null
 }
 
+interface NibmarkShortcutStatus {
+  accelerator: string
+  registered: boolean
+  error: string | null
+  disabledForTesting: boolean
+}
+
 interface NibmarkBridge {
   platform: string
   settings: {
@@ -67,6 +74,11 @@ interface NibmarkBridge {
     getUserStyles(): Promise<string>
     openUserStyles(): Promise<string | null>
   }
+  shortcuts: {
+    get(): Promise<NibmarkShortcutStatus>
+    set(accelerator: string): Promise<NibmarkShortcutStatus>
+  }
+  ready(): void
   onMenu(callback: (command: string) => void): () => void
 }
 

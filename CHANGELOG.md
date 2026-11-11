@@ -16,6 +16,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 - Select several notes with `⌘`-click, `⇧`-click or `⌘A` in the note list, then move them to a notebook, set their status, tag, pin, trash, restore or delete them together; drag a selection onto the sidebar
 - Attachments: paste or drop images and files into a note (up to 100 MB each), or use `/file`. Images show in the preview and open full size on click; other files open in their default app. Attachments are included in backups, restores and Markdown exports (in an `attachments/` folder with relative links)
 - Version history: a version is saved a few seconds after you stop typing; browse versions with a line diff and restore any of them (the text you replace is saved too, so a restore can be undone). History stays on this computer and is not part of backups
+- Quick Note global shortcut (`⌘⌥N` by default, configurable in Preferences): brings Nibmark to the front with a new note, even from the background
 - Back and forward between notes: buttons in the note header, `⌘⌥←` / `⌘⌥→`, `⌘[` / `⌘]` outside the editor, and the mouse back/forward buttons
 
 ### Changed

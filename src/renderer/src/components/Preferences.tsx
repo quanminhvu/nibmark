@@ -49,6 +49,7 @@ export function Preferences(): React.JSX.Element | null {
         </header>
 
         <Appearance />
+        <QuickNote />
         <Templates />
 
         {!bridge ? (
@@ -248,3 +249,99 @@ function Templates(): React.JSX.Element {
 }
 
 const isMacKey = (): string => (window.nibmark?.platform === 'darwin' ? '⌘' : 'Ctrl+')
+
+/** Đổi chuỗi phím tắt kiểu Electron thành ký hiệu dễ đọc, ví dụ ⌘⌥N */
+function prettyAccelerator(acc: string): string {
+  if (!acc) return 'Off'
+  const mac = window.nibmark?.platform === 'darwin'
+  const map: Record<string, string> = mac
+    ? { CommandOrControl: '⌘', Command: '⌘', Control: '⌃', Alt: '⌥', Shift: '⇧', Space: 'Space' }
+    : { CommandOrControl: 'Ctrl', Command: 'Win', Control: 'Ctrl', Alt: 'Alt', Shift: 'Shift', Space: 'Space' }
+  const parts = acc.split('+').map((p) => map[p] ?? p)
+  return mac ? parts.join('') : parts.join('+')
+}
+
+/** Ghi lại tổ hợp phím người dùng bấm thành chuỗi Electron (cần ít nhất một phím bổ trợ) */
+function acceleratorFromEvent(e: React.KeyboardEvent): string | null {
+  const mac = window.nibmark?.platform === 'darwin'
+  const mods: string[] = []
+  if (e.metaKey) mods.push(mac ? 'CommandOrControl' : 'Super')
+  if (e.ctrlKey) mods.push(mac ? 'Control' : 'CommandOrControl')
+  if (e.altKey) mods.push('Alt')
+  if (e.shiftKey) mods.push('Shift')
+  const code = e.code
+  let key: string | null = null
+  if (/^Key[A-Z]$/.test(code)) key = code.slice(3)
+  else if (/^Digit\d$/.test(code)) key = code.slice(5)
+  else if (/^F\d{1,2}$/.test(code)) key = code
+  else if (code === 'Space') key = 'Space'
+  else if (code === 'Period') key = '.'
+  else if (code === 'Comma') key = ','
+  else if (code === 'Slash') key = '/'
+  if (!key || (!mods.length && !/^F\d/.test(key))) return null
+  return [...mods, key].join('+')
+}
+
+function QuickNote(): React.JSX.Element | null {
+  const bridge = window.nibmark
+  const [status, setStatus] = useState<NibmarkShortcutStatus | null>(null)
+  const [recording, setRecording] = useState(false)
+
+  useEffect(() => {
+    if (bridge) void bridge.shortcuts.get().then(setStatus)
+  }, [bridge])
+
+  if (!bridge) return null
+  const save = async (acc: string): Promise<void> => {
+    setRecording(false)
+    setStatus(await bridge.shortcuts.set(acc))
+  }
+
+  return (
+    <section className="pref-section">
+      <h3>Quick Note</h3>
+      <p className="pref-note">
+        A global shortcut that brings Nibmark to the front with a new note, even when the app is in the background.
+      </p>
+      <div className="pref-actions">
+        <button
+          className={recording ? 'btn shortcut-field recording' : 'btn shortcut-field'}
+          onClick={() => setRecording(true)}
+          onBlur={() => setRecording(false)}
+          onKeyDown={(e) => {
+            if (!recording) return
+            e.preventDefault()
+            e.stopPropagation()
+            if (e.key === 'Escape') {
+              setRecording(false)
+              return
+            }
+            const acc = acceleratorFromEvent(e)
+            if (acc) void save(acc)
+          }}
+        >
+          {recording ? 'Press a shortcut…' : prettyAccelerator(status?.accelerator ?? '')}
+        </button>
+        {status?.accelerator && (
+          <button className="btn" onClick={() => void save('')}>
+            Turn Off
+          </button>
+        )}
+        {status?.accelerator !== 'CommandOrControl+Alt+N' && (
+          <button className="btn" onClick={() => void save('CommandOrControl+Alt+N')}>
+            Use Default
+          </button>
+        )}
+      </div>
+      <p className={status?.error ? 'pref-status error' : 'pref-status'}>
+        {status?.disabledForTesting
+          ? 'Global shortcuts are turned off in this test profile.'
+          : status?.error
+            ? `${prettyAccelerator(status.accelerator)}: ${status.error}`
+            : status?.registered
+              ? 'Active'
+              : 'Off'}
+      </p>
+    </section>
+  )
+}

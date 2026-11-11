@@ -9,9 +9,11 @@ export interface Settings {
   /** null = dùng thư mục mặc định */
   backupDir: string | null
   lastBackupAt: number | null
+  /** Phím tắt toàn cục để ghi nhanh; chuỗi rỗng = tắt */
+  quickNoteShortcut: string
 }
 
-const defaults: Settings = { backupEnabled: true, backupDir: null, lastBackupAt: null }
+const defaults: Settings = { backupEnabled: true, backupDir: null, lastBackupAt: null, quickNoteShortcut: 'CommandOrControl+Alt+N' }
 
 const file = (): string => join(app.getPath('userData'), 'settings.json')
 
@@ -24,7 +26,8 @@ export function getSettings(): Settings {
     cache = {
       backupEnabled: typeof raw.backupEnabled === 'boolean' ? raw.backupEnabled : defaults.backupEnabled,
       backupDir: typeof raw.backupDir === 'string' && isAbsolute(raw.backupDir) ? raw.backupDir : null,
-      lastBackupAt: typeof raw.lastBackupAt === 'number' ? raw.lastBackupAt : null
+      lastBackupAt: typeof raw.lastBackupAt === 'number' ? raw.lastBackupAt : null,
+      quickNoteShortcut: typeof raw.quickNoteShortcut === 'string' ? raw.quickNoteShortcut : defaults.quickNoteShortcut
     }
   } catch {
     cache = { ...defaults }
