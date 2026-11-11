@@ -70,6 +70,29 @@ function insertLink(view: EditorView): boolean {
   return true
 }
 
+/** Biến các dòng đang chọn thành một khối alert: `> [!NOTE]` rồi từng dòng có `> `. */
+export function insertAlert(kind = 'NOTE'): (view: EditorView) => boolean {
+  return (view) => {
+    const { state } = view
+    const { from, to } = state.selection.main
+    const first = state.doc.lineAt(from)
+    const last = state.doc.lineAt(to)
+    const body = state
+      .sliceDoc(first.from, last.to)
+      .split('\n')
+      .map((l) => (l.trim() ? `> ${l.replace(/^\s*>\s?/, '')}` : '>'))
+      .join('\n')
+    const insert = `> [!${kind}]\n${body}`
+    view.dispatch({
+      changes: { from: first.from, to: last.to, insert },
+      // Chọn sẵn chữ NOTE để gõ đè thành TIP, WARNING…
+      selection: EditorSelection.range(first.from + 4, first.from + 4 + kind.length),
+      userEvent: 'input'
+    })
+    return true
+  }
+}
+
 const LIST_PREFIX = /^\s*(?:[-*+] \[[ xX]\] |[-*+] |\d+[.)] |> |#{1,6} )/
 
 interface ToolbarButton {
@@ -89,7 +112,8 @@ const BUTTONS: ToolbarButton[] = [
   { label: 'H', title: 'Heading', className: 'tb-sep', run: (v) => toggleLinePrefix('## ', LIST_PREFIX)(v) },
   { label: '•', title: 'Bulleted list', run: (v) => toggleLinePrefix('- ', LIST_PREFIX)(v) },
   { label: '☐', title: 'Task list', run: (v) => toggleLinePrefix('- [ ] ', LIST_PREFIX)(v) },
-  { label: '❝', title: 'Quote', run: (v) => toggleLinePrefix('> ', LIST_PREFIX)(v) }
+  { label: '❝', title: 'Quote', run: (v) => toggleLinePrefix('> ', LIST_PREFIX)(v) },
+  { label: '!', title: 'Alert (note, tip, warning…)', className: 'tb-alert', run: insertAlert() }
 ]
 
 const setPointerDown = StateEffect.define<boolean>()

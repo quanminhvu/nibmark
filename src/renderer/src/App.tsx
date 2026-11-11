@@ -105,6 +105,15 @@ export function App(): React.JSX.Element {
         s.setPalette('commands')
       } else if (key === 't') {
         s.setPalette('templates')
+      } else if (key === 'j') {
+        const note = s.selectedNoteId ? s.notes[s.selectedNoteId] : undefined
+        if (!note || note.trashed) return
+        s.setPalette('actions')
+      } else if (key === 'd') {
+        // ⌘D trong editor là "chọn chữ giống tiếp theo" của CodeMirror; ngoài editor thì nhân bản ghi chú
+        const note = s.selectedNoteId ? s.notes[s.selectedNoteId] : undefined
+        if (inEditor || !note || note.trashed) return
+        s.duplicateNote(note._id)
       } else if (key === 'n') {
         s.createNote()
         requestAnimationFrame(() => document.querySelector<HTMLInputElement>('.note-title')?.focus())

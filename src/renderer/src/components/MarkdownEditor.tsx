@@ -1,5 +1,6 @@
 import { useEffect, useRef } from 'react'
 import { EditorState, Compartment } from '@codemirror/state'
+import type { Extension } from '@codemirror/state'
 import { EditorView, keymap, drawSelection, highlightActiveLine, highlightActiveLineGutter, lineNumbers, placeholder, dropCursor, rectangularSelection, crosshairCursor } from '@codemirror/view'
 import { defaultKeymap, history, historyKeymap, indentWithTab } from '@codemirror/commands'
 import { markdown, markdownLanguage, markdownKeymap } from '@codemirror/lang-markdown'
@@ -14,6 +15,24 @@ import { extraSlashItems } from '@/lib/completions'
 import { setActiveEditor } from '@/lib/editorCommands'
 import { listRenumber } from '@/lib/listRenumber'
 import { tableToolbar } from '@/lib/tableTools'
+import { alertBlocks, noWrapBlocks, strikeDoneTasks } from '@/lib/editorDecorations'
+import { useEditorPrefs } from '@/lib/editorPrefs'
+import type { EditorPrefs } from '@/lib/editorPrefs'
+
+/** Các phần của editor đổi được khi người dùng đổi tùy chọn */
+function gutterExt(p: EditorPrefs): Extension {
+  return p.lineNumbers ? [lineNumbers(), highlightActiveLineGutter()] : []
+}
+function wrapExt(p: EditorPrefs): Extension {
+  if (p.wrap === 'none') return []
+  return p.wrap === 'prose' ? [EditorView.lineWrapping, noWrapBlocks] : EditorView.lineWrapping
+}
+function spellExt(p: EditorPrefs): Extension {
+  return EditorView.contentAttributes.of({ spellcheck: p.spellcheck ? 'true' : 'false', autocorrect: 'off', autocapitalize: 'off' })
+}
+function strikeExt(p: EditorPrefs): Extension {
+  return p.strikeDone ? strikeDoneTasks : []
+}
 
 /** Chèn đoạn Markdown của file vào vị trí `pos` (sau khi lưu xong). */
 async function insertFiles(view: EditorView, files: File[], pos: number, replaceTo = pos): Promise<void> {
@@ -80,6 +99,8 @@ export function MarkdownEditor({ value, readOnly = false, onChange }: Props): Re
   const viewRef = useRef<EditorView | null>(null)
   const onChangeRef = useRef(onChange)
   const readOnlyConf = useRef(new Compartment())
+  const prefConf = useRef({ gutter: new Compartment(), wrap: new Compartment(), spell: new Compartment(), strike: new Compartment() })
+  const prefs = useEditorPrefs()
   onChangeRef.current = onChange
 
   useEffect(() => {
@@ -89,8 +110,7 @@ export function MarkdownEditor({ value, readOnly = false, onChange }: Props): Re
         doc: value,
         extensions: [
           history(),
-          lineNumbers(),
-          highlightActiveLineGutter(),
+          prefConf.current.gutter.of(gutterExt(useEditorPrefs.getState())),
           // Nút gập ở lề trái: gập một mục (heading) hoặc một khối code
           foldGutter({
             markerDOM: (open) => {
@@ -120,7 +140,9 @@ export function MarkdownEditor({ value, readOnly = false, onChange }: Props): Re
           tableToolbar(),
           highlightSelectionMatches(),
           search({ top: true }),
-          EditorView.lineWrapping,
+          prefConf.current.wrap.of(wrapExt(useEditorPrefs.getState())),
+          prefConf.current.strike.of(strikeExt(useEditorPrefs.getState())),
+          alertBlocks,
           EditorState.tabSize.of(2),
           markdown({ base: markdownLanguage, codeLanguages: languages, addKeymap: false }),
           syntaxHighlighting(highlight),
@@ -138,7 +160,7 @@ export function MarkdownEditor({ value, readOnly = false, onChange }: Props): Re
             indentWithTab
           ]),
           readOnlyConf.current.of([EditorState.readOnly.of(readOnly), EditorView.editable.of(!readOnly)]),
-          EditorView.contentAttributes.of({ spellcheck: 'true', autocorrect: 'off', autocapitalize: 'off' }),
+          prefConf.current.spell.of(spellExt(useEditorPrefs.getState())),
           // Dán một URL lên chữ đang chọn thì biến chữ đó thành link Markdown
           EditorView.domEventHandlers({
             // Cmd/Ctrl+click vào link tới ghi chú khác thì mở ghi chú đó
@@ -233,11 +255,24 @@ export function MarkdownEditor({ value, readOnly = false, onChange }: Props): Re
     return () => window.removeEventListener('nibmark-goto', onGoto)
   }, [])
 
+  // Đổi tùy chọn editor: cấu hình lại ngay, không cần mở lại ghi chú
+  useEffect(() => {
+    const c = prefConf.current
+    viewRef.current?.dispatch({
+      effects: [
+        c.gutter.reconfigure(gutterExt(prefs)),
+        c.wrap.reconfigure(wrapExt(prefs)),
+        c.spell.reconfigure(spellExt(prefs)),
+        c.strike.reconfigure(strikeExt(prefs))
+      ]
+    })
+  }, [prefs])
+
   useEffect(() => {
     viewRef.current?.dispatch({
       effects: readOnlyConf.current.reconfigure([EditorState.readOnly.of(readOnly), EditorView.editable.of(!readOnly)])
     })
   }, [readOnly])
 
-  return <div className="editor-host" ref={hostRef} />
+  return <div className={`editor-host${prefs.readableWidth ? ' readable' : ''}${prefs.wrap === 'none' ? ' nowrap' : ''}`} ref={hostRef} />
 }

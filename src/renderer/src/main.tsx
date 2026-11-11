@@ -2,6 +2,7 @@ import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import { App } from './App'
 import { initTheme } from './lib/theme'
+import { useEditorPrefs } from './lib/editorPrefs'
 import './themes.css'
 import './styles.css'
 
@@ -10,6 +11,11 @@ initTheme()
 
 // macOS: cửa sổ dùng vibrancy, sidebar trong mờ
 if (window.nibmark?.platform === 'darwin') document.documentElement.classList.add('vibrant')
+
+// Gạch ngang task đã xong trong preview theo tùy chọn editor
+const syncStrike = (on: boolean): void => void document.documentElement.classList.toggle('strike-done', on)
+syncStrike(useEditorPrefs.getState().strikeDone)
+useEditorPrefs.subscribe((s) => syncStrike(s.strikeDone))
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>

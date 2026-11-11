@@ -9,6 +9,8 @@ import type { ThemeInfo } from '@/lib/theme'
 import { cx } from '@/lib/util'
 import { relativeTime } from '@/lib/util'
 import { runImport } from '@/lib/importer'
+import { useEditorPrefs } from '@/lib/editorPrefs'
+import type { WrapMode } from '@/lib/editorPrefs'
 
 export function Preferences(): React.JSX.Element | null {
   const open = useStore((s) => s.prefsOpen)
@@ -50,6 +52,7 @@ export function Preferences(): React.JSX.Element | null {
         </header>
 
         <Appearance />
+        <EditorSection />
         <QuickNote />
         <Templates />
 
@@ -227,6 +230,33 @@ function Appearance(): React.JSX.Element {
           </div>
         </>
       )}
+    </section>
+  )
+}
+
+function EditorSection(): React.JSX.Element {
+  const p = useEditorPrefs()
+  const toggle = (key: 'lineNumbers' | 'readableWidth' | 'spellcheck' | 'strikeDone', label: string): React.JSX.Element => (
+    <label className="pref-toggle">
+      <input type="checkbox" checked={p[key]} onChange={(e) => p.set({ [key]: e.target.checked })} />
+      <span>{label}</span>
+    </label>
+  )
+  return (
+    <section className="pref-section">
+      <h3>Editor</h3>
+      {toggle('lineNumbers', 'Show line numbers')}
+      {toggle('readableWidth', 'Limit line width for easier reading')}
+      {toggle('spellcheck', 'Check spelling')}
+      {toggle('strikeDone', 'Strike through completed tasks')}
+      <div className="pref-row">
+        <span className="pref-label">Line wrapping</span>
+        <select className="pref-select" value={p.wrap} onChange={(e) => p.set({ wrap: e.target.value as WrapMode })}>
+          <option value="all">Wrap all lines</option>
+          <option value="prose">Wrap text, not code blocks or tables</option>
+          <option value="none">Don&rsquo;t wrap</option>
+        </select>
+      </div>
     </section>
   )
 }

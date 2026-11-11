@@ -9,11 +9,11 @@ Ký hiệu: `[x]` đã xong · `[ ]` chưa làm · *(một phần: …)* đã l�
 | Giai đoạn | Số mục | Đã xong |
 |---|---|---|
 | 1. Ứng dụng desktop (đã phát hành tới 0.3) | 53 | 53 |
-| 2. Hoàn thiện trải nghiệm (tiếp theo) | 35 | 0 |
+| 2. Hoàn thiện trải nghiệm (đang làm) | 38 | 8 |
 | 3. Đồng bộ và bảo mật | 8 | 0 |
 | 4. Mobile, plugin và AI | 20 | 0 |
 | 5. Phát hành rộng và mô hình kinh doanh | 9 | 0 |
-| **Tổng** | **125** | **53** |
+| **Tổng** | **128** | **61** |
 
 ---
 
@@ -26,12 +26,12 @@ Ký hiệu: `[x]` đã xong · `[ ]` chưa làm · *(một phần: …)* đã l�
 - [x] Markdown kiểu GitHub: bảng, task list, gạch ngang, footnote, chỉ số trên/dưới, comment HTML ẩn
 - [x] Ba chế độ xem: chỉ editor, chỉ preview (⌘E), song song (⌘P)
 - [x] Chế độ tập trung (⌘⇧D)
-- [x] Thanh công cụ nổi khi bôi đen chữ *(một phần: chưa có nút chèn alert)*
+- [x] Thanh công cụ nổi khi bôi đen chữ
 - [x] Slash command (`/`) ở đầu dòng trống: heading, danh sách, task, khối code, bảng, trích dẫn, đường kẻ, Mermaid, công thức, alert, link ghi chú, file
 - [x] Phím tắt định dạng (⌘B, ⌘I); dán URL lên chữ đang chọn để tạo link
 - [x] Gợi ý ngôn ngữ khi gõ ```
 - [x] Gợi ý emoji khi gõ `:` và hai ký tự
-- [x] Alert kiểu GitHub (`[!NOTE]`, `[!TIP]`, `[!IMPORTANT]`, `[!WARNING]`, `[!CAUTION]`) *(một phần: hiển thị trong preview và chèn bằng slash command; chưa tô màu riêng trong editor)*
+- [x] Alert kiểu GitHub (`[!NOTE]`, `[!TIP]`, `[!IMPORTANT]`, `[!WARNING]`, `[!CAUTION]`) *(hiển thị trong preview, tô màu trong editor, chèn bằng slash command hoặc thanh công cụ)*
 - [x] Liên kết giữa ghi chú bằng `[[`, tạo ghi chú mới nếu chưa có
 - [x] Highlight đoạn chữ (`<mark>`) từ thanh công cụ
 - [x] Dán hoặc kéo thả ảnh và mọi loại file vào ghi chú *(một phần: chưa có cú pháp kích thước ảnh và thanh chỉnh kích thước)*
@@ -104,15 +104,21 @@ Ký hiệu: `[x]` đã xong · `[ ]` chưa làm · *(một phần: …)* đã l�
 
 Làm được ngay, không phụ thuộc đồng bộ.
 
+### Giao diện
+
+- [x] Giao diện bo tròn: sidebar trong mờ với nhóm thu gọn được, thẻ ghi chú có thanh tiến độ task, thanh công cụ và công tắc chế độ xem kiểu viên
+- [x] Theme Mist (sáng) và Night (tối) làm mặc định khi theo hệ điều hành
+- [x] Bảng Kanban: ghi chú có `view: kanban` hiện thành bảng, kéo thả thẻ giữa các cột, mọi thay đổi ghi lại vào Markdown
+
 ### Soạn thảo
 
-- [ ] Nút chèn alert trên thanh công cụ nổi; tô màu alert ngay trong editor
+- [x] Nút chèn alert trên thanh công cụ nổi; tô màu alert ngay trong editor
 - [ ] Dán link thông minh: chọn định dạng link, tự lấy tiêu đề trang
 - [ ] Cú pháp kích thước ảnh và thanh chỉnh kích thước (Tự động / Nhỏ / Nửa / Đầy)
-- [ ] Các chế độ ngắt dòng: ngắt tất cả, chỉ ngắt văn bản, không ngắt bảng và code ở dòng đang sửa
-- [ ] Menu hành động của ghi chú (⌘J)
-- [ ] Bật/tắt số dòng, giới hạn độ rộng dòng, bật/tắt kiểm tra chính tả, gạch ngang task đã xong
-- [ ] Phím tắt nhân bản ghi chú (⌘D ngoài editor)
+- [x] Các chế độ ngắt dòng: ngắt tất cả, chỉ ngắt văn bản (giữ nguyên dòng của khối code và bảng), không ngắt
+- [x] Menu hành động của ghi chú (⌘J)
+- [x] Bật/tắt số dòng, giới hạn độ rộng dòng, bật/tắt kiểm tra chính tả, gạch ngang task đã xong
+- [x] Phím tắt nhân bản ghi chú (⌘D ngoài editor)
 
 ### Preview
 
