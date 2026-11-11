@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { Files, Pin, RotateCcw, Trash2, X } from 'lucide-react'
 import { useStore } from '@/lib/store'
 import { NotebookPicker } from './NotebookPicker'
-import { STATUSES } from '@/lib/types'
+import { getStatuses } from '@/lib/statuses'
 import type { NoteStatus } from '@/lib/types'
 import type { MenuItem } from './ContextMenu'
 
@@ -42,7 +42,7 @@ export function bulkMenu(ids: string[]): MenuItem[] {
     ]
   }
   return [
-    ...STATUSES.map((st) => ({
+    ...getStatuses().map((st) => ({
       label: `Set Status: ${st.label}`,
       onClick: () => ids.forEach((id) => s.updateNote(id, { status: st.id }))
     })),
@@ -55,6 +55,7 @@ export function bulkMenu(ids: string[]): MenuItem[] {
 
 /** Khung bên phải khi đang chọn nhiều ghi chú */
 export function BulkPanel(): React.JSX.Element {
+  useStore((s) => s.statuses)
   const ids = useStore((s) => s.multi)
   const notes = useStore((s) => s.notes)
   const books = useStore((s) => s.books)
@@ -122,7 +123,7 @@ export function BulkPanel(): React.JSX.Element {
               >
                 <option value="">Choose a status…</option>
                 <option value="none">No status</option>
-                {STATUSES.map((st) => (
+                {getStatuses().map((st) => (
                   <option key={st.id} value={st.id}>
                     {st.label}
                   </option>

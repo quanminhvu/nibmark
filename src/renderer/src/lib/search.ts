@@ -1,3 +1,4 @@
+import { getStatuses } from './statuses'
 import type { Book, Note, NoteStatus, Tag } from './types'
 
 // Cú pháp tìm kiếm:
@@ -35,7 +36,8 @@ export function parseQuery(query: string): Term[] {
 const normalizeStatus = (s: string): string => s.toLowerCase().replace(/[\s_-]/g, '')
 
 function statusMatches(status: NoteStatus, value: string): boolean {
-  return normalizeStatus(status) === normalizeStatus(value)
+  return normalizeStatus(status) === normalizeStatus(value) ||
+    getStatuses().some((s) => s.id === status && normalizeStatus(s.label) === normalizeStatus(value))
 }
 
 function termMatches(note: Note, term: Term, ctx: SearchContext): boolean {

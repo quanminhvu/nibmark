@@ -1,8 +1,8 @@
 import { create } from 'zustand'
 import { loadAll, putDoc, removeDoc, watchChanges } from './db'
-import { TAG_COLORS } from './types'
+import { STATUSES, TAG_COLORS } from './types'
 import { childrenByParent, visibleNotes } from './selectors'
-import type { AnyDoc, Book, Note, NoteStatus, Selection, SortKey, Tag, Template, ViewMode } from './types'
+import type { AnyDoc, CustomStatus, Book, Note, NoteStatus, Selection, SortKey, Tag, Template, ViewMode } from './types'
 import { WELCOME_BODY, WELCOME_TITLE } from './welcome'
 import { noteWindowId } from './windowMode'
 
@@ -52,6 +52,12 @@ export interface State extends Prefs {
   ready: boolean
   notes: Record<string, Note>
   books: Record<string, Book>
+  statuses: Record<string, CustomStatus>
+  deleteStatus: (id: NoteStatus) => void
+  ensureStatus: (name: string) => NoteStatus
+  setStatusAppearance: (id: NoteStatus, color: string, icon: string, name?: string) => boolean
+  setTagDetails: (id: string, name: string, color: string) => boolean
+  setTagColor: (id: string, color: string) => void
   tags: Record<string, Tag>
   templates: Record<string, Template>
   query: string
@@ -182,6 +188,8 @@ export const useStore = create<State>((set, get) => {
         ? 'books'
         : id.startsWith('tag:')
           ? 'tags'
+          : id.startsWith('status:')
+            ? 'statuses'
           : id.startsWith('template:')
             ? 'templates'
             : null
@@ -206,6 +214,7 @@ export const useStore = create<State>((set, get) => {
     notes: {},
     books: {},
     tags: {},
+    statuses: {},
     templates: {},
     query: '',
     distractionFree: false,
@@ -219,15 +228,17 @@ export const useStore = create<State>((set, get) => {
       const docs = await loadAll()
       const notes: Record<string, Note> = {}
       const books: Record<string, Book> = {}
+      const statuses: Record<string, CustomStatus> = {}
       const tags: Record<string, Tag> = {}
       const templates: Record<string, Template> = {}
       for (const doc of docs) {
         if (doc.type === 'note') notes[doc._id] = doc
         else if (doc.type === 'book') books[doc._id] = doc
+        else if (doc.type === 'status') statuses[doc._id] = doc
         else if (doc.type === 'tag') tags[doc._id] = doc
         else if (doc.type === 'template') templates[doc._id] = doc
       }
-      set({ notes, books, tags, templates })
+      set({ notes, books, tags, templates, statuses })
 
       if (docs.length === 0) {
         const bookId = get().createBook('Inbox', null)
@@ -479,6 +490,74 @@ export const useStore = create<State>((set, get) => {
         }
       })
       for (const bid of ids) erase(bid)
+    },
+
+    deleteStatus: (id) => {
+      if (id === 'none') return
+      const key = (id.startsWith('status:') ? id : `status:${id}`) as CustomStatus['_id']
+      const existing = get().statuses[key]
+      const builtin = STATUSES.find((s) => s.id === id)
+      if ((!existing && !builtin) || existing?.deleted) return
+      const now = Date.now()
+      const status: CustomStatus = { ...existing, _id: key, type: 'status', name: existing?.name ?? builtin!.label,
+        color: existing?.color ?? '#2F6FE4', deleted: true, updatedAt: now, createdAt: existing?.createdAt ?? now }
+      // Keep a tombstone so built-in statuses stay deleted after reload and restore.
+      set((s) => ({ statuses: { ...s.statuses, [key]: status },
+        selection: s.selection.kind === 'status' && s.selection.status === id ? { kind: 'all' } : s.selection }))
+      persist(status)
+      for (const note of Object.values(get().notes)) {
+        if (note.status === id) putNote({ ...note, status: 'none', updatedAt: now })
+      }
+      for (const template of Object.values(get().templates)) {
+        if (template.status === id) putTemplate({ ...template, status: 'none', updatedAt: now })
+      }
+    },
+
+    setStatusAppearance: (id, color, icon, name) => {
+      if (id === 'none' || !/^#[0-9a-f]{6}$/i.test(color) || !/^[A-Z][A-Za-z0-9]{1,60}$/.test(icon)) return false
+      const key = (id.startsWith('status:') ? id : `status:${id}`) as CustomStatus['_id']
+      const existing = get().statuses[key]
+      const builtin = STATUSES.find((s) => s.id === id)
+      if ((!existing && !builtin) || existing?.deleted) return false
+      const nextName = (name ?? existing?.name ?? builtin!.label).trim()
+      const duplicates = [...STATUSES.filter((s) => !get().statuses[`status:${s.id}`]?.deleted).map((s) => ({ id: `status:${s.id}`, name: get().statuses[`status:${s.id}`]?.name ?? s.label })), ...Object.values(get().statuses).filter((s) => !s.deleted).map((s) => ({ id: s._id, name: s.name }))]
+      if (!nextName || duplicates.some((s) => s.id !== key && s.name.toLowerCase() === nextName.toLowerCase())) return false
+      const now = Date.now()
+      const status: CustomStatus = { _id: key, type: 'status', name: nextName,
+        createdAt: existing?.createdAt ?? now, updatedAt: now, color, icon }
+      set((s) => ({ statuses: { ...s.statuses, [key]: status } }))
+      persist(status)
+      return true
+    },
+
+    setTagDetails: (id, name, color) => {
+      const tag = get().tags[id]
+      const trimmed = name.trim()
+      if (!tag || !trimmed || !/^#[0-9a-f]{6}$/i.test(color) || Object.values(get().tags).some((t) => t._id !== id && t.name.toLowerCase() === trimmed.toLowerCase())) return false
+      putTag({ ...tag, name: trimmed, color, updatedAt: Date.now() })
+      return true
+    },
+
+    setTagColor: (id, color) => {
+      const tag = get().tags[id]
+      if (tag && /^#[0-9a-f]{6}$/i.test(color)) putTag({ ...tag, color, updatedAt: Date.now() })
+    },
+
+    ensureStatus: (name) => {
+      const trimmed = name.trim()
+      if (!trimmed) return 'none'
+      const builtin = STATUSES.find((s) => !get().statuses[`status:${s.id}`]?.deleted && (get().statuses[`status:${s.id}`]?.name ?? s.label).toLowerCase() === trimmed.toLowerCase())
+      if (builtin) return builtin.id
+      const existing = Object.values(get().statuses).find((s) => !s.deleted && s.name.toLowerCase() === trimmed.toLowerCase())
+      if (existing) return existing._id
+      const now = Date.now()
+      const status: CustomStatus = {
+        _id: newId('status') as CustomStatus['_id'], type: 'status', name: trimmed,
+        color: TAG_COLORS[Object.keys(get().statuses).length % TAG_COLORS.length], createdAt: now, updatedAt: now
+      }
+      set((s) => ({ statuses: { ...s.statuses, [status._id]: status } }))
+      persist(status)
+      return status._id
     },
 
     ensureTag: (name) => {

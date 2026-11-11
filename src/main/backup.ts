@@ -12,9 +12,9 @@ import { backupDir, getSettings, updateSettings } from './settings'
 // chỉ được chuyển sang deleted/. Một bản cài mới hay một DB rỗng trỏ vào cùng thư mục
 // cũng không thể làm mất dữ liệu đã sao lưu.
 
-const ID = /^(note|book|tag|template|file):[A-Za-z0-9_-]{1,64}$/
+const ID = /^(note|book|tag|template|file|status):[A-Za-z0-9_-]{1,64}$/
 const FILE_ID = /^file:[A-Za-z0-9_-]{1,64}$/
-const FOLDER = { note: 'notes', book: 'books', tag: 'tags', template: 'templates', file: 'files' } as const
+const FOLDER = { note: 'notes', book: 'books', tag: 'tags', status: 'statuses', template: 'templates', file: 'files' } as const
 type Kind = keyof typeof FOLDER
 
 /** Giới hạn kích thước một file đính kèm */

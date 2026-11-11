@@ -1,5 +1,5 @@
 import { childrenByParent } from './selectors'
-import { STATUSES } from './types'
+import { getStatuses } from './statuses'
 import type { Book, Note, Tag } from './types'
 
 export interface ExportFile {
@@ -29,7 +29,7 @@ export function bookPath(books: Record<string, Book>, bookId: string): string[] 
 export function noteToMarkdown(note: Note, books: Record<string, Book>, tags: Record<string, Tag>): string {
   const q = (s: string): string => JSON.stringify(s)
   const tagNames = note.tags.map((id) => tags[id]?.name).filter((n): n is string => !!n)
-  const status = STATUSES.find((s) => s.id === note.status)?.label
+  const status = getStatuses().find((s) => s.id === note.status)?.label
   const lines = [
     '---',
     `title: ${q(note.title || 'Untitled')}`,

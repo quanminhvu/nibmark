@@ -13,7 +13,7 @@ import { Preview } from './Preview'
 import { KanbanBoard } from './KanbanBoard'
 import { isKanban } from '@/lib/kanban'
 import { BUILTIN_THEMES, useTheme } from '@/lib/theme'
-import { STATUSES } from '@/lib/types'
+import { getStatuses } from '@/lib/statuses'
 import type { NoteStatus } from '@/lib/types'
 import { cx, isMac, relativeTime } from '@/lib/util'
 import { StatusIcon } from './StatusIcon'
@@ -127,7 +127,7 @@ function noteActionItems(id: string, withTargets = false): Item[] {
     cmd('history', 'Show Version History…', () => openHistory(id), undefined, 'revisions versions restore undo diff'),
     cmd('trash', 'Move Note to Trash', () => s.trashNote(id), undefined, 'delete remove'),
     cmd('status-none', 'Set Status: None', () => s.updateNote(id, { status: 'none' }), undefined, 'clear'),
-    ...STATUSES.map((st) => cmd(`status-${st.id}`, `Set Status: ${st.label}`, () => s.updateNote(id, { status: st.id })))
+    ...getStatuses().map((st) => cmd(`status-${st.id}`, `Set Status: ${st.label}`, () => s.updateNote(id, { status: st.id })))
   ]
   if (!withTargets) return items
   // Menu ⌘J: thêm chuyển notebook và gắn/bỏ tag
@@ -292,7 +292,7 @@ function buildItems(mode: 'commands' | 'templates' | 'actions' | 'tasks', raw: s
       icon: <Hash size={15} style={{ color: t.color }} />,
       run: () => s.select({ kind: 'tag', id: t._id })
     }))
-  const statuses = STATUSES.map<Item>((st) => ({
+  const statuses = getStatuses().map<Item>((st) => ({
     id: `status:${st.id}`,
     section: 'Status',
     label: st.label,
@@ -348,6 +348,7 @@ export function CommandPalette(): React.JSX.Element | null {
 }
 
 function PaletteBody({ mode }: { mode: 'commands' | 'templates' | 'actions' | 'tasks' }): React.JSX.Element {
+  const statusDefinitions = useStore((s) => s.statuses)
   const [raw, setRaw] = useState('')
   const [active, setActive] = useState(0)
   const listRef = useRef<HTMLDivElement>(null)
@@ -368,7 +369,7 @@ function PaletteBody({ mode }: { mode: 'commands' | 'templates' | 'actions' | 't
       .filter((x): x is NonNullable<typeof x> => !!x)
       .sort((a, b) => b.score - a.score)
       .slice(0, 80)
-  }, [mode, raw, tick])
+  }, [mode, raw, tick, statusDefinitions])
 
   const close = (): void => {
     useStore.getState().setPalette(null)

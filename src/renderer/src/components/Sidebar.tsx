@@ -1,9 +1,11 @@
+import { AppearancePicker } from './AppearancePicker'
+import type { AppearanceTarget } from './AppearancePicker'
 import { useMemo, useState } from 'react'
 import { openActivity } from './ActivityPanel'
 import { ChartNoAxesColumn, ChevronDown, ChevronRight, Files, LayoutTemplate, Plus, Search, Settings, Trash2, X } from 'lucide-react'
 import { useStore } from '@/lib/store'
 import { childrenByParent, descendantIds } from '@/lib/selectors'
-import { STATUSES } from '@/lib/types'
+import { getStatuses } from '@/lib/statuses'
 import type { Book, NoteStatus, Selection } from '@/lib/types'
 import { cx } from '@/lib/util'
 import { exportNotes } from '@/lib/actions'
@@ -28,7 +30,7 @@ export function noteIdsFromDrag(data: string): string[] {
 }
 const BOOK_MIME = 'application/x-nibmark-book'
 
-type Editing = { kind: 'new'; parentId: string | null } | { kind: 'rename'; id: string } | { kind: 'renameTag'; id: string } | null
+type Editing = { kind: 'new'; parentId: string | null } | { kind: 'rename'; id: string } | { kind: 'renameTag'; id: string } | { kind: 'newTag' | 'newStatus' } | null
 
 function sameSelection(a: Selection, b: Selection): boolean {
   if (a.kind !== b.kind) return false
@@ -209,11 +211,13 @@ function FilterInput({ value, onChange, onClose }: { value: string; onChange: (v
 }
 
 export function Sidebar(): React.JSX.Element {
+  useStore((s) => s.statuses)
   const notes = useStore((s) => s.notes)
   const books = useStore((s) => s.books)
   const tags = useStore((s) => s.tags)
   const collapsed = useStore((s) => s.collapsedBooks)
   const actions = useStore.getState()
+  const [appearance, setAppearance] = useState<AppearanceTarget | null>(null)
   const [editing, setEditing] = useState<Editing>(null)
   const [sections, setSections] = useState<Record<string, boolean>>(readCollapsedSections)
   const [bookFilter, setBookFilter] = useState<string | null>(null)
@@ -359,6 +363,7 @@ export function Sidebar(): React.JSX.Element {
 
   return (
     <aside className="sidebar">
+      {appearance && <AppearancePicker target={appearance} onClose={() => setAppearance(null)} />}
       <div className="titlebar-drag sidebar-top">
         <span className="flex-1" />
         <button className="icon-btn" title="Activity" onClick={openActivity}>
@@ -420,12 +425,24 @@ export function Sidebar(): React.JSX.Element {
           </div>
         )}
 
-        <SectionHeading title="Status" collapsed={!!sections.status} onToggle={() => toggleSection('status')} />
-        {!sections.status && STATUSES.map((status) => (
+        <SectionHeading title="Status" collapsed={!!sections.status} onToggle={() => toggleSection('status')}
+          addTitle="New status" onAdd={() => { setSections((s) => ({ ...s, status: false })); setEditing({ kind: 'newStatus' }) }} />
+        {editing?.kind === 'newStatus' && <div className="side-row editing"><NameInput initial="" onDone={(name) => {
+          if (name) actions.select({ kind: 'status', status: actions.ensureStatus(name) })
+          setEditing(null)
+        }} /></div>}
+        {!sections.status && getStatuses().map((status) => (
           <Row
             key={status.id}
             selection={{ kind: 'status', status: status.id }}
             icon={<StatusIcon status={status.id} size={15} />}
+            onContextMenu={(e) => openMenu(e, [{ label: 'Edit Status…', onClick: () => setAppearance({
+              name: status.label, color: status.color ?? (({ active: '#80A4CD', onHold: '#F5A623', completed: '#2FB457', dropped: '#E5484D' } as Record<string, string>)[status.id] ?? '#2F6FE4'),
+              icon: status.icon ?? (({ active: 'Play', onHold: 'Pause', completed: 'Check', dropped: 'X' } as Record<string, string>)[status.id] ?? 'Circle'),
+              onSave: (color, icon, name) => actions.setStatusAppearance(status.id, color, icon, name)
+            }) }, { separator: true }, { label: 'Delete Status', danger: true, onClick: () => {
+              if (window.confirm(`Delete the status "${status.label}"? Notes and templates using it will be changed to No status. Their content will be kept.`)) actions.deleteStatus(status.id)
+            } }])}
             label={status.label}
             count={counts.byStatus.get(status.id) ?? 0}
             accept={[NOTE_MIME]}
@@ -433,14 +450,17 @@ export function Sidebar(): React.JSX.Element {
           />
         ))}
 
-        {sortedTags.length > 0 && (
-          <SectionHeading
+        <SectionHeading
             title="Tags"
+            addTitle="New tag" onAdd={() => { setSections((s) => ({ ...s, tags: false })); setTagFilter(null); setEditing({ kind: 'newTag' }) }}
             collapsed={!!sections.tags}
             onToggle={() => toggleSection('tags')}
             onSearch={() => setTagFilter(tagFilter === null ? '' : null)}
           />
-        )}
+        {editing?.kind === 'newTag' && <div className="side-row editing"><NameInput initial="" onDone={(name) => {
+          if (name) actions.select({ kind: 'tag', id: actions.ensureTag(name) })
+          setEditing(null)
+        }} /></div>}
         {!sections.tags && tagFilter !== null && <FilterInput value={tagFilter} onChange={setTagFilter} onClose={() => setTagFilter(null)} />}
         {!sections.tags &&
           sortedTags
@@ -473,6 +493,7 @@ export function Sidebar(): React.JSX.Element {
               onContextMenu={(e) =>
                 openMenu(e, [
                   { label: 'Rename', onClick: () => setEditing({ kind: 'renameTag', id: tag._id }) },
+                  { label: 'Edit Tag…', onClick: () => setAppearance({ name: tag.name, color: tag.color, onSave: (color, _icon, name) => actions.setTagDetails(tag._id, name, color) }) },
                   { label: 'Copy Tag ID', onClick: () => copyId(tag._id) },
                   { separator: true },
                   {

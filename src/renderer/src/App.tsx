@@ -1,3 +1,5 @@
+import type { CSSProperties } from 'react'
+import { ResizeHandle, usePaneSize } from './components/ResizeHandle'
 import { useEffect, useRef } from 'react'
 import { useStore } from '@/lib/store'
 import { cx, isMac } from '@/lib/util'
@@ -33,6 +35,8 @@ function NoteWindowTitle(): null {
 let started = false
 
 export function App(): React.JSX.Element {
+  const [sidebarWidth, setSidebarWidth] = usePaneSize('nibmark:sidebar-width', 228)
+  const [listWidth, setListWidth] = usePaneSize('nibmark:list-width', 300)
   const ready = useStore((s) => s.ready)
   const distractionFree = useStore((s) => s.distractionFree)
   const sidebarHidden = useStore((s) => s.sidebarHidden)
@@ -191,9 +195,11 @@ export function App(): React.JSX.Element {
   }
 
   return (
-    <div className={cx('app', isMac() && 'mac', distractionFree && 'distraction-free', sidebarHidden && 'sidebar-hidden')}>
+    <div style={{ '--sidebar-size': `${sidebarWidth}px`, '--list-size': `${listWidth}px` } as CSSProperties} className={cx('app', isMac() && 'mac', distractionFree && 'distraction-free', sidebarHidden && 'sidebar-hidden')}>
       <Sidebar />
+      {!distractionFree && !sidebarHidden && <ResizeHandle className="resize-sidebar" label="Sidebar width" value={sidebarWidth} min={160} max={420} reset={228} onChange={setSidebarWidth} />}
       <NoteList searchRef={searchRef} />
+      {!distractionFree && <ResizeHandle className="resize-notelist" label="Note list width" value={listWidth} min={200} max={600} reset={300} onChange={setListWidth} />}
       <NotePane />
       <ContextMenuHost />
       <CommandPalette />
