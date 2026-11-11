@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 1180 480" width="1180" height="480">
+  <!-- Logo ngang tối giản kiểu Nhật: icon + chữ Mincho mảnh -->
+  <rect width="1180" height="480" fill="#FAF7F1"/>
+  <image href="nibmark-icon.svg" xlink:href="nibmark-icon.svg" x="40" y="40" width="400" height="400"/>
+  <text x="478" y="290" font-family="Hiragino Mincho ProN, Yu Mincho, Noto Serif JP, Georgia, serif" font-size="140" font-weight="300" letter-spacing="6" fill="#1C1A18">Nibmark</text>
+</svg>
