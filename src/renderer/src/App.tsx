@@ -6,6 +6,7 @@ import { flushBackup, startBackup } from '@/lib/backup'
 import { goBack, goForward } from '@/lib/navigation'
 import { startHistory } from '@/lib/history'
 import { HistoryPanel, isHistoryOpen } from './components/HistoryPanel'
+import { IconPicker } from './components/BookIcon'
 import { CommandPalette } from './components/CommandPalette'
 import { ContextMenuHost } from './components/ContextMenu'
 import { NoteList } from './components/NoteList'
@@ -144,6 +145,7 @@ export function App(): React.JSX.Element {
       <ContextMenuHost />
       <CommandPalette />
       <HistoryPanel />
+      <IconPicker />
       <Preferences />
       <Notice />
     </div>

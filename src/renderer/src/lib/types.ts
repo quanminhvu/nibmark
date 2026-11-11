@@ -19,6 +19,10 @@ export interface Book {
   type: 'book'
   name: string
   parentId: string | null
+  /** Tên icon Lucide (PascalCase), không có = icon notebook mặc định */
+  icon?: string
+  /** Thứ tự tự sắp trong cùng một cấp; không có = xếp theo tên */
+  order?: number
   createdAt: number
   updatedAt: number
 }

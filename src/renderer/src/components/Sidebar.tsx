@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react'
-import { ChevronDown, ChevronRight, Files, Notebook, Plus, Trash2 } from 'lucide-react'
+import { ChevronDown, ChevronRight, Files, Plus, Trash2 } from 'lucide-react'
 import { useStore } from '@/lib/store'
 import { childrenByParent, descendantIds } from '@/lib/selectors'
 import { STATUSES } from '@/lib/types'
@@ -7,6 +7,7 @@ import type { Book, NoteStatus, Selection } from '@/lib/types'
 import { cx } from '@/lib/util'
 import { exportNotes } from '@/lib/actions'
 import { copyId } from '@/lib/clipboard'
+import { BookIcon, openIconPicker } from './BookIcon'
 import { openMenu } from './ContextMenu'
 import { StatusIcon } from './StatusIcon'
 
@@ -53,29 +54,42 @@ function NameInput({ initial, onDone }: { initial: string; onDone: (value: strin
   )
 }
 
-/** Trạng thái "đang kéo thả vào đây" cho một dòng trong sidebar. */
-function useDropTarget(accept: string[], onDrop: (type: string, id: string) => void) {
-  const [over, setOver] = useState(false)
+export type DropZone = 'before' | 'inside' | 'after'
+
+/**
+ * Trạng thái "đang kéo thả vào đây" cho một dòng trong sidebar.
+ * Với notebook đang được kéo (zoned): thả ở mép trên/dưới = đặt trước/sau, ở giữa = lồng vào.
+ */
+function useDropTarget(accept: string[], onDrop: (type: string, id: string, zone: DropZone) => void, zoned: string[] = []) {
+  const [zone, setZone] = useState<DropZone | null>(null)
   const accepted = (e: React.DragEvent): string | undefined => accept.find((type) => e.dataTransfer.types.includes(type))
+  const zoneOf = (e: React.DragEvent, type: string): DropZone => {
+    if (!zoned.includes(type)) return 'inside'
+    const rect = e.currentTarget.getBoundingClientRect()
+    const y = (e.clientY - rect.top) / rect.height
+    return y < 0.28 ? 'before' : y > 0.72 ? 'after' : 'inside'
+  }
   return {
-    over,
+    over: zone !== null,
+    zone,
     props: {
       onDragOver: (e: React.DragEvent) => {
-        if (!accepted(e)) return
+        const type = accepted(e)
+        if (!type) return
         e.preventDefault()
         e.stopPropagation()
         e.dataTransfer.dropEffect = 'move'
-        setOver(true)
+        setZone(zoneOf(e, type))
       },
-      onDragLeave: () => setOver(false),
+      onDragLeave: () => setZone(null),
       onDrop: (e: React.DragEvent) => {
-        setOver(false)
+        setZone(null)
         const type = accepted(e)
         if (!type) return
         e.preventDefault()
         e.stopPropagation()
         const id = e.dataTransfer.getData(type)
-        if (id) onDrop(type, id)
+        if (id) onDrop(type, id, zoneOf(e, type))
       }
     }
   }
@@ -88,18 +102,26 @@ interface RowProps {
   count?: number
   depth?: number
   accept?: string[]
-  onDropItem?: (type: string, id: string) => void
+  /** Loại dữ liệu kéo thả được chia vùng trước/giữa/sau */
+  zoned?: string[]
+  onDropItem?: (type: string, id: string, zone: DropZone) => void
   onContextMenu?: (e: React.MouseEvent) => void
   children?: React.ReactNode
 }
 
-function Row({ selection, icon, label, count, depth = 0, accept = [], onDropItem, onContextMenu, children }: RowProps): React.JSX.Element {
+function Row({ selection, icon, label, count, depth = 0, accept = [], zoned = [], onDropItem, onContextMenu, children }: RowProps): React.JSX.Element {
   const current = useStore((s) => s.selection)
   const select = useStore((s) => s.select)
-  const drop = useDropTarget(accept, (type, id) => onDropItem?.(type, id))
+  const drop = useDropTarget(accept, (type, id, zone) => onDropItem?.(type, id, zone), zoned)
   return (
     <div
-      className={cx('side-row', sameSelection(current, selection) && 'selected', drop.over && 'drop-over')}
+      className={cx(
+        'side-row',
+        sameSelection(current, selection) && 'selected',
+        drop.zone === 'inside' && 'drop-over',
+        drop.zone === 'before' && 'drop-before',
+        drop.zone === 'after' && 'drop-after'
+      )}
       style={{ paddingLeft: 10 + depth * 14 }}
       onClick={() => select(selection)}
       onContextMenu={onContextMenu}
@@ -149,6 +171,7 @@ export function Sidebar(): React.JSX.Element {
   const bookMenu = (book: Book) => (e: React.MouseEvent) =>
     openMenu(e, [
       { label: 'New Sub-notebook', onClick: () => setEditing({ kind: 'new', parentId: book._id }) },
+      { label: 'Change Icon…', onClick: () => openIconPicker(book._id) },
       { label: 'Rename', onClick: () => setEditing({ kind: 'rename', id: book._id }) },
       ...(book.parentId ? [{ label: 'Move to Top Level', onClick: () => actions.moveBook(book._id, null) }] : []),
       { label: 'Export as Markdown…', onClick: () => void exportNotes(book._id) },
@@ -201,14 +224,16 @@ export function Sidebar(): React.JSX.Element {
             >
               <Row
                 selection={{ kind: 'book', id: book._id }}
-                icon={<Notebook size={15} />}
+                icon={<BookIcon name={book.icon} />}
                 label={book.name}
                 count={count}
                 depth={depth}
                 accept={[NOTE_MIME, BOOK_MIME]}
-                onDropItem={(type, id) => {
+                zoned={[BOOK_MIME]}
+                onDropItem={(type, id, zone) => {
                   if (type === NOTE_MIME) moveNoteTo(id, { bookId: book._id })
-                  else actions.moveBook(id, book._id)
+                  else if (zone === 'inside') actions.moveBook(id, book._id)
+                  else actions.placeBook(id, book._id, zone)
                 }}
                 onContextMenu={bookMenu(book)}
               >

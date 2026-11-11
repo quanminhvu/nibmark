@@ -169,7 +169,14 @@ function normalize(raw: unknown): AnyDoc | null {
     }
   }
   if (d.type === 'book') {
-    return { ...base, type: 'book', name: str(d.name, 'Untitled'), parentId: typeof d.parentId === 'string' ? d.parentId : null }
+    return {
+      ...base,
+      type: 'book',
+      name: str(d.name, 'Untitled'),
+      parentId: typeof d.parentId === 'string' ? d.parentId : null,
+      ...(typeof d.icon === 'string' && /^[A-Z][A-Za-z0-9]{1,60}$/.test(d.icon) ? { icon: d.icon } : {}),
+      ...(typeof d.order === 'number' && Number.isFinite(d.order) ? { order: d.order } : {})
+    }
   }
   if (d.type === 'template') {
     return {

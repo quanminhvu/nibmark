@@ -1,7 +1,7 @@
 import { create } from 'zustand'
 import { loadAll, putDoc, removeDoc, watchChanges } from './db'
 import { TAG_COLORS } from './types'
-import { visibleNotes } from './selectors'
+import { childrenByParent, visibleNotes } from './selectors'
 import type { AnyDoc, Book, Note, NoteStatus, Selection, SortKey, Tag, Template, ViewMode } from './types'
 import { WELCOME_BODY, WELCOME_TITLE } from './welcome'
 
@@ -89,6 +89,9 @@ export interface State extends Prefs {
   createBook: (name: string, parentId: string | null) => string
   renameBook: (id: string, name: string) => void
   moveBook: (id: string, parentId: string | null) => void
+  /** Đặt notebook ngay trước/sau một notebook khác (cùng cấp với nó) */
+  placeBook: (id: string, targetId: string, where: 'before' | 'after') => void
+  setBookIcon: (id: string, icon: string | null) => void
   deleteBook: (id: string) => void
 
   ensureTag: (name: string) => string
@@ -414,12 +417,40 @@ export const useStore = create<State>((set, get) => {
       putBook({ ...book, name: trimmed, updatedAt: Date.now() })
     },
 
+    placeBook: (id, targetId, where) => {
+      const { books } = get()
+      const book = books[id]
+      const target = books[targetId]
+      if (!book || !target || id === targetId) return
+      const parentId = target.parentId && books[target.parentId] ? target.parentId : null
+      // Không cho đặt notebook vào trong chính nó hoặc con cháu của nó
+      if (parentId === id || (parentId && descendantsOf(id).includes(parentId))) return
+      const siblings = (childrenByParent(books).get(parentId) ?? []).filter((b) => b._id !== id)
+      const index = siblings.findIndex((b) => b._id === targetId) + (where === 'after' ? 1 : 0)
+      siblings.splice(index, 0, book)
+      const now = Date.now()
+      // Chỉ ghi lại thứ tự cho nhóm notebook cùng cấp này
+      siblings.forEach((b, order) => {
+        const next = b._id === id ? { ...b, parentId, order } : { ...b, order }
+        if (b.order !== order || (b._id === id && b.parentId !== parentId)) putBook({ ...next, updatedAt: now })
+      })
+    },
+
+    setBookIcon: (id, icon) => {
+      const book = get().books[id]
+      if (!book) return
+      const { icon: _old, ...rest } = book
+      putBook({ ...rest, ...(icon ? { icon } : {}), updatedAt: Date.now() })
+    },
+
     moveBook: (id, parentId) => {
       const book = get().books[id]
       if (!book || book.parentId === parentId || parentId === id) return
       // Không cho thả notebook vào chính con cháu của nó
       if (parentId && descendantsOf(id).includes(parentId)) return
-      putBook({ ...book, parentId, updatedAt: Date.now() })
+      // Sang cấp mới thì bỏ thứ tự cũ (xếp theo tên cho tới khi được kéo sắp lại)
+      const { order: _order, ...rest } = book
+      putBook({ ...rest, parentId, updatedAt: Date.now() })
     },
 
     deleteBook: (id) => {

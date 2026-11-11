@@ -2,6 +2,15 @@ import { matchesQuery, parseQuery } from './search'
 import type { State } from './store'
 import type { Book, Note } from './types'
 
+/** Notebook có thứ tự tự sắp đứng trước theo thứ tự đó; còn lại xếp theo tên */
+export function compareBooks(a: Book, b: Book): number {
+  const ao = typeof a.order === 'number'
+  const bo = typeof b.order === 'number'
+  if (ao && bo && a.order !== b.order) return a.order! - b.order!
+  if (ao !== bo) return ao ? -1 : 1
+  return a.name.localeCompare(b.name)
+}
+
 export function childrenByParent(books: Record<string, Book>): Map<string | null, Book[]> {
   const map = new Map<string | null, Book[]>()
   for (const book of Object.values(books)) {
@@ -11,7 +20,7 @@ export function childrenByParent(books: Record<string, Book>): Map<string | null
     if (list) list.push(book)
     else map.set(parent, [book])
   }
-  for (const list of map.values()) list.sort((a, b) => a.name.localeCompare(b.name))
+  for (const list of map.values()) list.sort(compareBooks)
   return map
 }
 
