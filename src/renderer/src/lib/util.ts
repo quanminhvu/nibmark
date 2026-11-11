@@ -19,6 +19,8 @@ export function relativeTime(timestamp: number, now = Date.now()): string {
 
 /** Một đoạn trích văn bản thuần của ghi chú, bỏ ký hiệu Markdown. */
 export function snippet(body: string, max = 140): string {
+  // Bỏ front matter (ví dụ `view: kanban`) ở đầu ghi chú
+  body = body.replace(/^---[ \t]*\r?\n[\s\S]*?\r?\n---[ \t]*(?:\r?\n|$)/, '')
   let out = ''
   let inFence = false
   for (const raw of body.split('\n')) {
