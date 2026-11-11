@@ -12,6 +12,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ### Added
 
+- Redesigned status/tag editor with live preview, searchable icon grid and inline rename, including built-in statuses; duplicate names are rejected without changing note assignments
+
 - Choose colors and icons for built-in and custom statuses, and colors for tags, from sidebar context menus
 
 - Create custom statuses and tags from the sidebar; custom statuses are available across note actions, filters, imports, exports and backups

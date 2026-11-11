@@ -436,10 +436,10 @@ export function Sidebar(): React.JSX.Element {
             key={status.id}
             selection={{ kind: 'status', status: status.id }}
             icon={<StatusIcon status={status.id} size={15} />}
-            onContextMenu={(e) => openMenu(e, [{ label: 'Change Color and Icon…', onClick: () => setAppearance({
+            onContextMenu={(e) => openMenu(e, [{ label: 'Edit Status…', onClick: () => setAppearance({
               name: status.label, color: status.color ?? (({ active: '#80A4CD', onHold: '#F5A623', completed: '#2FB457', dropped: '#E5484D' } as Record<string, string>)[status.id] ?? '#2F6FE4'),
               icon: status.icon ?? (({ active: 'Play', onHold: 'Pause', completed: 'Check', dropped: 'X' } as Record<string, string>)[status.id] ?? 'Circle'),
-              onSave: (color, icon) => actions.setStatusAppearance(status.id, color, icon)
+              onSave: (color, icon, name) => actions.setStatusAppearance(status.id, color, icon, name)
             }) }])}
             label={status.label}
             count={counts.byStatus.get(status.id) ?? 0}
@@ -491,7 +491,7 @@ export function Sidebar(): React.JSX.Element {
               onContextMenu={(e) =>
                 openMenu(e, [
                   { label: 'Rename', onClick: () => setEditing({ kind: 'renameTag', id: tag._id }) },
-                  { label: 'Change Color…', onClick: () => setAppearance({ name: tag.name, color: tag.color, onSave: (color) => actions.setTagColor(tag._id, color) }) },
+                  { label: 'Edit Tag…', onClick: () => setAppearance({ name: tag.name, color: tag.color, onSave: (color, _icon, name) => actions.setTagDetails(tag._id, name, color) }) },
                   { label: 'Copy Tag ID', onClick: () => copyId(tag._id) },
                   { separator: true },
                   {

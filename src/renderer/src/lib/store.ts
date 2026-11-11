@@ -54,7 +54,8 @@ export interface State extends Prefs {
   books: Record<string, Book>
   statuses: Record<string, CustomStatus>
   ensureStatus: (name: string) => NoteStatus
-  setStatusAppearance: (id: NoteStatus, color: string, icon: string) => void
+  setStatusAppearance: (id: NoteStatus, color: string, icon: string, name?: string) => boolean
+  setTagDetails: (id: string, name: string, color: string) => boolean
   setTagColor: (id: string, color: string) => void
   tags: Record<string, Tag>
   templates: Record<string, Template>
@@ -490,17 +491,29 @@ export const useStore = create<State>((set, get) => {
       for (const bid of ids) erase(bid)
     },
 
-    setStatusAppearance: (id, color, icon) => {
-      if (id === 'none' || !/^#[0-9a-f]{6}$/i.test(color) || !/^[A-Z][A-Za-z0-9]{1,60}$/.test(icon)) return
+    setStatusAppearance: (id, color, icon, name) => {
+      if (id === 'none' || !/^#[0-9a-f]{6}$/i.test(color) || !/^[A-Z][A-Za-z0-9]{1,60}$/.test(icon)) return false
       const key = (id.startsWith('status:') ? id : `status:${id}`) as CustomStatus['_id']
       const existing = get().statuses[key]
       const builtin = STATUSES.find((s) => s.id === id)
-      if (!existing && !builtin) return
+      if (!existing && !builtin) return false
+      const nextName = (name ?? existing?.name ?? builtin!.label).trim()
+      const duplicates = [...STATUSES.map((s) => ({ id: `status:${s.id}`, name: get().statuses[`status:${s.id}`]?.name ?? s.label })), ...Object.values(get().statuses).map((s) => ({ id: s._id, name: s.name }))]
+      if (!nextName || duplicates.some((s) => s.id !== key && s.name.toLowerCase() === nextName.toLowerCase())) return false
       const now = Date.now()
-      const status: CustomStatus = { _id: key, type: 'status', name: existing?.name ?? builtin!.label,
+      const status: CustomStatus = { _id: key, type: 'status', name: nextName,
         createdAt: existing?.createdAt ?? now, updatedAt: now, color, icon }
       set((s) => ({ statuses: { ...s.statuses, [key]: status } }))
       persist(status)
+      return true
+    },
+
+    setTagDetails: (id, name, color) => {
+      const tag = get().tags[id]
+      const trimmed = name.trim()
+      if (!tag || !trimmed || !/^#[0-9a-f]{6}$/i.test(color) || Object.values(get().tags).some((t) => t._id !== id && t.name.toLowerCase() === trimmed.toLowerCase())) return false
+      putTag({ ...tag, name: trimmed, color, updatedAt: Date.now() })
+      return true
     },
 
     setTagColor: (id, color) => {
@@ -511,7 +524,7 @@ export const useStore = create<State>((set, get) => {
     ensureStatus: (name) => {
       const trimmed = name.trim()
       if (!trimmed) return 'none'
-      const builtin = STATUSES.find((s) => s.label.toLowerCase() === trimmed.toLowerCase())
+      const builtin = STATUSES.find((s) => (get().statuses[`status:${s.id}`]?.name ?? s.label).toLowerCase() === trimmed.toLowerCase())
       if (builtin) return builtin.id
       const existing = Object.values(get().statuses).find((s) => s.name.toLowerCase() === trimmed.toLowerCase())
       if (existing) return existing._id
