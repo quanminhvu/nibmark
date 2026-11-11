@@ -1,5 +1,5 @@
 import { app, BrowserWindow, shell, nativeImage } from 'electron'
-import { isAbsolute, join } from 'node:path'
+import { isAbsolute, join, resolve } from 'node:path'
 import { registerIpc } from './ipc'
 import { buildMenu } from './menu'
 import { registerShortcuts } from './shortcuts'
@@ -8,8 +8,10 @@ const isDev = !app.isPackaged && !!process.env['ELECTRON_RENDERER_URL']
 
 // Cho phép chạy với một hồ sơ dữ liệu riêng (dùng khi thử nghiệm),
 // để không bao giờ đụng vào ghi chú thật trong ~/Library/Application Support/Nibmark.
+// Hồ sơ dữ liệu riêng (dùng khi test). Đường dẫn tương đối được đổi thành tuyệt đối:
+// bỏ qua nó thì app sẽ lặng lẽ chạy trên dữ liệu thật của người dùng.
 const customUserData = process.env['NIBMARK_USER_DATA']
-if (customUserData && isAbsolute(customUserData)) app.setPath('userData', customUserData)
+if (customUserData) app.setPath('userData', isAbsolute(customUserData) ? customUserData : resolve(customUserData))
 
 function createWindow(): BrowserWindow {
   const win = new BrowserWindow({
