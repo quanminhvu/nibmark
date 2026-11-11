@@ -1,5 +1,5 @@
 import { useMemo } from 'react'
-import { ChevronLeft, ChevronRight, Columns2, Ellipsis, Eye, LayoutTemplate, Maximize2, Minimize2, Pencil, Pin, RotateCcw, Trash2 } from 'lucide-react'
+import { ArrowLeft, ArrowRight, CircleDashed, Columns2, EllipsisVertical, Eye, LayoutTemplate, Maximize2, Minimize2, Pencil, Pin, RotateCcw, Trash2 } from 'lucide-react'
 import { useStore } from '@/lib/store'
 import { childrenByParent } from '@/lib/selectors'
 import { toggleTask } from '@/lib/markdown'
@@ -8,6 +8,7 @@ import type { Book, NoteStatus, ViewMode } from '@/lib/types'
 import { cx, isMac, relativeTime } from '@/lib/util'
 import { goBack, goForward, useNav } from '@/lib/navigation'
 import { BulkPanel } from './BulkPanel'
+import { BookIcon } from './BookIcon'
 import { openMenu } from './ContextMenu'
 import { MarkdownEditor } from './MarkdownEditor'
 import { noteMenu } from './NoteList'
@@ -63,7 +64,40 @@ export function NotePane(): React.JSX.Element {
   return (
     <main className="notepane">
       <header className="notepane-header titlebar-drag">
+        <button
+          className="icon-btn"
+          title={distractionFree ? 'Exit distraction-free mode' : 'Distraction-free mode (Cmd/Ctrl+Shift+D)'}
+          onClick={toggleDistractionFree}
+        >
+          {distractionFree ? <Minimize2 size={16} /> : <Maximize2 size={16} />}
+        </button>
         <NavButtons />
+        <span className="flex-1" />
+        {!readOnly && (
+          <div className="segmented" role="group" aria-label="View mode">
+            {VIEW_MODES.map((v) => (
+              <button key={v.mode} title={v.title} className={cx(mode === v.mode && 'on')} onClick={() => setViewMode(v.mode)}>
+                {v.icon}
+              </button>
+            ))}
+          </div>
+        )}
+        <span className="flex-1" />
+        {!readOnly && (
+          <button
+            className={cx('icon-btn', note.pinned && 'on')}
+            title={note.pinned ? 'Unpin from top' : 'Pin to top'}
+            onClick={() => updateNote(note._id, { pinned: !note.pinned })}
+          >
+            <Pin size={15} />
+          </button>
+        )}
+        <button className="icon-btn" title="More actions" onClick={(e) => openMenu(e, noteMenu(note), true)}>
+          <EllipsisVertical size={16} />
+        </button>
+      </header>
+
+      <div className="note-title-row">
         <input
           className="note-title"
           value={note.title}
@@ -78,35 +112,7 @@ export function NotePane(): React.JSX.Element {
             }
           }}
         />
-        {!readOnly && (
-          <div className="segmented" role="group" aria-label="View mode">
-            {VIEW_MODES.map((v) => (
-              <button key={v.mode} title={v.title} className={cx(mode === v.mode && 'on')} onClick={() => setViewMode(v.mode)}>
-                {v.icon}
-              </button>
-            ))}
-          </div>
-        )}
-        {!readOnly && (
-          <button
-            className={cx('icon-btn', note.pinned && 'on')}
-            title={note.pinned ? 'Unpin from top' : 'Pin to top'}
-            onClick={() => updateNote(note._id, { pinned: !note.pinned })}
-          >
-            <Pin size={15} />
-          </button>
-        )}
-        <button
-          className="icon-btn"
-          title={distractionFree ? 'Exit distraction-free mode' : 'Distraction-free mode (Cmd/Ctrl+Shift+D)'}
-          onClick={toggleDistractionFree}
-        >
-          {distractionFree ? <Minimize2 size={15} /> : <Maximize2 size={15} />}
-        </button>
-        <button className="icon-btn" title="More actions" onClick={(e) => openMenu(e, noteMenu(note), true)}>
-          <Ellipsis size={16} />
-        </button>
-      </header>
+      </div>
 
       {readOnly ? (
         <div className="trash-banner">
@@ -128,6 +134,7 @@ export function NotePane(): React.JSX.Element {
       ) : (
         <div className="note-meta">
           <label className="meta-field" title="Notebook">
+            <BookIcon name={books[note.bookId]?.icon} size={15} />
             <select value={books[note.bookId] ? note.bookId : ''} onChange={(e) => updateNote(note._id, { bookId: e.target.value })}>
               {!books[note.bookId] && <option value="">No notebook</option>}
               {bookOptions.map(({ book, depth }) => (
@@ -138,7 +145,7 @@ export function NotePane(): React.JSX.Element {
             </select>
           </label>
           <label className="meta-field" title="Status">
-            <StatusIcon status={note.status} />
+            {note.status === 'none' ? <CircleDashed size={15} className="status-none" /> : <StatusIcon status={note.status} size={15} />}
             <select value={note.status} onChange={(e) => updateNote(note._id, { status: e.target.value as NoteStatus })}>
               <option value="none">No status</option>
               {STATUSES.map((s) => (
@@ -194,10 +201,10 @@ function NavButtons(): React.JSX.Element {
   return (
     <div className="nav-buttons">
       <button className="icon-btn" disabled={!canBack} title={mac ? 'Back (⌘⌥←)' : 'Back (Ctrl+Alt+←)'} onClick={() => goBack()}>
-        <ChevronLeft size={16} />
+        <ArrowLeft size={17} />
       </button>
       <button className="icon-btn" disabled={!canForward} title={mac ? 'Forward (⌘⌥→)' : 'Forward (Ctrl+Alt+→)'} onClick={() => goForward()}>
-        <ChevronRight size={16} />
+        <ArrowRight size={17} />
       </button>
     </div>
   )

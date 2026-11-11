@@ -21,6 +21,7 @@ let started = false
 export function App(): React.JSX.Element {
   const ready = useStore((s) => s.ready)
   const distractionFree = useStore((s) => s.distractionFree)
+  const sidebarHidden = useStore((s) => s.sidebarHidden)
   const searchRef = useRef<HTMLInputElement>(null)
 
   useEffect(() => {
@@ -140,7 +141,7 @@ export function App(): React.JSX.Element {
   if (!ready) return <div className="boot" />
 
   return (
-    <div className={cx('app', isMac() && 'mac', distractionFree && 'distraction-free')}>
+    <div className={cx('app', isMac() && 'mac', distractionFree && 'distraction-free', sidebarHidden && 'sidebar-hidden')}>
       <Sidebar />
       <NoteList searchRef={searchRef} />
       <NotePane />

@@ -19,7 +19,10 @@ function createWindow(): BrowserWindow {
     minHeight: 520,
     show: false,
     title: 'Nibmark',
-    backgroundColor: '#F4EFE6',
+    // macOS: sidebar trong mờ (vibrancy) cần nền cửa sổ trong suốt
+    ...(process.platform === 'darwin'
+      ? { vibrancy: 'sidebar' as const, visualEffectState: 'followWindow' as const, backgroundColor: '#00000000' }
+      : { backgroundColor: '#F4EFE6' }),
     titleBarStyle: process.platform === 'darwin' ? 'hiddenInset' : 'default',
     trafficLightPosition: { x: 16, y: 16 },
     webPreferences: {
