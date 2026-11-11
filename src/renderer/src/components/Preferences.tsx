@@ -363,25 +363,63 @@ function acceleratorFromEvent(e: React.KeyboardEvent): string | null {
 
 function QuickNote(): React.JSX.Element | null {
   const bridge = window.nibmark
+  const [settings, setSettings] = useState<NibmarkSettings | null>(null)
+  useEffect(() => {
+    if (bridge) void bridge.settings.get().then(setSettings)
+  }, [bridge])
+  if (!bridge) return null
+  return (
+    <section className="pref-section">
+      <h3>Shortcuts</h3>
+      <ShortcutField
+        kind="quickNote"
+        label="Quick Note"
+        note="Brings Nibmark to the front with a new note, even when the app is in the background."
+        fallback="CommandOrControl+Alt+N"
+      />
+      <ShortcutField kind="toggleWindow" label="Show or hide Nibmark" note="Brings Nibmark to the front, or hides it when it is already in front." />
+      {settings?.traySupported && (
+        <label className="pref-toggle tray-toggle">
+          <input type="checkbox" checked={settings.trayEnabled} onChange={async (e) => setSettings(await bridge.settings.setTray(e.target.checked))} />
+          <span>Keep running in the system tray when the window is closed</span>
+        </label>
+      )}
+    </section>
+  )
+}
+
+function ShortcutField({
+  kind,
+  label,
+  note,
+  fallback
+}: {
+  kind: 'quickNote' | 'toggleWindow'
+  label: string
+  note: string
+  /** Phím tắt mặc định (nếu có), để hiện nút "Use Default" */
+  fallback?: string
+}): React.JSX.Element | null {
+  const bridge = window.nibmark
   const [status, setStatus] = useState<NibmarkShortcutStatus | null>(null)
   const [recording, setRecording] = useState(false)
 
   useEffect(() => {
-    if (bridge) void bridge.shortcuts.get().then(setStatus)
-  }, [bridge])
+    if (bridge) void bridge.shortcuts.get(kind).then(setStatus)
+  }, [bridge, kind])
 
   if (!bridge) return null
   const save = async (acc: string): Promise<void> => {
     setRecording(false)
-    setStatus(await bridge.shortcuts.set(acc))
+    setStatus(await bridge.shortcuts.set(acc, kind))
   }
 
   return (
-    <section className="pref-section">
-      <h3>Quick Note</h3>
-      <p className="pref-note">
-        A global shortcut that brings Nibmark to the front with a new note, even when the app is in the background.
-      </p>
+    <div className="pref-shortcut">
+      <div className="pref-shortcut-text">
+        <span className="pref-shortcut-label">{label}</span>
+        <span className="pref-note">{note}</span>
+      </div>
       <div className="pref-actions">
         <button
           className={recording ? 'btn shortcut-field recording' : 'btn shortcut-field'}
@@ -406,21 +444,21 @@ function QuickNote(): React.JSX.Element | null {
             Turn Off
           </button>
         )}
-        {status?.accelerator !== 'CommandOrControl+Alt+N' && (
-          <button className="btn" onClick={() => void save('CommandOrControl+Alt+N')}>
+        {fallback && status?.accelerator !== fallback && (
+          <button className="btn" onClick={() => void save(fallback)}>
             Use Default
           </button>
         )}
+        <span className={status?.error ? 'pref-status error' : 'pref-status'}>
+          {status?.disabledForTesting
+            ? 'Off in this test profile'
+            : status?.error
+              ? `${prettyAccelerator(status.accelerator)}: ${status.error}`
+              : status?.registered
+                ? 'Active'
+                : 'Off'}
+        </span>
       </div>
-      <p className={status?.error ? 'pref-status error' : 'pref-status'}>
-        {status?.disabledForTesting
-          ? 'Global shortcuts are turned off in this test profile.'
-          : status?.error
-            ? `${prettyAccelerator(status.accelerator)}: ${status.error}`
-            : status?.registered
-              ? 'Active'
-              : 'Off'}
-      </p>
-    </section>
+    </div>
   )
 }

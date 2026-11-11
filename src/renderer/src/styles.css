@@ -3252,3 +3252,24 @@ html.vibrant .app.note-window .notepane {
 .side-heading .side-heading-title:hover {
   background: none;
 }
+
+/* ── Phím tắt toàn cục ── */
+.pref-shortcut {
+  padding: 4px 0 10px;
+}
+.pref-shortcut-text {
+  display: flex;
+  flex-direction: column;
+}
+.pref-shortcut-label {
+  font-weight: 550;
+}
+.pref-shortcut-text .pref-note {
+  margin: 2px 0 6px;
+}
+.pref-shortcut .pref-status {
+  margin: 0 0 0 4px;
+}
+.tray-toggle {
+  margin-top: 4px;
+}

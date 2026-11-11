@@ -8,7 +8,8 @@ contextBridge.exposeInMainWorld('nibmark', {
     get: () => ipcRenderer.invoke('settings:get'),
     setBackupEnabled: (enabled: boolean) => ipcRenderer.invoke('settings:setBackupEnabled', enabled),
     chooseBackupDir: () => ipcRenderer.invoke('settings:chooseBackupDir'),
-    resetBackupDir: () => ipcRenderer.invoke('settings:resetBackupDir')
+    resetBackupDir: () => ipcRenderer.invoke('settings:resetBackupDir'),
+    setTray: (enabled: boolean) => ipcRenderer.invoke('settings:setTray', enabled)
   },
   backup: {
     write: (upserts: unknown[], deletes: string[]) => ipcRenderer.invoke('backup:write', upserts, deletes),
@@ -44,8 +45,8 @@ contextBridge.exposeInMainWorld('nibmark', {
     openUserStyles: () => ipcRenderer.invoke('styles:open')
   },
   shortcuts: {
-    get: () => ipcRenderer.invoke('shortcuts:get'),
-    set: (accelerator: string) => ipcRenderer.invoke('shortcuts:set', accelerator)
+    get: (kind: 'quickNote' | 'toggleWindow' = 'quickNote') => ipcRenderer.invoke('shortcuts:get', kind),
+    set: (accelerator: string, kind: 'quickNote' | 'toggleWindow' = 'quickNote') => ipcRenderer.invoke('shortcuts:set', accelerator, kind)
   },
   /** Renderer báo đã sẵn sàng nhận lệnh (dùng cho phím tắt ghi nhanh khi cửa sổ vừa mở) */
   ready: () => ipcRenderer.send('renderer:ready'),

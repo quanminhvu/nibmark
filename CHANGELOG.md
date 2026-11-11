@@ -33,6 +33,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 - Export a note as a single HTML file (File menu, `⌘J`, note list menu): images are embedded, Mermaid diagrams become SVG, code keeps its colors, and it follows light/dark mode when opened
 - Import from Apple Notes (macOS, File → Import from Apple Notes…): folders become notebooks and pictures become attachments. macOS asks for permission the first time; locked notes and Recently Deleted are skipped, and Apple Notes is not changed
 - Import Kindle highlights from `My Clippings.txt`: one note per book in “Kindle Highlights”, with page, location and date. Importing the file again only adds new highlights
+- A second global shortcut to show or hide Nibmark (Preferences → Shortcuts, off by default)
+- Drag a note from the list into another app, a terminal or another note to paste a Markdown link to it
+- Windows and Linux: optionally keep Nibmark running in the system tray when the window is closed
 - Mist and Night themes: a clean white and light-gray look with a blue accent, and its dark counterpart. They are now the default when the theme follows macOS (Paper, Stone, Ink and Indigo are still available)
 
 ### Changed

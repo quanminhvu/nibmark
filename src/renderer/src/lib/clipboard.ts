@@ -11,11 +11,16 @@ async function copy(text: string, what: string): Promise<void> {
 }
 
 /** Link Markdown tới ghi chú, cùng định dạng với [[ */
-export function copyNoteLink(noteId: string): void {
+/** Link Markdown tới ghi chú: [Tiêu đề](nibmark://note/…) */
+export function noteLinkMarkdown(noteId: string): string {
   const note = useStore.getState().notes[noteId]
-  if (!note) return
-  const text = (note.title.trim() || 'Untitled').replace(/([[\]\\])/g, '\\$1')
-  void copy(`[${text}](${noteLinkUrl(noteId)})`, 'note link')
+  const text = (note?.title.trim() || 'Untitled').replace(/([[\]\\])/g, '\\$1')
+  return `[${text}](${noteLinkUrl(noteId)})`
+}
+
+export function copyNoteLink(noteId: string): void {
+  if (!useStore.getState().notes[noteId]) return
+  void copy(noteLinkMarkdown(noteId), 'note link')
 }
 
 export function copyId(id: string): void {

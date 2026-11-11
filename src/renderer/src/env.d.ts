@@ -29,6 +29,9 @@ interface NibmarkSettings {
   backupDir: string
   isDefaultDir: boolean
   lastBackupAt: number | null
+  trayEnabled: boolean
+  /** Khay hệ thống chỉ có trên Windows và Linux */
+  traySupported: boolean
 }
 
 interface NibmarkImportScan {
@@ -59,6 +62,7 @@ interface NibmarkBridge {
     setBackupEnabled(enabled: boolean): Promise<NibmarkSettings>
     chooseBackupDir(): Promise<NibmarkSettings>
     resetBackupDir(): Promise<NibmarkSettings>
+    setTray(enabled: boolean): Promise<NibmarkSettings>
   }
   backup: {
     write(upserts: unknown[], deletes: string[]): Promise<{ ok: boolean; written: number; error?: string }>
@@ -100,8 +104,8 @@ interface NibmarkBridge {
     openUserStyles(): Promise<string | null>
   }
   shortcuts: {
-    get(): Promise<NibmarkShortcutStatus>
-    set(accelerator: string): Promise<NibmarkShortcutStatus>
+    get(kind?: 'quickNote' | 'toggleWindow'): Promise<NibmarkShortcutStatus>
+    set(accelerator: string, kind?: 'quickNote' | 'toggleWindow'): Promise<NibmarkShortcutStatus>
   }
   ready(): void
   /** Mở thư mục dữ liệu của app; trả về thông báo lỗi hoặc null */
