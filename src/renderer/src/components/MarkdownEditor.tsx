@@ -8,6 +8,7 @@ import { languages } from '@codemirror/language-data'
 import { HighlightStyle, syntaxHighlighting, indentOnInput, bracketMatching } from '@codemirror/language'
 import { autocompletion, closeBrackets, closeBracketsKeymap, completionKeymap } from '@codemirror/autocomplete'
 import { followNoteLink, NOTE_LINK_PREFIX, noteLinkCompletions } from '@/lib/noteLinks'
+import { emojiCompletions, fenceLanguageCompletions, slashCompletions } from '@/lib/completions'
 import { search, searchKeymap, highlightSelectionMatches } from '@codemirror/search'
 import { tags as t } from '@lezer/highlight'
 
@@ -84,7 +85,11 @@ export function MarkdownEditor({ value, readOnly = false, onChange }: Props): Re
           indentOnInput(),
           bracketMatching(),
           closeBrackets(),
-          autocompletion({ override: [noteLinkCompletions], icons: false, defaultKeymap: false }),
+          autocompletion({
+            override: [noteLinkCompletions, slashCompletions, fenceLanguageCompletions, emojiCompletions],
+            icons: false,
+            defaultKeymap: false
+          }),
           highlightActiveLine(),
           highlightSelectionMatches(),
           search({ top: true }),

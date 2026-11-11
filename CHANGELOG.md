@@ -6,6 +6,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
+### Added
+
+- Slash commands: type `/` at the start of an empty line to insert headings, lists, tasks, code blocks, tables, Mermaid, math, alerts or a note link
+- Language suggestions after typing ```` ``` ```` and a letter
+- Emoji suggestions after typing `:` and two letters
+
 ### Changed
 
 - Nibmark is now released under the MIT License
