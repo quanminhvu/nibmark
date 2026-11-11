@@ -1,9 +1,9 @@
-import { useMemo, useState } from 'react'
+import { useState } from 'react'
 import { Files, Pin, RotateCcw, Trash2, X } from 'lucide-react'
-import { childrenByParent } from '@/lib/selectors'
 import { useStore } from '@/lib/store'
+import { NotebookPicker } from './NotebookPicker'
 import { STATUSES } from '@/lib/types'
-import type { Book, NoteStatus } from '@/lib/types'
+import type { NoteStatus } from '@/lib/types'
 import type { MenuItem } from './ContextMenu'
 
 const plural = (n: number): string => `${n} note${n === 1 ? '' : 's'}`
@@ -52,18 +52,6 @@ export function bulkMenu(ids: string[]): MenuItem[] {
   ]
 }
 
-function flatBooks(books: Record<string, Book>): { book: Book; depth: number }[] {
-  const children = childrenByParent(books)
-  const out: { book: Book; depth: number }[] = []
-  const walk = (parent: string | null, depth: number): void => {
-    for (const book of children.get(parent) ?? []) {
-      out.push({ book, depth })
-      walk(book._id, depth + 1)
-    }
-  }
-  walk(null, 0)
-  return out
-}
 
 /** Khung bên phải khi đang chọn nhiều ghi chú */
 export function BulkPanel(): React.JSX.Element {
@@ -72,7 +60,6 @@ export function BulkPanel(): React.JSX.Element {
   const books = useStore((s) => s.books)
   const s = useStore.getState()
   const [tagText, setTagText] = useState('')
-  const bookOptions = useMemo(() => flatBooks(books), [books])
   const selected = ids.map((id) => notes[id]).filter(Boolean)
   const inTrash = selected.length > 0 && selected.every((n) => n.trashed)
   const allPinned = selected.every((n) => n.pinned)
@@ -115,21 +102,14 @@ export function BulkPanel(): React.JSX.Element {
           <>
             <label className="bulk-row">
               <span>Move to</span>
-              <select
+              <NotebookPicker
                 value=""
-                onChange={(e) => {
-                  if (!e.target.value) return
-                  for (const n of selected) s.updateNote(n._id, { bookId: e.target.value })
-                  s.showNotice(`Moved ${plural(selected.length)} to “${books[e.target.value]?.name}”.`)
+                showIcon={false}
+                onPick={(bookId) => {
+                  for (const n of selected) s.updateNote(n._id, { bookId })
+                  s.showNotice(`Moved ${plural(selected.length)} to “${books[bookId]?.name}”.`)
                 }}
-              >
-                <option value="">Choose a notebook…</option>
-                {bookOptions.map(({ book, depth }) => (
-                  <option key={book._id} value={book._id}>
-                    {'  '.repeat(depth) + book.name}
-                  </option>
-                ))}
-              </select>
+              />
             </label>
             <label className="bulk-row">
               <span>Status</span>

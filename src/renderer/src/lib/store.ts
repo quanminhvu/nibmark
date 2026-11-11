@@ -4,6 +4,7 @@ import { TAG_COLORS } from './types'
 import { childrenByParent, visibleNotes } from './selectors'
 import type { AnyDoc, Book, Note, NoteStatus, Selection, SortKey, Tag, Template, ViewMode } from './types'
 import { WELCOME_BODY, WELCOME_TITLE } from './welcome'
+import { noteWindowId } from './windowMode'
 
 const PREFS_KEY = 'nibmark:prefs'
 const SAVE_DELAY_MS = 300
@@ -60,7 +61,7 @@ export interface State extends Prefs {
   multi: string[]
   setMulti: (ids: string[]) => void
   /** Command palette đang mở ở chế độ nào */
-  palette: 'commands' | 'templates' | 'actions' | null
+  palette: 'commands' | 'templates' | 'actions' | 'tasks' | null
   notice: { text: string; tone: 'info' | 'error'; id: number } | null
 
   init: () => Promise<void>
@@ -74,7 +75,7 @@ export interface State extends Prefs {
   toggleDistractionFree: () => void
   toggleSidebar: () => void
   setPrefsOpen: (open: boolean) => void
-  setPalette: (mode: 'commands' | 'templates' | 'actions' | null) => void
+  setPalette: (mode: 'commands' | 'templates' | 'actions' | 'tasks' | null) => void
   /** Mở một ghi chú ở bất cứ đâu, đổi sidebar nếu ghi chú đang bị ẩn khỏi danh sách */
   openNote: (id: string) => boolean
   showNotice: (text: string, tone?: 'info' | 'error') => void
@@ -552,6 +553,8 @@ export const useStore = create<State>((set, get) => {
 
 // Lưu các tùy chọn giao diện giữa các lần mở app
 useStore.subscribe((s) => {
+  // Cửa sổ ghi chú riêng không ghi đè tùy chọn của cửa sổ chính
+  if (noteWindowId) return
   const prefs: Prefs = {
     sort: s.sort,
     viewMode: s.viewMode,

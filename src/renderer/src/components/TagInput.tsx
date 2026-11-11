@@ -2,6 +2,7 @@ import { useMemo, useRef, useState } from 'react'
 import { X } from 'lucide-react'
 import { useStore } from '@/lib/store'
 import { cx } from '@/lib/util'
+import { fuzzyMatch } from '@/lib/fuzzy'
 
 interface Props {
   noteId: string
@@ -19,10 +20,15 @@ export function TagInput({ noteId, tagIds, readOnly = false }: Props): React.JSX
   const cancelled = useRef(false)
 
   const suggestions = useMemo(() => {
-    const q = text.trim().toLowerCase()
-    return Object.values(tags)
-      .filter((t) => !tagIds.includes(t._id) && (!q || t.name.toLowerCase().includes(q)))
-      .sort((a, b) => a.name.localeCompare(b.name))
+    const q = text.trim()
+    const free = Object.values(tags).filter((t) => !tagIds.includes(t._id))
+    if (!q) return free.sort((a, b) => a.name.localeCompare(b.name)).slice(0, 8)
+    // Tìm mờ: "fe" khớp "frontend", "feature"…; khớp tốt hơn lên trước
+    return free
+      .map((t) => ({ t, m: fuzzyMatch(q, t.name) }))
+      .filter((x) => x.m)
+      .sort((a, b) => b.m!.score - a.m!.score || a.t.name.localeCompare(b.t.name))
+      .map((x) => x.t)
       .slice(0, 8)
   }, [tags, tagIds, text])
 

@@ -23,6 +23,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 - Code blocks in the preview: line numbers (can be turned off in Preferences → Editor), a file name bar with ```` ```ts title="app.ts" ```` or ```` ```ts:app.ts ````, a language color badge, and highlighting for about 40 more languages (Dart, Dockerfile, Elixir, Haskell, Scala, Nginx, PowerShell, LaTeX…)
 - Find in the preview with `⌘F` (when the cursor is not in the editor), including text inside code blocks; `↵` / `⇧↵` move between matches
 - A GitHub link to a line range on its own line (`https://github.com/owner/repo/blob/main/file.ts#L10-L25`) shows those lines as a code block in the preview
+- Open tasks in the command palette: type `[` (or run “Show Open Tasks…”) to list every unchecked task across your notes; `↵` opens the note at that line, `⌘↵` checks it off
+- Open a note in its own window with `⌘⇧N`, from the note list menu or from `⌘J`. Edits show up in both windows right away
+- Two-finger swipe left or right on the trackpad to go back or forward between notes (three-finger swipes work too when macOS is set up for them)
+- Fuzzy search in the notebook picker (note header and multi-select panel, matches nested paths too) and in tag suggestions
 - Mist and Night themes: a clean white and light-gray look with a blue accent, and its dark counterpart. They are now the default when the theme follows macOS (Paper, Stone, Ink and Indigo are still available)
 
 ### Changed

@@ -2957,3 +2957,126 @@ html.no-code-ln .markdown-body pre .code-gutter {
   background-color: color-mix(in srgb, var(--status-onhold) 70%, transparent);
   color: var(--ink);
 }
+
+/* ── Cửa sổ chỉ có một ghi chú (⌘⇧N) ── */
+.app.note-window {
+  grid-template-columns: minmax(0, 1fr);
+}
+html.vibrant .app.note-window,
+html.vibrant .app.note-window .notepane {
+  background: var(--surface-2);
+}
+.app.mac.note-window .notepane-header {
+  padding-left: 80px;
+}
+
+/* ── Bộ chọn notebook có tìm mờ ── */
+.nbp {
+  position: relative;
+}
+.nbp-trigger {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  max-width: 260px;
+  height: 28px;
+  padding: 0 8px;
+  border: 0;
+  border-radius: var(--radius);
+  background: transparent;
+  color: var(--ink);
+  font: inherit;
+  font-weight: 550;
+  cursor: pointer;
+}
+.nbp-trigger:hover {
+  background: var(--hover);
+}
+.nbp-label {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.nbp-label.placeholder {
+  color: var(--ink-3);
+  font-weight: 400;
+}
+.nbp-chevron {
+  flex: none;
+  color: var(--ink-3);
+}
+.nbp-pop {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  z-index: 40;
+  width: 280px;
+  padding: 6px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  background: var(--surface-2);
+  box-shadow: var(--shadow);
+}
+.nbp-pop input {
+  width: 100%;
+  height: 30px;
+  margin-bottom: 4px;
+  padding: 0 9px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  outline: 0;
+  background: var(--surface);
+  color: var(--ink);
+  font: inherit;
+}
+.nbp-pop input:focus {
+  border-color: var(--accent);
+}
+.nbp-list {
+  max-height: 280px;
+  overflow-y: auto;
+}
+.nbp-item {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  height: 30px;
+  padding-right: 8px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+}
+.nbp-item.active {
+  background: var(--selection-bg, var(--selected));
+}
+.nbp-item.current .nbp-name {
+  font-weight: 600;
+}
+.nbp-name {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.nbp-name mark {
+  background: none;
+  color: var(--accent);
+  font-weight: 650;
+}
+.nbp-path {
+  max-width: 45%;
+  overflow: hidden;
+  color: var(--ink-3);
+  font-size: 11.5px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.nbp-empty {
+  padding: 8px 10px;
+  color: var(--ink-3);
+}
+.bulk-row .nbp-trigger {
+  border: 1px solid var(--line);
+  background: var(--surface-2);
+  font-weight: 400;
+}
