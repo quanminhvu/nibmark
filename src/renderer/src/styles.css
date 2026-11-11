@@ -1622,3 +1622,96 @@ mark {
 .diagram-canvas svg rect {
   filter: none !important;
 }
+
+/* ───────── GitHub alerts trong preview ───────── */
+.markdown-body .markdown-alert {
+  --alert: var(--status-active);
+  margin: 0 0 1em;
+  padding: 0.5em 1em;
+  border-left: 3px solid var(--alert);
+  border-radius: 0 6px 6px 0;
+  background: color-mix(in srgb, var(--alert) 8%, transparent);
+}
+.markdown-body .markdown-alert > :last-child {
+  margin-bottom: 0;
+}
+.markdown-body .markdown-alert-title {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 0.3em;
+  font-weight: 650;
+  color: var(--alert);
+}
+.markdown-body .markdown-alert-title svg {
+  fill: currentColor;
+}
+.markdown-body .markdown-alert-note {
+  --alert: var(--status-active);
+}
+.markdown-body .markdown-alert-tip {
+  --alert: var(--status-completed);
+}
+.markdown-body .markdown-alert-important {
+  --alert: var(--syn-type);
+}
+.markdown-body .markdown-alert-warning {
+  --alert: var(--status-onhold);
+}
+.markdown-body .markdown-alert-caution {
+  --alert: var(--accent);
+}
+
+/* ───────── Thanh công cụ nổi khi bôi đen ───────── */
+.editor-host .cm-tooltip:has(.cm-format-toolbar) {
+  border: 0;
+  background: none;
+  box-shadow: none;
+  overflow: visible;
+}
+.cm-format-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 1px;
+  margin-bottom: 6px;
+  padding: 3px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--surface-2);
+  box-shadow: var(--shadow);
+  font-family: var(--font-ui);
+}
+.cm-format-toolbar button {
+  min-width: 28px;
+  height: 26px;
+  padding: 0 7px;
+  border-radius: 5px;
+  font-size: 12.5px;
+  color: var(--ink-2);
+}
+.cm-format-toolbar button:hover {
+  background: var(--hover);
+  color: var(--ink);
+}
+.cm-format-toolbar .tb-bold {
+  font-weight: 800;
+}
+.cm-format-toolbar .tb-italic {
+  font-style: italic;
+  font-family: Georgia, serif;
+}
+.cm-format-toolbar .tb-strike {
+  text-decoration: line-through;
+}
+.cm-format-toolbar .tb-code {
+  font-family: var(--font-mono);
+  font-size: 11px;
+}
+.cm-format-toolbar .tb-mark {
+  background: var(--mark);
+}
+.cm-format-toolbar .tb-sep {
+  margin-left: 4px;
+  border-left: 1px solid var(--line);
+  border-radius: 0 5px 5px 0;
+}

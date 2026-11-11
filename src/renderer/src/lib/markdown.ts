@@ -6,6 +6,7 @@ import sup from 'markdown-it-sup'
 import hljs from 'highlight.js/lib/common'
 import DOMPurify from 'dompurify'
 import katex from '@vscode/markdown-it-katex'
+import alerts from 'markdown-it-github-alerts'
 import 'katex/dist/katex.min.css'
 
 const escapeHtml = (s: string): string =>
@@ -28,6 +29,8 @@ const md = new MarkdownIt({
   .use(sup)
   // $...$ và $$...$$; "$5 and $10" không bị coi là công thức vì có quy tắc về khoảng trắng/chữ số
   .use(katex, { throwOnError: false, output: 'html', enableFencedBlocks: true })
+  // > [!NOTE], [!TIP], [!IMPORTANT], [!WARNING], [!CAUTION]
+  .use(alerts)
 
 // Khối ```mermaid: giữ nguyên mã nguồn, Preview sẽ vẽ sơ đồ sau khi trang hiển thị
 const defaultFence = md.renderer.rules.fence!

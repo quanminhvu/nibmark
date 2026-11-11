@@ -11,6 +11,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 - Slash commands: type `/` at the start of an empty line to insert headings, lists, tasks, code blocks, tables, Mermaid, math, alerts or a note link
 - Language suggestions after typing ```` ``` ```` and a letter
 - Emoji suggestions after typing `:` and two letters
+- Floating formatting toolbar when text is selected: bold, italic, strikethrough, code, highlight, link, heading, list, task and quote
+- GitHub alerts (`> [!NOTE]`, `[!TIP]`, `[!IMPORTANT]`, `[!WARNING]`, `[!CAUTION]`) in the preview
 
 ### Changed
 

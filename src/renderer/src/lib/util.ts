@@ -29,6 +29,7 @@ export function snippet(body: string, max = 140): string {
     const line = raw
       .replace(/^\s{0,3}#{1,6}\s+/, '')
       .replace(/^\s*>\s?/, '')
+      .replace(/^\[!(?:note|tip|important|warning|caution)\]\s*/i, '')
       .replace(/^\s*(?:[-*+]|\d+[.)])\s+(?:\[[ xX]\]\s+)?/, '')
       .replace(/!\[([^\]]*)\]\([^)]*\)/g, '$1')
       .replace(/\[([^\]]+)\]\([^)]*\)/g, '$1')

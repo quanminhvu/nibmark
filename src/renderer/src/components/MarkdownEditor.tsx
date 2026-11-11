@@ -1,6 +1,5 @@
 import { useEffect, useRef } from 'react'
-import { EditorState, EditorSelection, Compartment } from '@codemirror/state'
-import type { StateCommand } from '@codemirror/state'
+import { EditorState, Compartment } from '@codemirror/state'
 import { EditorView, keymap, drawSelection, highlightActiveLine, placeholder, dropCursor } from '@codemirror/view'
 import { defaultKeymap, history, historyKeymap, indentWithTab } from '@codemirror/commands'
 import { markdown, markdownLanguage, markdownKeymap } from '@codemirror/lang-markdown'
@@ -9,6 +8,7 @@ import { HighlightStyle, syntaxHighlighting, indentOnInput, bracketMatching } fr
 import { autocompletion, closeBrackets, closeBracketsKeymap, completionKeymap } from '@codemirror/autocomplete'
 import { followNoteLink, NOTE_LINK_PREFIX, noteLinkCompletions } from '@/lib/noteLinks'
 import { emojiCompletions, fenceLanguageCompletions, slashCompletions } from '@/lib/completions'
+import { formatToolbar, toggleWrap } from '@/lib/formatToolbar'
 import { search, searchKeymap, highlightSelectionMatches } from '@codemirror/search'
 import { tags as t } from '@lezer/highlight'
 
@@ -30,35 +30,6 @@ const highlight = HighlightStyle.define([
   { tag: [t.typeName, t.className, t.tagName], color: 'var(--syn-type)' },
   { tag: [t.attributeName, t.propertyName], color: 'var(--syn-attr)' }
 ])
-
-/** Bọc/bỏ bọc vùng chọn bằng một cặp ký hiệu, ví dụ ** cho chữ đậm. */
-function toggleWrap(mark: string): StateCommand {
-  return ({ state, dispatch }) => {
-    const len = mark.length
-    const tr = state.changeByRange((range) => {
-      const before = state.sliceDoc(range.from - len, range.from)
-      const after = state.sliceDoc(range.to, range.to + len)
-      if (before === mark && after === mark) {
-        return {
-          changes: [
-            { from: range.from - len, to: range.from },
-            { from: range.to, to: range.to + len }
-          ],
-          range: EditorSelection.range(range.from - len, range.to - len)
-        }
-      }
-      return {
-        changes: [
-          { from: range.from, insert: mark },
-          { from: range.to, insert: mark }
-        ],
-        range: EditorSelection.range(range.from + len, range.to + len)
-      }
-    })
-    dispatch(state.update(tr, { scrollIntoView: true, userEvent: 'input' }))
-    return true
-  }
-}
 
 interface Props {
   value: string
@@ -91,6 +62,7 @@ export function MarkdownEditor({ value, readOnly = false, onChange }: Props): Re
             defaultKeymap: false
           }),
           highlightActiveLine(),
+          formatToolbar(),
           highlightSelectionMatches(),
           search({ top: true }),
           EditorView.lineWrapping,
