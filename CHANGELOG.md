@@ -6,9 +6,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
-### Fixed
-
-- A relative `NIBMARK_USER_DATA` path was ignored, so a development or test run could open your real notes; it is now resolved to an absolute path
+## [0.4.0] - 2026-11-11
 
 ### Added
 
@@ -47,6 +45,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 - Sidebar: Preferences gear, a Note Templates row, collapsible Notebooks / Status / Tags sections with their own filter and + buttons, filled status icons and ring-style tag dots. On macOS the sidebar is translucent
 - Note list: button to hide the sidebar, a Filter field, task progress bars (“3 of 4”) and pill-shaped tags on each card
 - Editor: line numbers, folding arrows for headings and lists, full-width active line, colored headings with distinct `#` marks
+
+### Fixed
+
+- A relative `NIBMARK_USER_DATA` path was ignored, so a development or test run could open your real notes; it is now resolved to an absolute path
 
 ## [0.3.1] - 2026-11-11
 
