@@ -1,7 +1,7 @@
 {
   "name": "nibmark",
   "productName": "Nibmark",
-  "version": "0.5.0",
+  "version": "0.6.0",
   "description": "Markdown note-taking app for developers",
   "author": "Vu Minh Quan",
   "license": "MIT",
@@ -19,7 +19,9 @@
     "test:smoke": "node scripts/smoke-test.mjs",
     "verify": "npm run typecheck && npm run build && npm run check:bundle",
     "pack": "electron-vite build && npm run check:bundle && electron-builder --dir",
-    "dist": "electron-vite build && npm run check:bundle && electron-builder --publish never"
+    "dist": "electron-vite build && npm run check:bundle && electron-builder --publish never",
+    "test:scroll": "node scripts/test-scroll-sync.mjs",
+    "test:desktop": "node scripts/test-desktop-features.mjs"
   },
   "devDependencies": {
     "@types/markdown-it": "^14.2.0",

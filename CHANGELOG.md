@@ -6,6 +6,18 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
+## [0.6.0] - 2026-11-12
+
+### Added
+
+- Backlinks panel lists notes linking to the current note, with one-click navigation; code snippets, comments, trashed notes and self-links are excluded
+- Drag and drop statuses and tags into a custom order, persisted across restarts and included in backups
+
+### Improved
+
+- Split-view scrolling now follows source-line anchors for Markdown blocks instead of overall page percentage, with automatic remeasurement after media and layout changes
+- Updated README and roadmap for the latest desktop features
+
 ## [0.5.0] - 2026-11-11
 
 ### Added
