@@ -1,9 +1,10 @@
 import { useState } from 'react'
-import { Files, Pin, RotateCcw, Trash2, X } from 'lucide-react'
+import { CircleDashed, Files, Pin, RotateCcw, Trash2, X } from 'lucide-react'
 import { useStore } from '@/lib/store'
 import { NotebookPicker } from './NotebookPicker'
+import { StatusIcon } from './StatusIcon'
+import { StatusPicker } from './StatusPicker'
 import { getStatuses } from '@/lib/statuses'
-import type { NoteStatus } from '@/lib/types'
 import type { MenuItem } from './ContextMenu'
 
 const plural = (n: number): string => `${n} note${n === 1 ? '' : 's'}`
@@ -44,9 +45,10 @@ export function bulkMenu(ids: string[]): MenuItem[] {
   return [
     ...getStatuses().map((st) => ({
       label: `Set Status: ${st.label}`,
+      icon: <StatusIcon status={st.id} size={14} />,
       onClick: () => ids.forEach((id) => s.updateNote(id, { status: st.id }))
     })),
-    { label: 'Clear Status', onClick: () => ids.forEach((id) => s.updateNote(id, { status: 'none' })) },
+    { label: 'Clear Status', icon: <CircleDashed size={14} className="status-none" />, onClick: () => ids.forEach((id) => s.updateNote(id, { status: 'none' })) },
     { separator: true },
     { label: `Move ${plural(ids.length)} to Trash`, danger: true, onClick: () => trashMany(ids) }
   ]
@@ -101,7 +103,7 @@ export function BulkPanel(): React.JSX.Element {
           </div>
         ) : (
           <>
-            <label className="bulk-row">
+            <div className="bulk-row">
               <span>Move to</span>
               <NotebookPicker
                 value=""
@@ -111,25 +113,18 @@ export function BulkPanel(): React.JSX.Element {
                   s.showNotice(`Moved ${plural(selected.length)} to “${books[bookId]?.name}”.`)
                 }}
               />
-            </label>
-            <label className="bulk-row">
+            </div>
+            <div className="bulk-row">
               <span>Status</span>
-              <select
+              <StatusPicker
                 value=""
-                onChange={(e) => {
-                  if (!e.target.value) return
-                  for (const n of selected) s.updateNote(n._id, { status: e.target.value as NoteStatus })
+                compact
+                placeholder="Choose a status…"
+                onPick={(status) => {
+                  for (const n of selected) s.updateNote(n._id, { status })
                 }}
-              >
-                <option value="">Choose a status…</option>
-                <option value="none">No status</option>
-                {getStatuses().map((st) => (
-                  <option key={st.id} value={st.id}>
-                    {st.label}
-                  </option>
-                ))}
-              </select>
-            </label>
+              />
+            </div>
             <div className="bulk-row">
               <span>Add tag</span>
               <input

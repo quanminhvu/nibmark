@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef } from 'react'
-import { ArrowUpDown, ListChecks, ListFilter, PanelLeft, Pin, SquarePen, X } from 'lucide-react'
+import { ArrowUpDown, CircleDashed, ListChecks, ListFilter, PanelLeft, Pin, SquarePen, X } from 'lucide-react'
 import { useStore } from '@/lib/store'
 import { visibleNotes } from '@/lib/selectors'
 import { highlightWords, parseQuery } from '@/lib/search'
@@ -60,9 +60,10 @@ export function noteMenu(note: Note): MenuItem[] {
     { label: 'Copy Link', onClick: () => copyNoteLink(note._id) },
     { label: 'Copy Note ID', onClick: () => copyId(note._id) },
     { separator: true },
-    { label: 'No Status', checked: note.status === 'none', onClick: () => a.updateNote(note._id, { status: 'none' }) },
+    { label: 'No Status', icon: <CircleDashed size={14} className="status-none" />, checked: note.status === 'none', onClick: () => a.updateNote(note._id, { status: 'none' }) },
     ...getStatuses().map((s) => ({
       label: s.label,
+      icon: <StatusIcon status={s.id} size={14} />,
       checked: note.status === s.id,
       onClick: () => a.updateNote(note._id, { status: s.id })
     })),
@@ -144,7 +145,7 @@ export function NoteList({ searchRef }: { searchRef: React.RefObject<HTMLInputEl
         : selection.kind === 'book'
           ? (books[selection.id]?.name ?? 'Notebook')
           : selection.kind === 'tag'
-            ? `#${tags[selection.id]?.name ?? ''}`
+            ? (tags[selection.id]?.name ?? '')
             : (getStatuses().find((s) => s.id === selection.status)?.label ?? '')
 
   const onKeyDown = (e: React.KeyboardEvent): void => {
@@ -174,6 +175,10 @@ export function NoteList({ searchRef }: { searchRef: React.RefObject<HTMLInputEl
             <PanelLeft size={16} />
           </button>
           <h2 title={heading}>
+            {selection.kind === 'tag' && tags[selection.id] && (
+              <span className="heading-dot" style={{ background: tags[selection.id].color }} />
+            )}
+            {selection.kind === 'status' && <StatusIcon status={selection.status} size={15} />}
             <span className="notelist-heading-text">{heading}</span>
             <span className="notelist-count">{list.length}</span>
           </h2>

@@ -6,6 +6,20 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
+## [0.7.0] - 2026-11-12
+
+### Changed
+
+- New status picker in the note header and the multi-select panel: colored icons, a check mark on the current status, type to filter, and type a new name to create a status on the spot
+- Tag field: suggestions show each tag's color, note count and the matched letters, plus a “Create tag” row; tags follow your sidebar order; the × on a tag appears on hover, and clicking a tag shows all notes with it
+- Sidebar: a ⋯ button on notebooks, statuses and tags opens their menu; double-click a status or tag to rename it in place; menus show icons, and delete actions are red
+- The note list title shows the tag's color or the status icon when you filter by one
+- Redesigned Edit Tag / Edit Status dialog: a live preview of how it looks in the sidebar and on notes, a 14-color palette, a custom color picker and hex field, 40 suggested status icons with search across all icons, and a Delete button
+
+### Fixed
+
+- Esc in a picker or the tag field no longer leaves distraction-free mode
+
 ## [0.6.0] - 2026-11-12
 
 ### Added
