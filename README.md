@@ -10,7 +10,7 @@
 
 Nibmark keeps your notes as plain Markdown, organized in nested notebooks, tags and statuses, and stored on your own machine. It is a desktop app built with Electron, React and CodeMirror 6.
 
-> **Status:** v0.6.0, in active development. macOS is the primary target; Windows and Linux installers are built for every release but get less testing. Sync and mobile apps are on the [roadmap](#roadmap). Download the latest build from [Releases](https://github.com/quanminhvu/nibmark/releases).
+> **Status:** v0.7.0, in active development. macOS is the primary target; Windows and Linux installers are built for every release but get less testing. Sync and mobile apps are on the [roadmap](#roadmap). Download the latest build from [Releases](https://github.com/quanminhvu/nibmark/releases).
 
 <p align="center">
   <img src="docs/screenshot.png" alt="Nibmark with the Mist theme: notebooks and tags in the sidebar, the note list with task progress, and a note in side-by-side editor and preview" />
@@ -50,7 +50,9 @@ Nibmark keeps your notes as plain Markdown, organized in nested notebooks, tags 
 **Organizing**
 
 - Nested notebooks with icons and a manual order
-- Create, rename and recolor tags; create, rename, recolor and choose icons for statuses, including the built-in statuses
+- Custom statuses alongside the built-in ones; pick a status from a searchable list with colored icons, or type a new name to create one on the spot
+- Tag suggestions show each tag's color and note count; type a new name to create a tag, and click a tag on a note to see every note with it
+- Edit tags and statuses right in the sidebar: double-click to rename, or use the ⋯ button for a dialog with a live preview, a color palette (or any custom color) and, for statuses, more than 1,500 icons
 - Drag statuses and tags into your preferred order; the order persists and is included in backups
 - Delete a status without losing content: affected notes and templates move to No status
 - Pin, duplicate, trash and restore notes; drag notes onto notebooks, statuses, tags or the Trash
@@ -123,6 +125,8 @@ Other scripts:
 | `npm run verify` | Typecheck, build and check that main/preload bundle all their dependencies |
 | `npm run pack` | Package an unpacked app into `dist/` (on macOS: `dist/mac-arm64/Nibmark.app`) |
 | `npm run test:smoke` | Launch the packaged app on a temporary profile and check that it starts |
+| `npm run test:desktop` | Drive the built app on a temporary profile through statuses, tags, ordering, backlinks and scrolling |
+| `npm run test:scroll` | Check the editor/preview scroll mapping |
 | `npm run dist` | Build installers: `.dmg`/`.zip` (macOS), `.exe` (Windows), `.AppImage` (Linux) |
 
 See [CONTRIBUTING.md](CONTRIBUTING.md) for the development workflow, CI and the release process.
@@ -199,7 +203,7 @@ docs/                     Roadmap and screenshot
 ## Roadmap
 
 - [x] **Phase 1 — Desktop app (0.1–0.3):** editor, notebooks, tags, statuses, search, backup, import and export, themes, command palette, templates, note links, Mermaid and math, attachments, version history
-- [x] **Phase 2 — A better everyday experience (0.4):** new look, Kanban boards, editor and preview improvements, tasks palette, note windows, activity view, Apple Notes and Kindle import, HTML export
+- [x] **Phase 2 — A better everyday experience (0.4–0.7):** new look, Kanban boards, editor and preview improvements, tasks palette, note windows, activity view, Apple Notes and Kindle import, HTML export, resizable panes, custom statuses, backlinks, and easier status and tag editing
 - [ ] **Phase 3 — Sync and security:** CouchDB sync, end-to-end encryption
 - [ ] **Phase 4 — Mobile, plugins and AI:** iOS and Android apps, plugin system, optional AI assistant
 - [ ] **Phase 5 — Distribution:** signed builds, accounts
