@@ -4,11 +4,10 @@ import type { CSSProperties } from 'react'
 import { ResizeHandle, usePaneSize } from './ResizeHandle'
 import { useEffect, useRef } from 'react'
 import { syncScroll } from '@/lib/scrollSync'
-import { ArrowLeft, ArrowRight, CircleDashed, Columns2, EllipsisVertical, Eye, LayoutTemplate, Maximize2, Minimize2, Pencil, Pin, RotateCcw, Trash2 } from 'lucide-react'
+import { ArrowLeft, ArrowRight, Columns2, EllipsisVertical, Eye, LayoutTemplate, Maximize2, Minimize2, Pencil, Pin, RotateCcw, Trash2 } from 'lucide-react'
 import { useStore } from '@/lib/store'
 import { toggleTask } from '@/lib/markdown'
-import { getStatuses } from '@/lib/statuses'
-import type { NoteStatus, ViewMode } from '@/lib/types'
+import type { ViewMode } from '@/lib/types'
 import { cx, isMac, relativeTime } from '@/lib/util'
 import { goBack, goForward, useNav } from '@/lib/navigation'
 import { BulkPanel } from './BulkPanel'
@@ -17,9 +16,9 @@ import { MarkdownEditor } from './MarkdownEditor'
 import { noteMenu } from './NoteList'
 import { Preview } from './Preview'
 import { NotebookPicker } from './NotebookPicker'
+import { StatusPicker } from './StatusPicker'
 import { KanbanBoard } from './KanbanBoard'
 import { isKanban } from '@/lib/kanban'
-import { StatusIcon } from './StatusIcon'
 import { TagInput } from './TagInput'
 
 const VIEW_MODES: { mode: ViewMode; title: string; icon: React.ReactNode }[] = [
@@ -140,17 +139,7 @@ export function NotePane(): React.JSX.Element {
       ) : (
         <div className="note-meta">
           <NotebookPicker value={books[note.bookId] ? note.bookId : ''} placeholder="No notebook" onPick={(bookId) => updateNote(note._id, { bookId })} />
-          <label className="meta-field" title="Status">
-            {note.status === 'none' ? <CircleDashed size={15} className="status-none" /> : <StatusIcon status={note.status} size={15} />}
-            <select value={note.status} onChange={(e) => updateNote(note._id, { status: e.target.value as NoteStatus })}>
-              <option value="none">No status</option>
-              {getStatuses().map((s) => (
-                <option key={s.id} value={s.id}>
-                  {s.label}
-                </option>
-              ))}
-            </select>
-          </label>
+          <StatusPicker value={note.status} onPick={(status) => updateNote(note._id, { status })} />
           <TagInput noteId={note._id} tagIds={note.tags} />
           <span className="note-updated" title={new Date(note.updatedAt).toLocaleString()}>
             {relativeTime(note.updatedAt)}

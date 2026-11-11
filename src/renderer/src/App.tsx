@@ -103,7 +103,9 @@ export function App(): React.JSX.Element {
     const onKeyDown = (e: KeyboardEvent): void => {
       const s = useStore.getState()
       if (s.prefsOpen || s.palette || isHistoryOpen() || isActivityOpen()) return
-      if (e.key === 'Escape' && s.distractionFree && !e.defaultPrevented) {
+      // Esc trong một ô chọn/ô nhập nổi (notebook, status, tag…) chỉ đóng ô đó, không thoát chế độ tập trung
+      const inPopover = !!(document.activeElement as HTMLElement | null)?.closest?.('.nbp-pop, .stp-pop, .tag-field, .kanban-input, .preview-find')
+      if (e.key === 'Escape' && s.distractionFree && !e.defaultPrevented && !inPopover) {
         s.toggleDistractionFree()
         return
       }

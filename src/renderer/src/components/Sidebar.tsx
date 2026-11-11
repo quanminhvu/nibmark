@@ -2,7 +2,7 @@ import { AppearancePicker } from './AppearancePicker'
 import type { AppearanceTarget } from './AppearancePicker'
 import { useMemo, useState } from 'react'
 import { openActivity } from './ActivityPanel'
-import { ChartNoAxesColumn, ChevronDown, ChevronRight, Files, LayoutTemplate, Plus, Search, Settings, Trash2, X } from 'lucide-react'
+import { ArrowUpToLine, ChartNoAxesColumn, ChevronDown, ChevronRight, Copy, Download, Files, FolderPlus, LayoutTemplate, MoreHorizontal, Palette, Pencil, Plus, Search, Settings, Smile, Trash2, Upload, X } from 'lucide-react'
 import { useStore } from '@/lib/store'
 import { childrenByParent, descendantIds } from '@/lib/selectors'
 import { getStatuses } from '@/lib/statuses'
@@ -32,7 +32,7 @@ const STATUS_MIME = 'application/x-nibmark-status'
 const TAG_MIME = 'application/x-nibmark-tag'
 const BOOK_MIME = 'application/x-nibmark-book'
 
-type Editing = { kind: 'new'; parentId: string | null } | { kind: 'rename'; id: string } | { kind: 'renameTag'; id: string } | { kind: 'newTag' | 'newStatus' } | null
+type Editing = { kind: 'new'; parentId: string | null } | { kind: 'rename'; id: string } | { kind: 'renameTag'; id: string } | { kind: 'renameStatus'; id: NoteStatus } | { kind: 'newTag' | 'newStatus' } | null
 
 function sameSelection(a: Selection, b: Selection): boolean {
   if (a.kind !== b.kind) return false
@@ -102,6 +102,13 @@ function useDropTarget(accept: string[], onDrop: (type: string, id: string, zone
   }
 }
 
+/** Màu và icon đang dùng của một trạng thái (trạng thái có sẵn có giá trị mặc định) */
+function statusLook(status: { id: NoteStatus; color?: string; icon?: string }): { color: string; icon: string } {
+  const colors: Record<string, string> = { active: '#80A4CD', onHold: '#F5A623', completed: '#2FB457', dropped: '#E5484D' }
+  const glyphs: Record<string, string> = { active: 'Play', onHold: 'Pause', completed: 'Check', dropped: 'X' }
+  return { color: status.color ?? colors[status.id] ?? '#2F6FE4', icon: status.icon ?? glyphs[status.id] ?? 'Circle' }
+}
+
 interface RowProps {
   selection: Selection
   icon: React.ReactNode
@@ -113,11 +120,13 @@ interface RowProps {
   zoned?: string[]
   onDropItem?: (type: string, id: string, zone: DropZone) => void
   onContextMenu?: (e: React.MouseEvent) => void
+  /** Nháy đúp (ví dụ để đổi tên ngay tại chỗ) */
+  onDoubleClick?: () => void
   children?: React.ReactNode
   dragData?: { type: string; id: string }
 }
 
-function Row({ selection, icon, label, count, depth = 0, accept = [], zoned = [], onDropItem, onContextMenu, children, dragData }: RowProps): React.JSX.Element {
+function Row({ selection, icon, label, count, depth = 0, accept = [], zoned = [], onDropItem, onContextMenu, onDoubleClick, children, dragData }: RowProps): React.JSX.Element {
   const current = useStore((s) => s.selection)
   const select = useStore((s) => s.select)
   const drop = useDropTarget(accept, (type, id, zone) => onDropItem?.(type, id, zone), zoned)
@@ -135,12 +144,28 @@ function Row({ selection, icon, label, count, depth = 0, accept = [], zoned = []
       onDragStart={dragData ? (e) => { e.stopPropagation(); e.dataTransfer.setData(dragData.type, dragData.id); e.dataTransfer.effectAllowed = 'move' } : undefined}
       onClick={() => select(selection)}
       onContextMenu={onContextMenu}
+      onDoubleClick={onDoubleClick}
       {...drop.props}
     >
       {children}
       <span className="side-icon">{icon}</span>
       <span className="side-label">{label}</span>
       {count !== undefined && count > 0 && <span className="side-count">{count}</span>}
+      {onContextMenu && (
+        // Nút ⋯ hiện khi rê chuột: cùng menu với chuột phải, để sửa mà không cần nhớ chuột phải
+        <button
+          className="side-more"
+          title="More actions"
+          aria-label={`More actions for ${label}`}
+          onClick={(e) => {
+            e.stopPropagation()
+            onContextMenu(e)
+          }}
+          onDoubleClick={(e) => e.stopPropagation()}
+        >
+          <MoreHorizontal size={14} />
+        </button>
+      )}
     </div>
   )
 }
@@ -265,16 +290,18 @@ export function Sidebar(): React.JSX.Element {
 
   const bookMenu = (book: Book) => (e: React.MouseEvent) =>
     openMenu(e, [
-      { label: 'New Sub-notebook', onClick: () => setEditing({ kind: 'new', parentId: book._id }) },
-      { label: 'Change Icon…', onClick: () => openIconPicker(book._id) },
-      { label: 'Rename', onClick: () => setEditing({ kind: 'rename', id: book._id }) },
-      ...(book.parentId ? [{ label: 'Move to Top Level', onClick: () => actions.moveBook(book._id, null) }] : []),
-      { label: 'Import into Notebook…', onClick: () => void runImport(book._id) },
-      { label: 'Export as Markdown…', onClick: () => void exportNotes(book._id) },
-      { label: 'Copy Notebook ID', onClick: () => copyId(book._id) },
+      { label: 'New Sub-notebook', icon: <FolderPlus size={14} />, onClick: () => setEditing({ kind: 'new', parentId: book._id }) },
+      { label: 'Rename', icon: <Pencil size={14} />, hint: 'Double-click', onClick: () => setEditing({ kind: 'rename', id: book._id }) },
+      { label: 'Change Icon…', icon: <Smile size={14} />, onClick: () => openIconPicker(book._id) },
+      ...(book.parentId ? [{ label: 'Move to Top Level', icon: <ArrowUpToLine size={14} />, onClick: () => actions.moveBook(book._id, null) }] : []),
+      { separator: true },
+      { label: 'Import into Notebook…', icon: <Download size={14} />, onClick: () => void runImport(book._id) },
+      { label: 'Export as Markdown…', icon: <Upload size={14} />, onClick: () => void exportNotes(book._id) },
+      { label: 'Copy Notebook ID', icon: <Copy size={14} />, onClick: () => copyId(book._id) },
       { separator: true },
       {
         label: 'Delete Notebook',
+        icon: <Trash2 size={14} />,
         danger: true,
         onClick: () => {
           const total = [book._id, ...descendantIds(children, book._id)].reduce((sum, id) => sum + (counts.byBook.get(id) ?? 0), 0)
@@ -436,20 +463,43 @@ export function Sidebar(): React.JSX.Element {
           if (name) actions.select({ kind: 'status', status: actions.ensureStatus(name) })
           setEditing(null)
         }} /></div>}
-        {!sections.status && getStatuses().map((status) => (
+        {!sections.status && getStatuses().map((status) => {
+          const look = statusLook(status)
+          const editLook = (): void =>
+            setAppearance({ name: status.label, color: look.color, icon: look.icon, onSave: (color, icon, name) => actions.setStatusAppearance(status.id, color, icon, name) })
+          const menu = (e: React.MouseEvent): void =>
+            openMenu(e, [
+              { label: 'Rename', icon: <Pencil size={14} />, hint: 'Double-click', onClick: () => setEditing({ kind: 'renameStatus', id: status.id }) },
+              { label: 'Change Color & Icon…', icon: <Palette size={14} />, onClick: editLook },
+              { separator: true },
+              { label: 'Delete Status', icon: <Trash2 size={14} />, danger: true, onClick: () => {
+                if (window.confirm(`Delete the status "${status.label}"? Notes and templates using it will be changed to No status. Their content will be kept.`)) actions.deleteStatus(status.id)
+              } }
+            ])
+          if (editing?.kind === 'renameStatus' && editing.id === status.id) {
+            return (
+              <div key={status.id} className="side-row editing">
+                <NameInput
+                  initial={status.label}
+                  onDone={(name) => {
+                    if (name && name !== status.label && !actions.setStatusAppearance(status.id, look.color, look.icon, name)) {
+                      actions.showNotice(`A status named “${name}” already exists.`, 'error')
+                    }
+                    setEditing(null)
+                  }}
+                />
+              </div>
+            )
+          }
+          return (
           <Row
             key={status.id}
             dragData={{ type: STATUS_MIME, id: status.id }}
             zoned={[STATUS_MIME]}
             selection={{ kind: 'status', status: status.id }}
             icon={<StatusIcon status={status.id} size={15} />}
-            onContextMenu={(e) => openMenu(e, [{ label: 'Edit Status…', onClick: () => setAppearance({
-              name: status.label, color: status.color ?? (({ active: '#80A4CD', onHold: '#F5A623', completed: '#2FB457', dropped: '#E5484D' } as Record<string, string>)[status.id] ?? '#2F6FE4'),
-              icon: status.icon ?? (({ active: 'Play', onHold: 'Pause', completed: 'Check', dropped: 'X' } as Record<string, string>)[status.id] ?? 'Circle'),
-              onSave: (color, icon, name) => actions.setStatusAppearance(status.id, color, icon, name)
-            }) }, { separator: true }, { label: 'Delete Status', danger: true, onClick: () => {
-              if (window.confirm(`Delete the status "${status.label}"? Notes and templates using it will be changed to No status. Their content will be kept.`)) actions.deleteStatus(status.id)
-            } }])}
+            onContextMenu={menu}
+            onDoubleClick={() => setEditing({ kind: 'renameStatus', id: status.id })}
             label={status.label}
             count={counts.byStatus.get(status.id) ?? 0}
             accept={[NOTE_MIME, STATUS_MIME]}
@@ -464,7 +514,8 @@ export function Sidebar(): React.JSX.Element {
               }
             }}
           />
-        ))}
+          )
+        })}
 
         <SectionHeading
             title="Tags"
@@ -499,6 +550,7 @@ export function Sidebar(): React.JSX.Element {
               zoned={[TAG_MIME]}
               selection={{ kind: 'tag', id: tag._id }}
               icon={<span className="tag-dot ring" style={{ '--tag': tag.color } as React.CSSProperties} />}
+              onDoubleClick={() => setEditing({ kind: 'renameTag', id: tag._id })}
               label={tag.name}
               count={counts.byTag.get(tag._id) ?? 0}
               accept={[NOTE_MIME, TAG_MIME]}
@@ -517,12 +569,13 @@ export function Sidebar(): React.JSX.Element {
               }}
               onContextMenu={(e) =>
                 openMenu(e, [
-                  { label: 'Rename', onClick: () => setEditing({ kind: 'renameTag', id: tag._id }) },
-                  { label: 'Edit Tag…', onClick: () => setAppearance({ name: tag.name, color: tag.color, onSave: (color, _icon, name) => actions.setTagDetails(tag._id, name, color) }) },
-                  { label: 'Copy Tag ID', onClick: () => copyId(tag._id) },
+                  { label: 'Rename', icon: <Pencil size={14} />, hint: 'Double-click', onClick: () => setEditing({ kind: 'renameTag', id: tag._id }) },
+                  { label: 'Change Color…', icon: <Palette size={14} />, onClick: () => setAppearance({ name: tag.name, color: tag.color, onSave: (color, _icon, name) => actions.setTagDetails(tag._id, name, color) }) },
+                  { label: 'Copy Tag ID', icon: <Copy size={14} />, onClick: () => copyId(tag._id) },
                   { separator: true },
                   {
                     label: 'Delete Tag',
+                    icon: <Trash2 size={14} />,
                     danger: true,
                     onClick: () => {
                       if (window.confirm(`Delete the tag "${tag.name}"? Notes keep their content.`)) actions.deleteTag(tag._id)

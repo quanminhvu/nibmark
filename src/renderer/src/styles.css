@@ -3469,3 +3469,312 @@ html.resizing-panes, html.resizing-panes * {
 .backlinks-list > button span { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; flex: 1; font-size: 12px; }
 .backlinks-list small { max-width: 30%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--ink-3); font-size: 11px; }
 .backlinks-list p { color: var(--ink-3); font-size: 11px; margin: 5px 0; }
+
+/* ── Menu chuột phải: icon, gợi ý phím, mục nguy hiểm màu đỏ ── */
+.menu {
+  min-width: 200px;
+  border-radius: var(--radius-lg);
+}
+.menu-item {
+  gap: 2px;
+  height: 28px;
+  border-radius: var(--radius-sm);
+}
+.menu-icon {
+  display: inline-grid;
+  place-items: center;
+  width: 20px;
+  margin-right: 6px;
+  color: var(--ink-2);
+}
+.menu-label {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.menu-hint {
+  margin-left: 16px;
+  color: var(--ink-3);
+  font-size: 11.5px;
+}
+.menu-item:hover .menu-icon,
+.menu-item:hover .menu-hint {
+  color: inherit;
+}
+.menu-item.danger,
+.menu-item.danger .menu-icon {
+  color: #e0484e;
+}
+.menu-item.danger:hover {
+  background: #e0484e;
+  color: #fff;
+}
+.menu-item.danger:hover .menu-icon {
+  color: #fff;
+}
+
+/* ── Bộ chọn trạng thái ── */
+.stp {
+  position: relative;
+}
+.stp-trigger {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  max-width: 220px;
+  height: 28px;
+  padding: 0 8px;
+  border: 0;
+  border-radius: var(--radius);
+  background: transparent;
+  color: var(--ink);
+  font: inherit;
+  font-weight: 550;
+  cursor: pointer;
+}
+.stp-trigger:hover,
+.stp-trigger[aria-expanded='true'] {
+  background: var(--hover);
+}
+.stp-trigger.empty .stp-label {
+  color: var(--ink-3);
+  font-weight: 400;
+}
+.stp-label {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.stp-chevron {
+  flex: none;
+  color: var(--ink-3);
+}
+.stp.compact .stp-trigger {
+  border: 1px solid var(--line);
+  background: var(--surface-2);
+  font-weight: 400;
+}
+.stp-pop {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  z-index: 40;
+  width: 250px;
+  padding: 6px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  background: var(--surface-2);
+  box-shadow: var(--shadow);
+}
+.stp-pop input {
+  width: 100%;
+  height: 30px;
+  margin-bottom: 4px;
+  padding: 0 9px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  outline: 0;
+  background: var(--surface);
+  color: var(--ink);
+  font: inherit;
+}
+.stp-pop input:focus {
+  border-color: var(--accent);
+}
+.stp-list {
+  max-height: 300px;
+  overflow-y: auto;
+}
+.stp-item {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  height: 32px;
+  padding: 0 10px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+}
+.stp-item.active {
+  background: var(--selection-bg, var(--selected));
+}
+.stp-icon {
+  display: inline-grid;
+  place-items: center;
+  width: 16px;
+}
+.stp-name {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.stp-name mark {
+  background: none;
+  color: var(--accent);
+  font-weight: 650;
+}
+.stp-item.create {
+  color: var(--accent);
+}
+.stp-check {
+  flex: none;
+  color: var(--accent);
+}
+.stp-empty {
+  padding: 8px 10px;
+  color: var(--ink-3);
+}
+
+/* ── Tag ở đầu ghi chú: bấm tên để lọc theo tag, nút × chỉ hiện khi rê chuột ── */
+.tag-chip .tag-chip-name {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+}
+.tag-input .tag-chip {
+  gap: 0;
+  padding: 0 9px;
+  transition: padding 0.12s;
+}
+.tag-input .tag-chip .tag-remove {
+  width: 0;
+  margin: 0;
+  overflow: hidden;
+  opacity: 0;
+  transition:
+    width 0.12s,
+    opacity 0.12s,
+    margin 0.12s;
+}
+.tag-input .tag-chip:hover,
+.tag-input .tag-chip:focus-within {
+  padding-right: 5px;
+}
+.tag-input .tag-chip:hover .tag-remove,
+.tag-input .tag-chip .tag-remove:focus-visible {
+  width: 14px;
+  margin-left: 3px;
+  opacity: 0.75;
+}
+.tag-input .tag-chip .tag-remove:hover {
+  opacity: 1;
+}
+.tag-field {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  height: 24px;
+  padding: 0 6px;
+  border-radius: var(--radius);
+  cursor: text;
+}
+.tag-field:hover {
+  background: var(--hover);
+}
+.tag-field.focused {
+  background: transparent;
+}
+.tag-field-icon {
+  flex: none;
+  color: var(--ink-3);
+}
+.tag-field input {
+  min-width: 60px;
+  color: var(--ink);
+  outline: 0;
+}
+.tag-suggestions {
+  top: 28px;
+  width: 240px;
+  padding: 5px;
+  border-radius: var(--radius-lg);
+}
+.tag-suggestions-head {
+  padding: 4px 8px 4px;
+  color: var(--ink-3);
+  font-size: 11px;
+  font-weight: 600;
+}
+.tag-suggestion {
+  height: 30px;
+  border-radius: var(--radius-sm);
+  color: var(--ink);
+  font-size: 13px;
+}
+.tag-suggestion.active,
+.tag-suggestion:hover {
+  background: var(--selection-bg, var(--hover));
+}
+.tag-suggestion .tag-dot {
+  flex: none;
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+}
+.tag-suggestion-name {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.tag-suggestion-name mark {
+  background: none;
+  color: var(--accent);
+  font-weight: 650;
+}
+.tag-suggestion-count {
+  color: var(--ink-3);
+  font-size: 11.5px;
+  font-variant-numeric: tabular-nums;
+}
+.tag-suggestion.create {
+  color: var(--accent);
+}
+.tag-suggestion-plus {
+  flex: none;
+}
+
+/* ── Sidebar: nút ⋯ khi rê chuột (thay chỗ số đếm) ── */
+.side-row .side-more {
+  display: none;
+  place-items: center;
+  width: 22px;
+  height: 22px;
+  margin-right: -4px;
+  padding: 0;
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--ink-3);
+  cursor: pointer;
+}
+.side-row:hover .side-more {
+  display: grid;
+}
+.side-row:hover .side-count {
+  display: none;
+}
+.side-row .side-more:hover {
+  background: var(--selected);
+  color: var(--ink);
+}
+/* Dòng đang đổi tên cho status/tag thẳng hàng với các dòng khác */
+.side-row.editing {
+  padding-left: 10px;
+}
+/* Tiêu đề danh sách khi lọc theo tag hoặc trạng thái */
+.notelist-title h2 .heading-dot {
+  flex: none;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+}
+.notelist-title h2 .status-icon {
+  flex: none;
+}

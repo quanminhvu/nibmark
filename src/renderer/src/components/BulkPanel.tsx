@@ -2,8 +2,8 @@ import { useState } from 'react'
 import { Files, Pin, RotateCcw, Trash2, X } from 'lucide-react'
 import { useStore } from '@/lib/store'
 import { NotebookPicker } from './NotebookPicker'
+import { StatusPicker } from './StatusPicker'
 import { getStatuses } from '@/lib/statuses'
-import type { NoteStatus } from '@/lib/types'
 import type { MenuItem } from './ContextMenu'
 
 const plural = (n: number): string => `${n} note${n === 1 ? '' : 's'}`
@@ -101,7 +101,7 @@ export function BulkPanel(): React.JSX.Element {
           </div>
         ) : (
           <>
-            <label className="bulk-row">
+            <div className="bulk-row">
               <span>Move to</span>
               <NotebookPicker
                 value=""
@@ -111,25 +111,18 @@ export function BulkPanel(): React.JSX.Element {
                   s.showNotice(`Moved ${plural(selected.length)} to “${books[bookId]?.name}”.`)
                 }}
               />
-            </label>
-            <label className="bulk-row">
+            </div>
+            <div className="bulk-row">
               <span>Status</span>
-              <select
+              <StatusPicker
                 value=""
-                onChange={(e) => {
-                  if (!e.target.value) return
-                  for (const n of selected) s.updateNote(n._id, { status: e.target.value as NoteStatus })
+                compact
+                placeholder="Choose a status…"
+                onPick={(status) => {
+                  for (const n of selected) s.updateNote(n._id, { status })
                 }}
-              >
-                <option value="">Choose a status…</option>
-                <option value="none">No status</option>
-                {getStatuses().map((st) => (
-                  <option key={st.id} value={st.id}>
-                    {st.label}
-                  </option>
-                ))}
-              </select>
-            </label>
+              />
+            </div>
             <div className="bulk-row">
               <span>Add tag</span>
               <input

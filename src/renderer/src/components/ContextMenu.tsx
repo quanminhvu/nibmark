@@ -3,7 +3,7 @@ import { create } from 'zustand'
 import { cx } from '@/lib/util'
 
 export type MenuItem =
-  | { label: string; onClick: () => void; danger?: boolean; checked?: boolean; disabled?: boolean }
+  | { label: string; onClick: () => void; danger?: boolean; checked?: boolean; disabled?: boolean; icon?: React.ReactNode; hint?: string }
   | { separator: true }
 
 interface MenuState {
@@ -61,6 +61,8 @@ export function ContextMenuHost(): React.JSX.Element | null {
   }, [open])
 
   if (!open) return null
+  // Chỉ chừa cột icon khi có ít nhất một mục có icon
+  const withIcons = items.some((item) => !('separator' in item) && item.icon)
 
   return (
     <div className="menu-backdrop" onMouseDown={close} onContextMenu={(e) => (e.preventDefault(), close())}>
@@ -80,7 +82,9 @@ export function ContextMenuHost(): React.JSX.Element | null {
               }}
             >
               <span className="menu-check">{item.checked ? '✓' : ''}</span>
-              {item.label}
+              {withIcons && <span className="menu-icon">{item.icon}</span>}
+              <span className="menu-label">{item.label}</span>
+              {item.hint && <span className="menu-hint">{item.hint}</span>}
             </button>
           )
         )}

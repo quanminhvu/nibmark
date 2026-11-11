@@ -144,7 +144,7 @@ export function NoteList({ searchRef }: { searchRef: React.RefObject<HTMLInputEl
         : selection.kind === 'book'
           ? (books[selection.id]?.name ?? 'Notebook')
           : selection.kind === 'tag'
-            ? `#${tags[selection.id]?.name ?? ''}`
+            ? (tags[selection.id]?.name ?? '')
             : (getStatuses().find((s) => s.id === selection.status)?.label ?? '')
 
   const onKeyDown = (e: React.KeyboardEvent): void => {
@@ -174,6 +174,10 @@ export function NoteList({ searchRef }: { searchRef: React.RefObject<HTMLInputEl
             <PanelLeft size={16} />
           </button>
           <h2 title={heading}>
+            {selection.kind === 'tag' && tags[selection.id] && (
+              <span className="heading-dot" style={{ background: tags[selection.id].color }} />
+            )}
+            {selection.kind === 'status' && <StatusIcon status={selection.status} size={15} />}
             <span className="notelist-heading-text">{heading}</span>
             <span className="notelist-count">{list.length}</span>
           </h2>
