@@ -11,6 +11,20 @@ import { cx, isMac, relativeTime } from '@/lib/util'
 import { StatusIcon } from './StatusIcon'
 import { openHistory } from './HistoryPanel'
 import { copyId, copyNoteLink } from '@/lib/clipboard'
+import {
+  duplicateLine,
+  getActiveEditor,
+  joinLines,
+  lowerCase,
+  reverseLines,
+  runEditorCommand,
+  selectAllOccurrences,
+  sortLines,
+  sortLinesDesc,
+  titleCase,
+  uniqueLines,
+  upperCase
+} from '@/lib/editorCommands'
 
 type Section = 'Commands' | 'Notes' | 'Notebooks' | 'Tags' | 'Status' | 'Themes' | 'Headings' | 'Templates'
 
@@ -86,6 +100,23 @@ function commandItems(): Item[] {
       cmd('trash', 'Move Note to Trash', () => s.trashNote(note._id), undefined, 'delete remove'),
       cmd('status-none', 'Set Status: None', () => s.updateNote(note._id, { status: 'none' }), undefined, 'clear'),
       ...STATUSES.map((st) => cmd(`status-${st.id}`, `Set Status: ${st.label}`, () => s.updateNote(note._id, { status: st.id })))
+    )
+  }
+  // Lệnh soạn thảo: chỉ khi đang có editor (không ở chế độ preview hay ghi chú trong thùng rác)
+  if (getActiveEditor()) {
+    const ed = (id: string, label: string, run: Parameters<typeof runEditorCommand>[0], shortcut?: string, keywords?: string): Item =>
+      cmd(`editor-${id}`, label, () => runEditorCommand(run), shortcut, `editor ${keywords ?? ''}`)
+    items.push(
+      ed('sort', 'Sort Lines', sortLines, undefined, 'order alphabetical'),
+      ed('sort-desc', 'Sort Lines Descending', sortLinesDesc, undefined, 'order reverse'),
+      ed('reverse', 'Reverse Lines', reverseLines),
+      ed('unique', 'Remove Duplicate Lines', uniqueLines, undefined, 'unique dedupe'),
+      ed('join', 'Join Lines', joinLines, undefined, 'merge'),
+      ed('duplicate', 'Duplicate Line', duplicateLine, `${shift()}⌥↓`, 'copy'),
+      ed('upper', 'Transform to Uppercase', upperCase, undefined, 'case capital'),
+      ed('lower', 'Transform to Lowercase', lowerCase, undefined, 'case small'),
+      ed('title', 'Transform to Title Case', titleCase, undefined, 'case capitalize'),
+      ed('occurrences', 'Select All Occurrences', selectAllOccurrences, `${mod()}${shift()}L`, 'multiple cursors')
     )
   }
   return items

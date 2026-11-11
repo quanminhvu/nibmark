@@ -11,6 +11,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 - Copy a note link or a note, notebook or tag ID from context menus and the command palette
 - Color swatches next to `#hex`, `rgb()` and `hsl()` values in inline code
 - Preferences → Open Data Folder
+- Multiple cursors (`⌘`-click, `⌘⌥↑/↓`) and rectangular selection (`⌥`-drag)
+- Numbered lists renumber themselves when items are added, deleted, pasted or moved; lazy `1. 1. 1.` lists and custom start numbers are kept
+- Editor commands in the palette: sort, reverse and dedupe lines, join lines, duplicate line, upper/lower/title case, select all occurrences
 
 ## [0.2.0] - 2026-11-11
 

@@ -1,6 +1,6 @@
 import { useEffect, useRef } from 'react'
 import { EditorState, Compartment } from '@codemirror/state'
-import { EditorView, keymap, drawSelection, highlightActiveLine, placeholder, dropCursor } from '@codemirror/view'
+import { EditorView, keymap, drawSelection, highlightActiveLine, placeholder, dropCursor, rectangularSelection, crosshairCursor } from '@codemirror/view'
 import { defaultKeymap, history, historyKeymap, indentWithTab } from '@codemirror/commands'
 import { markdown, markdownLanguage, markdownKeymap } from '@codemirror/lang-markdown'
 import { languages } from '@codemirror/language-data'
@@ -11,6 +11,8 @@ import { emojiCompletions, fenceLanguageCompletions, slashCompletions } from '@/
 import { formatToolbar, toggleWrap } from '@/lib/formatToolbar'
 import { attachFiles, fileIdFromUrl, openAttachment } from '@/lib/attachments'
 import { extraSlashItems } from '@/lib/completions'
+import { setActiveEditor } from '@/lib/editorCommands'
+import { listRenumber } from '@/lib/listRenumber'
 
 /** Chèn đoạn Markdown của file vào vị trí `pos` (sau khi lưu xong). */
 async function insertFiles(view: EditorView, files: File[], pos: number, replaceTo = pos): Promise<void> {
@@ -87,6 +89,11 @@ export function MarkdownEditor({ value, readOnly = false, onChange }: Props): Re
         extensions: [
           history(),
           drawSelection(),
+          // Đa con trỏ: Cmd+click thêm con trỏ, Alt+kéo chọn vùng chữ nhật
+          EditorState.allowMultipleSelections.of(true),
+          rectangularSelection(),
+          crosshairCursor(),
+          listRenumber,
           dropCursor(),
           indentOnInput(),
           bracketMatching(),
@@ -178,7 +185,9 @@ export function MarkdownEditor({ value, readOnly = false, onChange }: Props): Re
       })
     })
     viewRef.current = view
+    setActiveEditor(view)
     return () => {
+      setActiveEditor(null, view)
       view.destroy()
       viewRef.current = null
     }
