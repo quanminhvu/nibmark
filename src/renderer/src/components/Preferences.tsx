@@ -162,8 +162,8 @@ export function Preferences(): React.JSX.Element | null {
 }
 
 function ThemeSwatch({ theme, selected, onPick }: { theme: ThemeInfo | null; selected: boolean; onPick: () => void }): React.JSX.Element {
-  // null = "System": nửa Paper, nửa Ink
-  const base = theme?.base ?? 'paper'
+  // null = "System": nửa Mist, nửa Night
+  const base = theme?.base ?? 'mist'
   return (
     <button className={cx('theme-swatch', selected && 'selected')} onClick={onPick} title={theme ? theme.name : 'Match macOS appearance'}>
       <span className="theme-sample" data-theme={base} data-user-theme={theme?.id.startsWith('user:') ? theme.id.slice(5) : undefined}>
@@ -175,7 +175,7 @@ function ThemeSwatch({ theme, selected, onPick }: { theme: ThemeInfo | null; sel
           <span className="ts-line accent" />
         </span>
         {!theme && (
-          <span className="ts-half" data-theme="ink">
+          <span className="ts-half" data-theme="night">
             <span className="ts-side" />
             <span className="ts-list" />
             <span className="ts-body">

@@ -6,7 +6,14 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
+### Added
+
+- Mist and Night themes: a clean white and light-gray look with a blue accent, and its dark counterpart. They are now the default when the theme follows macOS (Paper, Stone, Ink and Indigo are still available)
+
 ### Changed
+
+- The window's translucent areas follow the chosen theme's light or dark look instead of macOS's appearance
+- New tags get brighter colors
 
 - Softer, rounder interface: rounded note cards, toolbar buttons and fields; a segmented Editor / Side by side / Preview switch; a larger note title with notebook icon, status and tags underneath
 - Sidebar: Preferences gear, a Note Templates row, collapsible Notebooks / Status / Tags sections with their own filter and + buttons, filled status icons and ring-style tag dots. On macOS the sidebar is translucent

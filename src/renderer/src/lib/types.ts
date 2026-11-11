@@ -79,4 +79,5 @@ export const STATUSES: { id: Exclude<NoteStatus, 'none'>; label: string }[] = [
   { id: 'dropped', label: 'Dropped' }
 ]
 
-export const TAG_COLORS = ['#C8402E', '#C98A2E', '#5E8C4A', '#2F8F83', '#3F6FB5', '#7A5BB8', '#B24F86', '#7A7168']
+// Màu tag mới (kiểu màu hệ thống macOS); tag đã có giữ nguyên màu cũ
+export const TAG_COLORS = ['#2F6FE4', '#2FB457', '#E5484D', '#9B59D0', '#F08C1A', '#1BA7C9', '#E5487E', '#8E8E93']
