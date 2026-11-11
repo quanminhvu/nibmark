@@ -103,6 +103,7 @@ export function NotePane(): React.JSX.Element {
       <div className="note-title-row">
         <input
           className="note-title"
+          title={note.title || 'Untitled'}
           value={note.title}
           placeholder="Untitled"
           readOnly={readOnly}

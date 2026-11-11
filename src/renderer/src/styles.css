@@ -3417,3 +3417,17 @@ html.resizing-panes, html.resizing-panes * {
 .appearance-save { background: var(--syn-mark); border: 1px solid transparent; color: white; }
 .appearance-save:disabled { opacity: .45; cursor: default; }
 .appearance-error { font-size: 12px; color: var(--status-dropped, #E5484D); margin-top: -12px; }
+
+/* Keep actions reachable even when the collection name is longer than the pane. */
+.notelist-title { min-width: 0; }
+.notelist-title h2 { flex: 1 1 0; justify-content: flex-start; padding: 0 5px; }
+.notelist-heading-text {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.notelist-count { flex: 0 0 auto; }
+.notelist-title > button { flex-shrink: 0; position: relative; }
+.note-title-row { min-width: 0; }
+.note-title { display: block; box-sizing: border-box; text-overflow: ellipsis; }

@@ -173,8 +173,8 @@ export function NoteList({ searchRef }: { searchRef: React.RefObject<HTMLInputEl
           <button className="icon-btn" title="Show or hide the sidebar" onClick={() => useStore.getState().toggleSidebar()}>
             <PanelLeft size={16} />
           </button>
-          <h2>
-            {heading}
+          <h2 title={heading}>
+            <span className="notelist-heading-text">{heading}</span>
             <span className="notelist-count">{list.length}</span>
           </h2>
           <button
