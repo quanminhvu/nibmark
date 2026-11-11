@@ -2,6 +2,7 @@ import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import { X } from 'lucide-react'
 import { renderMermaidIn } from '@/lib/mermaid'
 import { renderMarkdown } from '@/lib/markdown'
+import { fileIdFromUrl, openAttachment, resolveFileUrls, useFileTick } from '@/lib/attachments'
 import { followNoteLink } from '@/lib/noteLinks'
 
 interface Props {
@@ -11,7 +12,10 @@ interface Props {
 }
 
 export function Preview({ source, onToggleTask }: Props): React.JSX.Element {
-  const html = useMemo(() => renderMarkdown(source), [source])
+  const rendered = useMemo(() => renderMarkdown(source), [source])
+  const fileTick = useFileTick((s) => s.tick)
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const html = useMemo(() => resolveFileUrls(rendered), [rendered, fileTick])
   const rootRef = useRef<HTMLDivElement>(null)
   const generation = useRef(0)
   const [viewer, setViewer] = useState<string | null>(null)
@@ -54,10 +58,20 @@ export function Preview({ source, onToggleTask }: Props): React.JSX.Element {
       event.preventDefault()
       const href = link.getAttribute('href') ?? ''
       if (followNoteLink(href)) return
+      const fileId = fileIdFromUrl(href)
+      if (fileId) {
+        void openAttachment(fileId)
+        return
+      }
       if (/^(https?:|mailto:)/i.test(href)) window.open(href)
       else if (href.startsWith('#')) {
         event.currentTarget.querySelector(`[id="${CSS.escape(href.slice(1))}"]`)?.scrollIntoView({ block: 'start' })
       }
+      return
+    }
+
+    if (target instanceof HTMLImageElement && target.src) {
+      setViewer(`<img src="${target.src.replace(/"/g, '&quot;')}" alt="" />`)
       return
     }
 

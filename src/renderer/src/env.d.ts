@@ -44,11 +44,21 @@ interface NibmarkBridge {
     /** Trả về thông báo lỗi, hoặc null nếu mở được */
     open(): Promise<string | null>
     /** null = người dùng hủy */
-    pickAndRead(): Promise<{ docs: unknown[]; error?: string } | null>
+    pickAndRead(): Promise<{ docs: unknown[]; files: { meta: unknown; data: Uint8Array }[]; error?: string } | null>
+    missingFiles(ids: string[]): Promise<string[]>
+    writeFile(meta: unknown, bytes: Uint8Array): Promise<{ ok: boolean; written: number; error?: string }>
   }
   exporter: {
-    note(title: string, content: string): Promise<string | null>
-    tree(label: string, files: { folders: string[]; name: string; content: string }[]): Promise<{ path: string; count: number } | null>
+    note(title: string, content: string, attachments?: { name: string; data: Uint8Array }[]): Promise<string | null>
+    tree(
+      label: string,
+      files: { folders: string[]; name: string; content: string }[],
+      attachments?: { name: string; data: Uint8Array }[]
+    ): Promise<{ path: string; count: number } | null>
+  }
+  files: {
+    /** Trả về thông báo lỗi, hoặc null nếu mở được */
+    open(id: string, name: string, bytes: Uint8Array): Promise<string | null>
   }
   themes: {
     list(): Promise<{ id: string; name: string; base: 'paper' | 'ink' | 'indigo' | 'stone'; css: string }[]>

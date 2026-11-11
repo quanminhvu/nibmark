@@ -9,6 +9,41 @@ import { autocompletion, closeBrackets, closeBracketsKeymap, completionKeymap } 
 import { followNoteLink, NOTE_LINK_PREFIX, noteLinkCompletions } from '@/lib/noteLinks'
 import { emojiCompletions, fenceLanguageCompletions, slashCompletions } from '@/lib/completions'
 import { formatToolbar, toggleWrap } from '@/lib/formatToolbar'
+import { attachFiles, fileIdFromUrl, openAttachment } from '@/lib/attachments'
+import { extraSlashItems } from '@/lib/completions'
+
+/** Chèn đoạn Markdown của file vào vị trí `pos` (sau khi lưu xong). */
+async function insertFiles(view: EditorView, files: File[], pos: number, replaceTo = pos): Promise<void> {
+  const text = await attachFiles(files)
+  if (!text || !view.dom.isConnected) return
+  const len = view.state.doc.length
+  const from = Math.min(pos, len)
+  const to = Math.min(Math.max(replaceTo, from), len)
+  // Ảnh đứng riêng một dòng cho dễ nhìn
+  const before = from > 0 && view.state.sliceDoc(from - 1, from) !== '\n' ? '\n' : ''
+  const insert = before + text
+  view.dispatch({ changes: { from, to, insert }, selection: { anchor: from + insert.length }, userEvent: 'input' })
+  view.focus()
+}
+
+// Slash command "/file": mở hộp chọn file
+if (!extraSlashItems.some((i) => i.label === 'Insert File…')) {
+  extraSlashItems.push({
+    label: 'Insert File…',
+    detail: 'image, PDF…',
+    keywords: 'image picture photo attachment upload pdf file',
+    run: (view, _c, from, to) => {
+      const input = document.createElement('input')
+      input.type = 'file'
+      input.multiple = true
+      input.onchange = () => {
+        const files = [...(input.files ?? [])]
+        if (files.length) void insertFiles(view, files, from, to)
+      }
+      input.click()
+    }
+  })
+}
 import { search, searchKeymap, highlightSelectionMatches } from '@codemirror/search'
 import { tags as t } from '@lezer/highlight'
 
@@ -91,19 +126,36 @@ export function MarkdownEditor({ value, readOnly = false, onChange }: Props): Re
               const pos = view.posAtCoords({ x: event.clientX, y: event.clientY })
               if (pos === null) return false
               const line = view.state.doc.lineAt(pos)
-              const re = /\]\((nibmark:\/\/note\/[A-Za-z0-9_-]+)\)/g
+              const re = /\]\((nibmark:\/\/(?:note|file)\/[A-Za-z0-9_-]+)\)/g
               for (const m of line.text.matchAll(re)) {
                 const start = line.from + line.text.lastIndexOf('[', m.index)
                 const end = line.from + m.index + m[0].length
-                if (pos >= start && pos <= end && m[1].startsWith(NOTE_LINK_PREFIX)) {
+                if (pos >= start && pos <= end) {
                   event.preventDefault()
-                  followNoteLink(m[1])
+                  const fileId = fileIdFromUrl(m[1])
+                  if (fileId) void openAttachment(fileId)
+                  else if (m[1].startsWith(NOTE_LINK_PREFIX)) followNoteLink(m[1])
                   return true
                 }
               }
               return false
             },
+            drop(event, view) {
+              const files = [...(event.dataTransfer?.files ?? [])]
+              if (!files.length) return false
+              event.preventDefault()
+              const pos = view.posAtCoords({ x: event.clientX, y: event.clientY }) ?? view.state.selection.main.head
+              void insertFiles(view, files, pos)
+              return true
+            },
             paste(event, view) {
+              const files = [...(event.clipboardData?.files ?? [])]
+              if (files.length) {
+                event.preventDefault()
+                const { from, to } = view.state.selection.main
+                void insertFiles(view, files, from, to)
+                return true
+              }
               const text = event.clipboardData?.getData('text/plain').trim() ?? ''
               const { main } = view.state.selection
               if (main.empty || view.state.selection.ranges.length > 1 || !/^https?:\/\/\S+$/.test(text)) return false

@@ -45,7 +45,18 @@ export interface Template {
   updatedAt: number
 }
 
-export type AnyDoc = Note | Book | Tag | Template
+/** File đính kèm (ảnh hoặc file bất kỳ); nội dung nằm trong _attachments.data của PouchDB */
+export interface FileDoc {
+  _id: string // "file:<id>"
+  type: 'file'
+  name: string
+  contentType: string
+  size: number
+  createdAt: number
+  updatedAt: number
+}
+
+export type AnyDoc = Note | Book | Tag | Template | FileDoc
 
 export type Selection =
   | { kind: 'all' }

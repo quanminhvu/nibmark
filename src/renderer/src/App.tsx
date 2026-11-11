@@ -103,6 +103,12 @@ export function App(): React.JSX.Element {
       e.preventDefault()
       e.stopPropagation()
     }
+    // Thả file ra ngoài editor: chặn trình duyệt mở file đó thay cho app
+    const blockFileDrop = (e: DragEvent): void => {
+      if (e.dataTransfer?.types.includes('Files') && !e.defaultPrevented) e.preventDefault()
+    }
+    window.addEventListener('dragover', blockFileDrop)
+    window.addEventListener('drop', blockFileDrop)
     // Nút back/forward phụ trên chuột
     const onMouseUp = (e: MouseEvent): void => {
       if (e.button === 3) goBack()
@@ -114,6 +120,8 @@ export function App(): React.JSX.Element {
     return () => {
       window.removeEventListener('keydown', onKeyDown, true)
       window.removeEventListener('mouseup', onMouseUp)
+      window.removeEventListener('dragover', blockFileDrop)
+      window.removeEventListener('drop', blockFileDrop)
     }
   }, [])
 

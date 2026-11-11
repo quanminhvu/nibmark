@@ -1,8 +1,9 @@
-import { BrowserWindow, dialog, ipcMain, shell } from 'electron'
-import { existsSync } from 'node:fs'
+import { app, BrowserWindow, dialog, ipcMain, shell } from 'electron'
+import { existsSync, mkdirSync } from 'node:fs'
+import { dirname, join } from 'node:path'
 import { writeFile } from 'node:fs/promises'
-import { readBackup, writeBackup } from './backup'
-import { freshDir, safeName, writeTree } from './exporter'
+import { MAX_FILE_BYTES, missingFiles, readBackup, writeBackup, writeFileBackup } from './backup'
+import { freshDir, isAttachmentList, safeName, writeAttachments, writeTree } from './exporter'
 import type { ExportFile } from './exporter'
 import { backupDir, defaultBackupDir, getSettings, updateSettings } from './settings'
 import { ensureStylesFile, ensureThemesDir, listUserThemes, readUserStyles } from './themes'
@@ -70,6 +71,20 @@ export function registerIpc(): void {
     writeBackup(Array.isArray(upserts) ? upserts : [], Array.isArray(deletes) ? deletes : [])
   )
 
+  ipcMain.handle('backup:missingFiles', (_e, ids: unknown) => missingFiles(Array.isArray(ids) ? ids : []))
+  ipcMain.handle('backup:writeFile', (_e, meta: unknown, bytes: unknown) => writeFileBackup(meta, bytes))
+
+  // Mở một file đính kèm bằng ứng dụng mặc định: ghi ra thư mục tạm do main chọn rồi mở
+  ipcMain.handle('file:open', async (_e, id: unknown, name: unknown, bytes: unknown) => {
+    if (typeof id !== 'string' || !/^[A-Za-z0-9_-]{1,64}$/.test(id) || typeof name !== 'string') return 'Invalid file'
+    if (!(bytes instanceof Uint8Array) || bytes.byteLength > MAX_FILE_BYTES) return 'Invalid file'
+    const dir = join(app.getPath('temp'), 'nibmark-open', id)
+    mkdirSync(dir, { recursive: true })
+    const path = join(dir, safeName(name, 'attachment'))
+    await writeFile(path, bytes)
+    return (await shell.openPath(path)) || null
+  })
+
   ipcMain.handle('backup:open', async () => {
     const dir = backupDir()
     if (!existsSync(dir)) return 'The backup folder does not exist yet.'
@@ -93,8 +108,8 @@ export function registerIpc(): void {
   ipcMain.handle('styles:get', () => readUserStyles())
   ipcMain.handle('styles:open', async () => (await shell.openPath(ensureStylesFile())) || null)
 
-  ipcMain.handle('export:note', async (event, title: unknown, content: unknown) => {
-    if (typeof title !== 'string' || typeof content !== 'string') return null
+  ipcMain.handle('export:note', async (event, title: unknown, content: unknown, attachments: unknown = []) => {
+    if (typeof title !== 'string' || typeof content !== 'string' || !isAttachmentList(attachments)) return null
     const res = await dialog.showSaveDialog(win(event)!, {
       title: 'Export Note as Markdown',
       defaultPath: `${safeName(title)}.md`,
@@ -102,11 +117,12 @@ export function registerIpc(): void {
     })
     if (res.canceled || !res.filePath) return null
     await writeFile(res.filePath, content, 'utf8')
+    writeAttachments(dirname(res.filePath), attachments)
     return res.filePath
   })
 
-  ipcMain.handle('export:tree', async (event, label: unknown, files: unknown) => {
-    if (typeof label !== 'string' || !isExportFiles(files)) return null
+  ipcMain.handle('export:tree', async (event, label: unknown, files: unknown, attachments: unknown = []) => {
+    if (typeof label !== 'string' || !isExportFiles(files) || !isAttachmentList(attachments)) return null
     const res = await dialog.showOpenDialog(win(event)!, {
       title: 'Export as Markdown',
       buttonLabel: 'Export Here',
@@ -116,6 +132,7 @@ export function registerIpc(): void {
     if (res.canceled || !res.filePaths[0]) return null
     const root = freshDir(res.filePaths[0], safeName(`${label} ${today()}`, 'Nibmark Export'))
     const count = writeTree(root, files)
+    writeAttachments(root, attachments)
     shell.showItemInFolder(root)
     return { path: root, count }
   })

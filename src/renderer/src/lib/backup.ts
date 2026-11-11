@@ -1,5 +1,5 @@
 import { db, loadAll, putDoc } from './db'
-import type { AnyDoc, Note } from './types'
+import type { AnyDoc, FileDoc, Note } from './types'
 
 // Sao lưu liên tục: lắng nghe changes feed của PouchDB nên bắt được mọi thay đổi,
 // kể cả thay đổi hàng loạt (xóa notebook, dọn thùng rác), khôi phục, và sync sau này.
@@ -8,6 +8,8 @@ const DEBOUNCE_MS = 1500
 
 const pendingUpserts = new Map<string, AnyDoc>()
 const pendingDeletes = new Set<string>()
+/** File đính kèm chờ sao lưu (gửi riêng vì có nội dung nhị phân) */
+const pendingFiles = new Set<string>()
 let timer: ReturnType<typeof setTimeout> | null = null
 let started = false
 
@@ -44,9 +46,47 @@ async function send(upserts: AnyDoc[], deletes: string[]): Promise<boolean> {
   }
 }
 
+/** Sao lưu những file đính kèm mà thư mục sao lưu chưa có (file không bao giờ đổi). */
+async function backupFiles(ids: string[]): Promise<boolean> {
+  const bridge = window.nibmark
+  if (!bridge || !ids.length) return true
+  try {
+    const missing = await bridge.backup.missingFiles(ids)
+    for (const id of missing) {
+      const doc = (await db.get(id, { attachments: true, binary: true })) as unknown as FileDoc & {
+        _attachments?: { data?: { data?: Blob } }
+      }
+      const blob = doc._attachments?.data?.data
+      if (!blob) continue
+      const meta: FileDoc = {
+        _id: doc._id,
+        type: 'file',
+        name: doc.name,
+        contentType: doc.contentType,
+        size: doc.size,
+        createdAt: doc.createdAt,
+        updatedAt: doc.updatedAt
+      }
+      const res = await bridge.backup.writeFile(meta, new Uint8Array(await blob.arrayBuffer()))
+      if (!res.ok) {
+        emit({ error: res.error ?? 'Backup failed' })
+        return false
+      }
+    }
+    if (missing.length) emit({ lastBackupAt: Date.now(), error: null })
+    return true
+  } catch (err) {
+    emit({ error: (err as Error).message })
+    return false
+  }
+}
+
 export async function flushBackup(): Promise<void> {
   if (timer) clearTimeout(timer)
   timer = null
+  const files = [...pendingFiles]
+  pendingFiles.clear()
+  if (!(await backupFiles(files))) for (const id of files) pendingFiles.add(id)
   const upserts = [...pendingUpserts.values()]
   const deletes = [...pendingDeletes]
   pendingUpserts.clear()
@@ -66,7 +106,13 @@ function schedule(): void {
 
 /** Ghi toàn bộ dữ liệu hiện có. Main bỏ qua những file không đổi. */
 export async function backupEverything(): Promise<boolean> {
-  return send(await loadAll(), [])
+  const docs = await loadAll()
+  const files = docs.filter((d) => d.type === 'file').map((d) => d._id)
+  const ok = await send(
+    docs.filter((d) => d.type !== 'file'),
+    []
+  )
+  return (await backupFiles(files)) && ok
 }
 
 export function startBackup(): void {
@@ -77,7 +123,10 @@ export function startBackup(): void {
     if (change.id.startsWith('_design/')) return
     if (change.deleted) {
       pendingUpserts.delete(change.id)
+      pendingFiles.delete(change.id)
       pendingDeletes.add(change.id)
+    } else if (change.id.startsWith('file:')) {
+      pendingFiles.add(change.id)
     } else if (change.doc) {
       const { _rev: _ignored, ...doc } = change.doc as AnyDoc & { _rev?: string }
       pendingDeletes.delete(change.id)
@@ -143,9 +192,41 @@ function normalize(raw: unknown): AnyDoc | null {
  * Khôi phục kiểu gộp: chỉ ghi những document chưa có, hoặc bản sao lưu mới hơn bản đang có.
  * Không bao giờ ghi đè một ghi chú mới hơn trong app.
  */
-export async function restoreDocs(docs: unknown[], current: Map<string, AnyDoc>): Promise<RestoreResult> {
+export async function restoreDocs(
+  docs: unknown[],
+  current: Map<string, AnyDoc>,
+  files: { meta: unknown; data: Uint8Array }[] = []
+): Promise<RestoreResult> {
   let restored = 0
   let skipped = 0
+  // File đính kèm: chỉ thêm những file chưa có (file không bao giờ đổi nội dung)
+  for (const { meta, data } of files) {
+    const m = meta as Partial<FileDoc>
+    if (typeof m._id !== 'string' || !/^file:[A-Za-z0-9_-]{1,64}$/.test(m._id) || !(data instanceof Uint8Array)) {
+      skipped++
+      continue
+    }
+    try {
+      await db.get(m._id)
+      skipped++
+      continue
+    } catch {
+      // chưa có: khôi phục
+    }
+    const contentType = typeof m.contentType === 'string' ? m.contentType : 'application/octet-stream'
+    const now = Date.now()
+    await db.put({
+      _id: m._id,
+      type: 'file',
+      name: typeof m.name === 'string' ? m.name : 'attachment',
+      contentType,
+      size: data.byteLength,
+      createdAt: typeof m.createdAt === 'number' ? m.createdAt : now,
+      updatedAt: typeof m.updatedAt === 'number' ? m.updatedAt : now,
+      _attachments: { data: { content_type: contentType, data: new Blob([data as BlobPart], { type: contentType }) } }
+    } as never)
+    restored++
+  }
   for (const raw of docs) {
     const doc = normalize(raw)
     if (!doc) {

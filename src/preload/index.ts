@@ -13,11 +13,16 @@ contextBridge.exposeInMainWorld('nibmark', {
   backup: {
     write: (upserts: unknown[], deletes: string[]) => ipcRenderer.invoke('backup:write', upserts, deletes),
     open: () => ipcRenderer.invoke('backup:open'),
-    pickAndRead: () => ipcRenderer.invoke('backup:pickAndRead')
+    pickAndRead: () => ipcRenderer.invoke('backup:pickAndRead'),
+    missingFiles: (ids: string[]) => ipcRenderer.invoke('backup:missingFiles', ids),
+    writeFile: (meta: unknown, bytes: Uint8Array) => ipcRenderer.invoke('backup:writeFile', meta, bytes)
   },
   exporter: {
-    note: (title: string, content: string) => ipcRenderer.invoke('export:note', title, content),
-    tree: (label: string, files: unknown[]) => ipcRenderer.invoke('export:tree', label, files)
+    note: (title: string, content: string, attachments: unknown[] = []) => ipcRenderer.invoke('export:note', title, content, attachments),
+    tree: (label: string, files: unknown[], attachments: unknown[] = []) => ipcRenderer.invoke('export:tree', label, files, attachments)
+  },
+  files: {
+    open: (id: string, name: string, bytes: Uint8Array) => ipcRenderer.invoke('file:open', id, name, bytes)
   },
   themes: {
     list: () => ipcRenderer.invoke('themes:list'),

@@ -76,3 +76,30 @@ export function buildExport(
       content: noteToMarkdown(note, books, tags)
     }))
 }
+
+// ── File đính kèm khi export ──
+
+const FILE_LINK = /nibmark:\/\/file\/([A-Za-z0-9_-]{1,64})/g
+
+/** Các file đính kèm (phần hex của id) mà một đoạn Markdown tham chiếu tới */
+export function attachmentHexes(text: string): string[] {
+  return [...new Set([...text.matchAll(FILE_LINK)].map((m) => m[1]))]
+}
+
+/** Tên file khi export: duy nhất nhờ tiền tố id, và chỉ gồm ký tự an toàn */
+export function exportName(hex: string, name: string): string {
+  const clean = name
+    .normalize('NFKD')
+    .replace(/[^\w.-]+/g, '-')
+    .replace(/^[-.]+|-+$/g, '')
+    .slice(0, 100)
+  return `${hex.slice(0, 8)}-${clean || 'attachment'}`
+}
+
+/** Đổi nibmark://file/<hex> thành đường dẫn tương đối tới thư mục attachments/ */
+export function rewriteAttachmentLinks(text: string, names: Map<string, string>, prefix: string): string {
+  return text.replace(FILE_LINK, (all, hex: string) => {
+    const name = names.get(hex)
+    return name ? `${prefix}attachments/${name}` : all
+  })
+}

@@ -43,6 +43,29 @@ export function freshDir(parent: string, base: string): string {
   return dir
 }
 
+export interface ExportAttachment {
+  /** Tên file đã được renderer đặt sẵn (khớp với link trong Markdown) */
+  name: string
+  data: Uint8Array
+}
+
+const ATTACHMENT_NAME = /^[A-Za-z0-9][\w.-]{0,150}$/
+
+export function isAttachmentList(value: unknown): value is ExportAttachment[] {
+  return (
+    Array.isArray(value) &&
+    value.every((a) => a && typeof a === 'object' && typeof a.name === 'string' && ATTACHMENT_NAME.test(a.name) && a.data instanceof Uint8Array)
+  )
+}
+
+/** Ghi các file đính kèm vào <dir>/attachments/ */
+export function writeAttachments(dir: string, attachments: ExportAttachment[]): void {
+  if (!attachments.length) return
+  const target = join(dir, 'attachments')
+  mkdirSync(target, { recursive: true })
+  for (const a of attachments) writeFileSync(join(target, a.name), a.data)
+}
+
 export function writeTree(root: string, files: ExportFile[]): number {
   const names = new NameAllocator()
   // Thư mục cũng phải không trùng tên với nhau, nhưng cùng một notebook thì dùng lại
