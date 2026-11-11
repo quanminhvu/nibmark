@@ -103,6 +103,7 @@ export function registerIpc(): void {
     return readBackup(res.filePaths[0])
   })
 
+  ipcMain.handle('app:openDataFolder', async () => (await shell.openPath(app.getPath('userData'))) || null)
   ipcMain.handle('themes:list', () => listUserThemes())
   ipcMain.handle('themes:openFolder', async () => (await shell.openPath(ensureThemesDir())) || null)
   ipcMain.handle('styles:get', () => readUserStyles())

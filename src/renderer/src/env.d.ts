@@ -79,6 +79,8 @@ interface NibmarkBridge {
     set(accelerator: string): Promise<NibmarkShortcutStatus>
   }
   ready(): void
+  /** Mở thư mục dữ liệu của app; trả về thông báo lỗi hoặc null */
+  openDataFolder(): Promise<string | null>
   onMenu(callback: (command: string) => void): () => void
 }
 

@@ -6,6 +6,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
+### Added
+
+- Copy a note link or a note, notebook or tag ID from context menus and the command palette
+- Color swatches next to `#hex`, `rgb()` and `hsl()` values in inline code
+- Preferences → Open Data Folder
+
 ## [0.2.0] - 2026-11-11
 
 ### Added

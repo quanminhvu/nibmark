@@ -32,6 +32,17 @@ const md = new MarkdownIt({
   // > [!NOTE], [!TIP], [!IMPORTANT], [!WARNING], [!CAUTION]
   .use(alerts)
 
+// `#c8402e`, `rgb(…)`, `hsl(…)`: thêm ô màu nhỏ. Chỉ nhận đúng cú pháp màu (không có ; url( …)
+// vì giá trị được đưa vào thuộc tính style.
+const COLOR = /^(#[0-9a-f]{3}|#[0-9a-f]{4}|#[0-9a-f]{6}|#[0-9a-f]{8}|(?:rgb|rgba|hsl|hsla)\(\s*[\d.%]+(?:\s*[,\s/]\s*[\d.%]+){2,3}\s*\))$/i
+const defaultCodeInline = md.renderer.rules.code_inline!
+md.renderer.rules.code_inline = (tokens, idx, options, env, self) => {
+  const html = defaultCodeInline(tokens, idx, options, env, self)
+  const value = tokens[idx].content.trim()
+  if (!COLOR.test(value)) return html
+  return `<span class="color-code"><span class="color-swatch" style="background:${value}"></span>${html}</span>`
+}
+
 // Khối ```mermaid: giữ nguyên mã nguồn, Preview sẽ vẽ sơ đồ sau khi trang hiển thị
 const defaultFence = md.renderer.rules.fence!
 md.renderer.rules.fence = (tokens, idx, options, env, self) => {

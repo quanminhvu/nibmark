@@ -122,6 +122,24 @@ export function Preferences(): React.JSX.Element | null {
             </section>
 
             <section className="pref-section">
+              <h3>Data</h3>
+              <p className="pref-note">
+                The note database, version history, themes and settings live in Nibmark&rsquo;s data folder.
+              </p>
+              <div className="pref-actions">
+                <button
+                  className="btn"
+                  onClick={async () => {
+                    const error = await bridge.openDataFolder()
+                    if (error) useStore.getState().showNotice(error, 'error')
+                  }}
+                >
+                  Open Data Folder
+                </button>
+              </div>
+            </section>
+
+            <section className="pref-section">
               <h3>Export</h3>
               <p className="pref-note">
                 Save all notes as Markdown files, in folders that mirror your notebooks. Notes in the Trash are left out.

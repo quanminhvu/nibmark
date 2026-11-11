@@ -6,6 +6,7 @@ import { STATUSES } from '@/lib/types'
 import type { Book, NoteStatus, Selection } from '@/lib/types'
 import { cx } from '@/lib/util'
 import { exportNotes } from '@/lib/actions'
+import { copyId } from '@/lib/clipboard'
 import { openMenu } from './ContextMenu'
 import { StatusIcon } from './StatusIcon'
 
@@ -151,6 +152,7 @@ export function Sidebar(): React.JSX.Element {
       { label: 'Rename', onClick: () => setEditing({ kind: 'rename', id: book._id }) },
       ...(book.parentId ? [{ label: 'Move to Top Level', onClick: () => actions.moveBook(book._id, null) }] : []),
       { label: 'Export as Markdown…', onClick: () => void exportNotes(book._id) },
+      { label: 'Copy Notebook ID', onClick: () => copyId(book._id) },
       { separator: true },
       {
         label: 'Delete Notebook',
@@ -316,6 +318,7 @@ export function Sidebar(): React.JSX.Element {
               onContextMenu={(e) =>
                 openMenu(e, [
                   { label: 'Rename', onClick: () => setEditing({ kind: 'renameTag', id: tag._id }) },
+                  { label: 'Copy Tag ID', onClick: () => copyId(tag._id) },
                   { separator: true },
                   {
                     label: 'Delete Tag',
