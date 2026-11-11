@@ -6,6 +6,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
+## [0.4.1] - 2026-11-11
+
+### Fixed
+
+- Notes imported from Apple Notes that were written in Markdown lost their formatting: `#`, `*` and `|` were escaped, every line became its own paragraph and the title was repeated. Markdown written in Notes is now kept line by line; other notes convert to clean Markdown without extra blank lines
+- Distraction-free mode showed an empty gray window when the sidebar was hidden
+
 ## [0.4.0] - 2026-11-11
 
 ### Added

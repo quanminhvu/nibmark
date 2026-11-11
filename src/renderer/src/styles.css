@@ -3273,3 +3273,13 @@ html.vibrant .app.note-window .notepane {
 .tray-toggle {
   margin-top: 4px;
 }
+
+/* Sửa: chế độ tập trung khi sidebar đang ẩn. Quy tắc ".app.sidebar-hidden" (3 cột) đè lên
+   bố cục một cột của chế độ tập trung, làm khung ghi chú bị ép vào cột rộng 0px. */
+.app.distraction-free,
+.app.distraction-free.sidebar-hidden {
+  grid-template-columns: minmax(0, 1fr);
+}
+html.vibrant .app.distraction-free {
+  background: var(--surface-2);
+}

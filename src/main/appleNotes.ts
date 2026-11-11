@@ -78,7 +78,7 @@ export function scanFromDump(dump: AppleNotesDump): ImportScan {
       docs.push({
         folders,
         name: title,
-        ext: '.html',
+        ext: '.applenote',
         text: `<html><head><title>${escaped}</title></head><body>${html}</body></html>`,
         created: note.created ?? null,
         modified: note.modified ?? null,

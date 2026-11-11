@@ -200,6 +200,155 @@ function fromHtml(doc: ScanDoc): Parsed {
   }
 }
 
+// ── Apple Notes ──
+//
+// Apple Notes lưu mỗi dòng là một <div>, dòng trống là <div><br></div>. Nhiều người viết
+// Markdown ngay trong Notes: khi đó phải giữ nguyên từng dòng chữ (không escape # * |),
+// thay vì coi là văn bản định dạng rồi chuyển đổi lần nữa.
+
+const BLOCK_TAGS = new Set(['DIV', 'P', 'UL', 'OL', 'TABLE', 'H1', 'H2', 'H3', 'H4', 'H5', 'H6', 'PRE', 'BLOCKQUOTE', 'HR'])
+const MD_LINE = /^\s{0,3}(?:#{1,6}\s|[-*+]\s|\d+[.)]\s|>\s?|\|.*\||```|~~~|---\s*$|\*\*\*\s*$|!\[|\[[ xX]\]\s)/
+
+type AppleBlock = { kind: 'text' | 'list' | 'table' | 'code' | 'blank'; text: string }
+
+const nbsp = (s: string): string => s.replace(/ /g, ' ')
+
+/** Chữ thuần của một phần tử: <br> thành xuống dòng, ảnh và link giữ dạng Markdown */
+function appleText(node: Node): string {
+  let out = ''
+  node.childNodes.forEach((child) => {
+    if (child.nodeType === Node.TEXT_NODE) out += nbsp(child.nodeValue ?? '')
+    else if (child instanceof HTMLElement) {
+      if (child.tagName === 'BR') out += '\n'
+      else if (child.tagName === 'IMG') out += `![](${child.getAttribute('src') ?? ''})`
+      else if (child.tagName === 'A') {
+        const href = child.getAttribute('href') ?? ''
+        const text = appleText(child)
+        out += !href || text === href || /^\s*https?:/.test(text) ? text : `[${text}](${href})`
+      } else out += appleText(child)
+    }
+  })
+  return out
+}
+
+function hasBlockChild(el: Element): boolean {
+  return [...el.children].some((c) => BLOCK_TAGS.has(c.tagName))
+}
+
+function appleBlocks(root: Element, markdownMode: boolean, td: TurndownService, depth = 0): AppleBlock[] {
+  const out: AppleBlock[] = []
+  // Văn bản có định dạng: dùng turndown cho phần chữ trong dòng (đậm, nghiêng, link…)
+  const inline = (el: Element): string =>
+    markdownMode ? appleText(el) : nbsp(td.turndown(el.innerHTML.replace(/<br\s*\/?>/gi, '<br>'))).replace(/\n{2,}/g, '\n')
+  for (const el of [...root.children]) {
+    const tag = el.tagName
+    if (tag === 'UL' || tag === 'OL') {
+      let n = 1
+      for (const li of [...el.children].filter((c) => c.tagName === 'LI')) {
+        const nested = [...li.children].filter((c) => c.tagName === 'UL' || c.tagName === 'OL')
+        const clone = li.cloneNode(true) as Element
+        clone.querySelectorAll(':scope > ul, :scope > ol').forEach((x) => x.remove())
+        const text = inline(clone).trim()
+        const marker = tag === 'OL' ? `${n++}. ` : '- '
+        const already = markdownMode && /^([-*+]|\d+[.)])\s/.test(text)
+        out.push({ kind: 'list', text: '  '.repeat(depth) + (already ? text : marker + text) })
+        for (const sub of nested) {
+          const wrap = document.createElement('div')
+          wrap.appendChild(sub.cloneNode(true))
+          out.push(...appleBlocks(wrap, markdownMode, td, depth + 1))
+        }
+      }
+    } else if (tag === 'TABLE') {
+      const rows = [...el.querySelectorAll('tr')].map((tr) =>
+        [...tr.children].map((td2) => appleText(td2).replace(/\n/g, ' ').replace(/\|/g, '\\|').trim())
+      )
+      if (!rows.length) continue
+      const width = Math.max(...rows.map((r) => r.length))
+      const line = (r: string[]): string => `| ${Array.from({ length: width }, (_, i) => r[i] ?? '').join(' | ')} |`
+      out.push({ kind: 'table', text: line(rows[0]) })
+      out.push({ kind: 'table', text: `|${' --- |'.repeat(width)}` })
+      for (const r of rows.slice(1)) out.push({ kind: 'table', text: line(r) })
+    } else if (tag === 'PRE') {
+      out.push({ kind: 'code', text: '```\n' + nbsp(el.textContent ?? '').replace(/\n$/, '') + '\n```' })
+    } else if (tag === 'HR') {
+      out.push({ kind: 'text', text: '---' })
+    } else if (/^H[1-6]$/.test(tag)) {
+      const text = inline(el).trim()
+      if (!text) continue
+      out.push({ kind: 'text', text: markdownMode && /^#{1,6}\s/.test(text) ? text : `${'#'.repeat(Number(tag[1]))} ${text}` })
+    } else if (hasBlockChild(el)) {
+      out.push(...appleBlocks(el, markdownMode, td, depth))
+    } else {
+      const text = inline(el)
+      if (!text.trim()) out.push({ kind: 'blank', text: '' })
+      else for (const line of text.replace(/\n+$/, '').split('\n')) out.push(line.trim() ? { kind: 'text', text: line.replace(/\s+$/, '') } : { kind: 'blank', text: '' })
+    }
+  }
+  return out
+}
+
+/** Chuyển nội dung HTML của một ghi chú Apple Notes thành Markdown. */
+export function appleNoteToMarkdown(html: string, title: string): string {
+  const page = new DOMParser().parseFromString(stripHandlers(html), 'text/html')
+  scrub(page)
+  const body = page.body
+  // Ghi chú viết bằng Markdown? Đếm các dòng có cú pháp Markdown ở đầu dòng
+  const lines = appleBlocks(body, true, turndown())
+    .filter((b) => b.kind === 'text')
+    .map((b) => b.text)
+  const mdLines = lines.filter((l) => MD_LINE.test(l)).length
+  const markdownMode = mdLines >= 2 || (mdLines >= 1 && lines.length <= 3) || lines.some((l) => /^\s*(```|~~~)/.test(l))
+  const blocks = markdownMode ? appleBlocks(body, true, turndown()) : appleBlocks(body, false, turndown())
+
+  // Bỏ dòng đầu nếu chỉ lặp lại tiêu đề (Notes lấy dòng đầu làm tiêu đề)
+  const plain = (t: string): string => t.replace(/^#{1,6}\s+/, '').replace(/[*_`]/g, '').trim()
+  // Có khi tiêu đề lặp hai lần (dòng tiêu đề của Notes rồi dòng "# Tiêu đề" đã gõ)
+  for (let i = 0; i < 2; i++) {
+    const first = blocks.findIndex((b) => b.kind !== 'blank')
+    if (first < 0 || plain(blocks[first].text) !== plain(title)) break
+    blocks.splice(0, first + 1)
+  }
+
+  let md: string
+  if (markdownMode) {
+    // Giữ nguyên từng dòng như người dùng đã gõ
+    md = blocks.map((b) => b.text).join('\n')
+  } else {
+    // Văn bản thường: mỗi dòng là một đoạn; danh sách và bảng giữ liền nhau
+    md = ''
+    let prev: AppleBlock | null = null
+    for (const b of blocks) {
+      if (b.kind === 'blank') {
+        prev = null
+        continue
+      }
+      if (prev) md += (prev.kind === b.kind && (b.kind === 'list' || b.kind === 'table')) ? '\n' : '\n\n'
+      else if (md) md += '\n\n'
+      md += b.text
+      prev = b
+    }
+  }
+  return md.replace(/\n{3,}/g, '\n\n').replace(/^\n+/, '').replace(/\s+$/, '') + '\n'
+}
+
+function fromAppleNote(doc: ScanDoc): Parsed {
+  const title = cleanName(doc.name.replace(/^#{1,6}\s+/, '').trim() || 'Untitled')
+  const body = appleNoteToMarkdown(doc.text, doc.name)
+  const files = new Map<string, File>()
+  for (const [ref, asset] of Object.entries(doc.assets)) files.set(ref, fileFromAsset(asset))
+  return {
+    title,
+    body,
+    tags: [],
+    status: 'none',
+    pinned: false,
+    createdAt: doc.created ?? Date.now(),
+    updatedAt: doc.modified ?? Date.now(),
+    folders: doc.folders.map(cleanName),
+    files
+  }
+}
+
 // ── Evernote (.enex) ──
 
 /** "20231105T101112Z" → thời điểm */
@@ -310,6 +459,7 @@ export async function importScan(scan: NibmarkImportScan, targetBookId: string |
     const path = [...doc.folders, doc.name + doc.ext].join('/')
     try {
       if (doc.ext === '.enex') parsed.push(...fromEnex(doc))
+      else if (doc.ext === '.applenote') parsed.push(fromAppleNote(doc))
       else if (doc.ext === '.html' || doc.ext === '.htm') parsed.push(fromHtml(doc))
       else parsed.push(fromMarkdown(doc))
     } catch (err) {
