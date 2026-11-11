@@ -53,6 +53,7 @@ export interface State extends Prefs {
   notes: Record<string, Note>
   books: Record<string, Book>
   statuses: Record<string, CustomStatus>
+  deleteStatus: (id: NoteStatus) => void
   ensureStatus: (name: string) => NoteStatus
   setStatusAppearance: (id: NoteStatus, color: string, icon: string, name?: string) => boolean
   setTagDetails: (id: string, name: string, color: string) => boolean
@@ -491,14 +492,35 @@ export const useStore = create<State>((set, get) => {
       for (const bid of ids) erase(bid)
     },
 
+    deleteStatus: (id) => {
+      if (id === 'none') return
+      const key = (id.startsWith('status:') ? id : `status:${id}`) as CustomStatus['_id']
+      const existing = get().statuses[key]
+      const builtin = STATUSES.find((s) => s.id === id)
+      if ((!existing && !builtin) || existing?.deleted) return
+      const now = Date.now()
+      const status: CustomStatus = { ...existing, _id: key, type: 'status', name: existing?.name ?? builtin!.label,
+        color: existing?.color ?? '#2F6FE4', deleted: true, updatedAt: now, createdAt: existing?.createdAt ?? now }
+      // Keep a tombstone so built-in statuses stay deleted after reload and restore.
+      set((s) => ({ statuses: { ...s.statuses, [key]: status },
+        selection: s.selection.kind === 'status' && s.selection.status === id ? { kind: 'all' } : s.selection }))
+      persist(status)
+      for (const note of Object.values(get().notes)) {
+        if (note.status === id) putNote({ ...note, status: 'none', updatedAt: now })
+      }
+      for (const template of Object.values(get().templates)) {
+        if (template.status === id) putTemplate({ ...template, status: 'none', updatedAt: now })
+      }
+    },
+
     setStatusAppearance: (id, color, icon, name) => {
       if (id === 'none' || !/^#[0-9a-f]{6}$/i.test(color) || !/^[A-Z][A-Za-z0-9]{1,60}$/.test(icon)) return false
       const key = (id.startsWith('status:') ? id : `status:${id}`) as CustomStatus['_id']
       const existing = get().statuses[key]
       const builtin = STATUSES.find((s) => s.id === id)
-      if (!existing && !builtin) return false
+      if ((!existing && !builtin) || existing?.deleted) return false
       const nextName = (name ?? existing?.name ?? builtin!.label).trim()
-      const duplicates = [...STATUSES.map((s) => ({ id: `status:${s.id}`, name: get().statuses[`status:${s.id}`]?.name ?? s.label })), ...Object.values(get().statuses).map((s) => ({ id: s._id, name: s.name }))]
+      const duplicates = [...STATUSES.filter((s) => !get().statuses[`status:${s.id}`]?.deleted).map((s) => ({ id: `status:${s.id}`, name: get().statuses[`status:${s.id}`]?.name ?? s.label })), ...Object.values(get().statuses).filter((s) => !s.deleted).map((s) => ({ id: s._id, name: s.name }))]
       if (!nextName || duplicates.some((s) => s.id !== key && s.name.toLowerCase() === nextName.toLowerCase())) return false
       const now = Date.now()
       const status: CustomStatus = { _id: key, type: 'status', name: nextName,
@@ -524,9 +546,9 @@ export const useStore = create<State>((set, get) => {
     ensureStatus: (name) => {
       const trimmed = name.trim()
       if (!trimmed) return 'none'
-      const builtin = STATUSES.find((s) => (get().statuses[`status:${s.id}`]?.name ?? s.label).toLowerCase() === trimmed.toLowerCase())
+      const builtin = STATUSES.find((s) => !get().statuses[`status:${s.id}`]?.deleted && (get().statuses[`status:${s.id}`]?.name ?? s.label).toLowerCase() === trimmed.toLowerCase())
       if (builtin) return builtin.id
-      const existing = Object.values(get().statuses).find((s) => s.name.toLowerCase() === trimmed.toLowerCase())
+      const existing = Object.values(get().statuses).find((s) => !s.deleted && s.name.toLowerCase() === trimmed.toLowerCase())
       if (existing) return existing._id
       const now = Date.now()
       const status: CustomStatus = {

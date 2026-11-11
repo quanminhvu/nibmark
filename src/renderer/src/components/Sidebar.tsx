@@ -440,7 +440,9 @@ export function Sidebar(): React.JSX.Element {
               name: status.label, color: status.color ?? (({ active: '#80A4CD', onHold: '#F5A623', completed: '#2FB457', dropped: '#E5484D' } as Record<string, string>)[status.id] ?? '#2F6FE4'),
               icon: status.icon ?? (({ active: 'Play', onHold: 'Pause', completed: 'Check', dropped: 'X' } as Record<string, string>)[status.id] ?? 'Circle'),
               onSave: (color, icon, name) => actions.setStatusAppearance(status.id, color, icon, name)
-            }) }])}
+            }) }, { separator: true }, { label: 'Delete Status', danger: true, onClick: () => {
+              if (window.confirm(`Delete the status "${status.label}"? Notes and templates using it will be changed to No status. Their content will be kept.`)) actions.deleteStatus(status.id)
+            } }])}
             label={status.label}
             count={counts.byStatus.get(status.id) ?? 0}
             accept={[NOTE_MIME]}

@@ -191,7 +191,7 @@ function normalize(raw: unknown): AnyDoc | null {
     }
   }
   if (d.type === 'status' && /^status:[A-Za-z0-9_-]{1,64}$/.test(base._id)) {
-    return { ...base, _id: base._id as `status:${string}`, type: 'status', ...(typeof d.icon === 'string' && /^[A-Z][A-Za-z0-9]{1,60}$/.test(d.icon) ? { icon: d.icon } : {}), name: str(d.name, 'Status'), color: /^#[0-9a-f]{6}$/i.test(str(d.color)) ? str(d.color) : '#2F6FE4' }
+    return { ...base, _id: base._id as `status:${string}`, type: 'status', ...(d.deleted === true ? { deleted: true } : {}), ...(typeof d.icon === 'string' && /^[A-Z][A-Za-z0-9]{1,60}$/.test(d.icon) ? { icon: d.icon } : {}), name: str(d.name, 'Status'), color: /^#[0-9a-f]{6}$/i.test(str(d.color)) ? str(d.color) : '#2F6FE4' }
   }
   if (d.type === 'tag') {
     return { ...base, type: 'tag', name: str(d.name, 'tag'), color: str(d.color, '#7A7168') }

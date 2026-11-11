@@ -12,6 +12,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ### Added
 
+- Delete built-in and custom statuses from the sidebar; affected notes and templates move to No status without losing content
+
 - Redesigned status/tag editor with live preview, searchable icon grid and inline rename, including built-in statuses; duplicate names are rejected without changing note assignments
 
 - Choose colors and icons for built-in and custom statuses, and colors for tags, from sidebar context menus
