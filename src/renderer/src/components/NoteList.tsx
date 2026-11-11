@@ -8,6 +8,7 @@ import { STATUSES } from '@/lib/types'
 import type { Note, SortKey } from '@/lib/types'
 import { cx, relativeTime, snippet } from '@/lib/util'
 import { exportNote } from '@/lib/actions'
+import { openHistory } from './HistoryPanel'
 import { openMenu } from './ContextMenu'
 import type { MenuItem } from './ContextMenu'
 import { NOTE_MIME } from './Sidebar'
@@ -50,6 +51,7 @@ export function noteMenu(note: Note): MenuItem[] {
     { label: note.pinned ? 'Unpin from Top' : 'Pin to Top', onClick: () => a.updateNote(note._id, { pinned: !note.pinned }) },
     { label: 'Duplicate', onClick: () => a.duplicateNote(note._id) },
     { label: 'Export as Markdown…', onClick: () => void exportNote(note._id) },
+    { label: 'Version History…', onClick: () => openHistory(note._id) },
     { separator: true },
     { label: 'No Status', checked: note.status === 'none', onClick: () => a.updateNote(note._id, { status: 'none' }) },
     ...STATUSES.map((s) => ({

@@ -9,6 +9,7 @@ import { STATUSES } from '@/lib/types'
 import type { NoteStatus } from '@/lib/types'
 import { cx, isMac, relativeTime } from '@/lib/util'
 import { StatusIcon } from './StatusIcon'
+import { openHistory } from './HistoryPanel'
 
 type Section = 'Commands' | 'Notes' | 'Notebooks' | 'Tags' | 'Status' | 'Themes' | 'Headings' | 'Templates'
 
@@ -78,6 +79,7 @@ function commandItems(): Item[] {
         if (s.saveTemplate(note._id)) s.showNotice(`Saved "${note.title || 'Untitled'}" as a template.`)
       }),
       cmd('export-note', 'Export Note as Markdown…', () => void exportNote(note._id)),
+      cmd('history', 'Show Version History…', () => openHistory(note._id), undefined, 'revisions versions restore undo diff'),
       cmd('trash', 'Move Note to Trash', () => s.trashNote(note._id), undefined, 'delete remove'),
       cmd('status-none', 'Set Status: None', () => s.updateNote(note._id, { status: 'none' }), undefined, 'clear'),
       ...STATUSES.map((st) => cmd(`status-${st.id}`, `Set Status: ${st.label}`, () => s.updateNote(note._id, { status: st.id })))

@@ -4,6 +4,8 @@ import { cx, isMac } from '@/lib/util'
 import { backupNow, exportNote, exportNotes, restoreFromBackup } from '@/lib/actions'
 import { flushBackup, startBackup } from '@/lib/backup'
 import { goBack, goForward } from '@/lib/navigation'
+import { startHistory } from '@/lib/history'
+import { HistoryPanel, isHistoryOpen } from './components/HistoryPanel'
 import { CommandPalette } from './components/CommandPalette'
 import { ContextMenuHost } from './components/ContextMenu'
 import { NoteList } from './components/NoteList'
@@ -23,7 +25,13 @@ export function App(): React.JSX.Element {
     // StrictMode gọi effect hai lần khi dev; chỉ khởi tạo DB một lần
     if (!started) {
       started = true
-      void useStore.getState().init().then(startBackup)
+      void useStore
+        .getState()
+        .init()
+        .then(() => {
+          startBackup()
+          startHistory()
+        })
     }
     const flush = (): void => {
       useStore.getState().flush()
@@ -53,7 +61,7 @@ export function App(): React.JSX.Element {
   useEffect(() => {
     const onKeyDown = (e: KeyboardEvent): void => {
       const s = useStore.getState()
-      if (s.prefsOpen || s.palette) return
+      if (s.prefsOpen || s.palette || isHistoryOpen()) return
       if (e.key === 'Escape' && s.distractionFree && !e.defaultPrevented) {
         s.toggleDistractionFree()
         return
@@ -118,6 +126,7 @@ export function App(): React.JSX.Element {
       <NotePane />
       <ContextMenuHost />
       <CommandPalette />
+      <HistoryPanel />
       <Preferences />
       <Notice />
     </div>

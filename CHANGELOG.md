@@ -14,6 +14,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 - Floating formatting toolbar when text is selected: bold, italic, strikethrough, code, highlight, link, heading, list, task and quote
 - GitHub alerts (`> [!NOTE]`, `[!TIP]`, `[!IMPORTANT]`, `[!WARNING]`, `[!CAUTION]`) in the preview
 - Select several notes with `⌘`-click, `⇧`-click or `⌘A` in the note list, then move them to a notebook, set their status, tag, pin, trash, restore or delete them together; drag a selection onto the sidebar
+- Version history: a version is saved a few seconds after you stop typing; browse versions with a line diff and restore any of them (the text you replace is saved too, so a restore can be undone). History stays on this computer and is not part of backups
 - Back and forward between notes: buttons in the note header, `⌘⌥←` / `⌘⌥→`, `⌘[` / `⌘]` outside the editor, and the mouse back/forward buttons
 
 ### Changed
