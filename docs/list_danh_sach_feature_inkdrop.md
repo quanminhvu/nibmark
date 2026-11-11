@@ -9,21 +9,21 @@
 
 | Nhóm | Số feature | Đã xong |
 |---|---|---|
-| 1. Editor | 20 | 12 |
-| 2. Preview / Rendering | 8 | 3 |
-| 3. Tổ chức ghi chú | 14 | 9 |
+| 1. Editor | 20 | 16 |
+| 2. Preview / Rendering | 8 | 4 |
+| 3. Tổ chức ghi chú | 14 | 11 |
 | 4. Tìm kiếm & điều hướng | 6 | 4 |
 | 5. Template | 4 | 3 |
-| 6. AI & Agent | 7 | 0 |
-| 7. Sync, bảo mật, backup | 10 | 2 |
-| 8. Nhập, thu thập, chia sẻ | 9 | 0 |
+| 6. AI & Agent | 7 | 1 |
+| 7. Sync, bảo mật, backup | 10 | 3 |
+| 8. Nhập, thu thập, chia sẻ | 9 | 2 |
 | 9. Phím tắt & tùy biến | 5 | 2 |
 | 10. Theme | 4 | 4 |
 | 11. Plugin & developer | 6 | 0 |
 | 12. Desktop | 5 | 0 |
 | 13. Mobile | 9 | 0 |
 | 14. Tài khoản & thanh toán | 8 | 0 |
-| **Tổng** | **115** | **39** |
+| **Tổng** | **115** | **50** |
 
 ---
 
@@ -42,11 +42,11 @@
 - [x] Reading highlight (bọc `<mark>`) — qua thanh công cụ nổi
 - [ ] Dán link thông minh: chọn định dạng link, tự lấy tiêu đề trang ở nền
 - [x] Ảnh: dán/kéo thả thành attachment; cú pháp kích thước `![w:320 h:240](...)`; thanh resize (Auto/Small/Half/Full) — dán/kéo thả ảnh và mọi loại file; chưa có cú pháp kích thước và thanh resize
-- [ ] Tự thụt lề list (Tab/Shift+Tab), tự đánh lại số thứ tự, màu marker cho list lồng nhau — một phần: tự nối list và thụt lề, chưa đánh lại số
-- [ ] Thanh công cụ chỉnh bảng: format, căn cột, thêm/xóa/di chuyển hàng và cột
+- [x] Tự thụt lề list (Tab/Shift+Tab), tự đánh lại số thứ tự, màu marker cho list lồng nhau
+- [x] Thanh công cụ chỉnh bảng: format, căn cột, thêm/xóa/di chuyển hàng và cột
 - [ ] 3 chế độ ngắt dòng: wrap tất cả / chỉ văn bản / Unwrap at Cursor (mặc định)
-- [ ] Đa con trỏ, chọn vùng chữ nhật
-- [ ] Hơn 30 lệnh soạn thảo (duplicate, move, join, sort line, đổi hoa/thường, nhảy theo subword, mở rộng vùng chọn theo cú pháp, chọn mọi vị trí trùng, toggle comment), phím mặc định giống Zed
+- [x] Đa con trỏ, chọn vùng chữ nhật
+- [x] Hơn 30 lệnh soạn thảo (duplicate, move, join, sort line, đổi hoa/thường, nhảy theo subword, mở rộng vùng chọn theo cú pháp, chọn mọi vị trí trùng, toggle comment), phím mặc định giống Zed — lệnh có sẵn của CodeMirror + sắp xếp/nối dòng/đổi hoa thường trong palette
 - [ ] Header editor: back/forward, nút chế độ xem, outline, distraction-free, menu hành động (Cmd+J)
 - [ ] Nút copy code block, tooltip link, spellcheck của OS, bật/tắt số dòng, giới hạn độ rộng dòng, gạch ngang to-do đã check
 
@@ -56,7 +56,7 @@
 - [ ] Block ```markdown được highlight GFM đầy đủ
 - [x] Mermaid: zoom, pan, xem toàn màn hình, theme sáng/tối qua CSS variables
 - [x] KaTeX inline + block, đánh số phương trình
-- [ ] Ô màu cho mã hex / rgb() / hsl() trong backtick
+- [x] Ô màu cho mã hex / rgb() / hsl() trong backtick
 - [ ] Nhúng code từ GitHub qua link có dải dòng; kết nối GitHub để dùng repo private và hiện tiêu đề phong phú (repo, issue, PR, commit)
 - [ ] Tìm kiếm trong preview (kể cả trong code block)
 - [x] Trình xem ảnh (double-click) — bấm một lần để xem ảnh lớn
@@ -66,8 +66,8 @@
 - [x] Notebook lồng nhau không giới hạn cấp, hiện số ghi chú, có notebook mặc định
 - [x] Thu gọn notebook thì list ghi chú gồm cả notebook con
 - [ ] Workspace view: thu sidebar vào một nhánh notebook (status/tag riêng)
-- [ ] Icon cho notebook (hơn 1.500 icon Lucide), có sync
-- [ ] Sắp xếp notebook bằng kéo thả, có sync — một phần: kéo thả để đổi notebook cha, chưa có thứ tự thủ công
+- [x] Icon cho notebook (hơn 1.500 icon Lucide), có sync
+- [x] Sắp xếp notebook bằng kéo thả, có sync
 - [x] Tag không giới hạn, gợi ý khi gõ, cho phép emoji
 - [x] Status: Active / On Hold / Completed / Dropped, có lọc
 - [x] Ghim ghi chú lên đầu
@@ -102,7 +102,7 @@
 - [ ] MCP server: tìm, đọc, tạo, sửa ghi chú, notebook, tag, attachment; giữ con trỏ và undo khi agent sửa
 - [ ] Agent Skills
 - [ ] Kéo ghi chú/notebook vào terminal hoặc editor để dán link `inkdrop://note/...`
-- [ ] Copy ID của Note / Notebook / Tag từ context menu
+- [x] Copy ID của Note / Notebook / Tag từ context menu
 
 ## 7. Sync, bảo mật, backup
 
@@ -114,13 +114,13 @@
 - [ ] Mô hình không giữ khóa: server không bao giờ có khóa mã hóa ở dạng chưa mã hóa
 - [x] Backup liên tục ra thư mục (JSON), khôi phục từ Preferences
 - [x] Export ghi chú / notebook / toàn bộ ra Markdown hoặc HTML — Markdown xong, chưa có HTML
-- [ ] Thư mục user data (config, keymap, stylesheet, plugin, DB cục bộ) mở được từ Preferences
+- [x] Thư mục user data (config, keymap, stylesheet, plugin, DB cục bộ) mở được từ Preferences
 - [ ] Hỗ trợ proxy công ty (proxy có xác thực, chứng chỉ tự ký) + công cụ chẩn đoán mạng
 
 ## 8. Nhập, thu thập, chia sẻ
 
-- [ ] Import từ Evernote, Apple Notes, Notion, Bear, Markdown (file và thư mục), HTML; thư mục con thành notebook con; kèm ảnh
-- [ ] Import Markdown/HTML vào một notebook qua context menu
+- [x] Import từ Evernote, Apple Notes, Notion, Bear, Markdown (file và thư mục), HTML; thư mục con thành notebook con; kèm ảnh — có Evernote, Notion, Bear, Obsidian, Markdown, HTML; chưa có Apple Notes
+- [x] Import Markdown/HTML vào một notebook qua context menu
 - [ ] Web Clipper (extension Chrome, Firefox): lưu bài viết hoặc vùng chọn thành Markdown
 - [ ] Share sheet trên mobile (iOS, Android): web clip, chèn link, copy link Markdown
 - [ ] Import highlight từ Kindle (lần sau chỉ lấy highlight mới)

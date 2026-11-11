@@ -24,13 +24,15 @@ Nibmark keeps your notes as plain Markdown, organized in nested notebooks, tags 
 - Paste a URL over selected text to turn it into a link
 - Slash commands (`/`) for headings, lists, tasks, code, tables, diagrams, math, alerts, links and files
 - A floating toolbar on selected text, emoji (`:smile`) and code-language suggestions
+- A table toolbar: format, align, insert, delete and move rows and columns
+- Multiple cursors, rectangular selection and line tools (sort, join, case); numbered lists renumber themselves
 - GitHub alerts (`> [!NOTE]`, `[!TIP]`, `[!WARNING]`…) in the preview
 - Paste or drop images and files (PDFs, archives, anything up to 100 MB) straight into a note
 - Click a checkbox in the preview to tick the task in the source
 
 **Organizing**
 
-- Nested notebooks, tags, and statuses (Active, On Hold, Completed, Dropped)
+- Nested notebooks with icons and a manual order, tags, and statuses (Active, On Hold, Completed, Dropped)
 - Pin, duplicate, trash and restore notes; drag notes onto notebooks, statuses, tags or the Trash
 - Select several notes (`⌘`-click, `⇧`-click, `⌘A`) to move, tag, set status, pin or trash them together
 - Version history with a line diff and one-click restore
@@ -44,6 +46,7 @@ Nibmark keeps your notes as plain Markdown, organized in nested notebooks, tags 
 - Continuous JSON backup to a folder of your choice; backups never delete files
 - Restore from a backup folder (merge: newer notes in the app are never overwritten)
 - Attachments are backed up as their original files and exported to an `attachments/` folder
+- Import from Markdown folders (Obsidian, Notion exports and `.zip`s, Bear TextBundles), HTML files and Evernote `.enex` files
 - Export a note, a notebook or everything as Markdown files with YAML front matter
 
 **Make it yours**
@@ -158,6 +161,7 @@ docs/                     Feature checklist and notes
 - [x] **Phase 1 — Desktop app:** editor, notebooks, tags, statuses, search, backup, export
 - [x] Themes, command palette, templates, note links, Mermaid and math
 - [x] Attachments, version history, slash commands, bulk actions, quick note
+- [x] Import, table toolbar, multiple cursors, notebook icons and order
 - [ ] **Phase 2 — Sync and security:** CouchDB sync, end-to-end encryption
 - [ ] **Phase 3 — Mobile and extensibility:** iOS and Android apps, plugin system
 - [ ] **Phase 4 — Distribution:** signed builds, accounts
