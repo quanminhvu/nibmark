@@ -466,7 +466,15 @@ export function Sidebar(): React.JSX.Element {
         {!sections.status && getStatuses().map((status) => {
           const look = statusLook(status)
           const editLook = (): void =>
-            setAppearance({ name: status.label, color: look.color, icon: look.icon, onSave: (color, icon, name) => actions.setStatusAppearance(status.id, color, icon, name) })
+            setAppearance({
+              name: status.label, color: look.color, icon: look.icon, count: counts.byStatus.get(status.id) ?? 0,
+              onSave: (color, icon, name) => actions.setStatusAppearance(status.id, color, icon, name),
+              onDelete: () => {
+                if (!window.confirm(`Delete the status "${status.label}"? Notes and templates using it will be changed to No status. Their content will be kept.`)) return
+                actions.deleteStatus(status.id)
+                setAppearance(null)
+              }
+            })
           const menu = (e: React.MouseEvent): void =>
             openMenu(e, [
               { label: 'Rename', icon: <Pencil size={14} />, hint: 'Double-click', onClick: () => setEditing({ kind: 'renameStatus', id: status.id }) },
@@ -570,7 +578,15 @@ export function Sidebar(): React.JSX.Element {
               onContextMenu={(e) =>
                 openMenu(e, [
                   { label: 'Rename', icon: <Pencil size={14} />, hint: 'Double-click', onClick: () => setEditing({ kind: 'renameTag', id: tag._id }) },
-                  { label: 'Change Color…', icon: <Palette size={14} />, onClick: () => setAppearance({ name: tag.name, color: tag.color, onSave: (color, _icon, name) => actions.setTagDetails(tag._id, name, color) }) },
+                  { label: 'Change Color…', icon: <Palette size={14} />, onClick: () => setAppearance({
+                    name: tag.name, color: tag.color, count: counts.byTag.get(tag._id) ?? 0,
+                    onSave: (color, _icon, name) => actions.setTagDetails(tag._id, name, color),
+                    onDelete: () => {
+                      if (!window.confirm(`Delete the tag "${tag.name}"? Notes keep their content.`)) return
+                      actions.deleteTag(tag._id)
+                      setAppearance(null)
+                    }
+                  }) },
                   { label: 'Copy Tag ID', icon: <Copy size={14} />, onClick: () => copyId(tag._id) },
                   { separator: true },
                   {
