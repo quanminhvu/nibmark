@@ -3283,3 +3283,12 @@ html.vibrant .app.note-window .notepane {
 html.vibrant .app.distraction-free {
   background: var(--surface-2);
 }
+
+/* Focus mode uses the available pane width, including with readable width enabled. */
+.app.distraction-free .editor-host .cm-content,
+.app.distraction-free .editor-host.readable .cm-content,
+.app.distraction-free .markdown-body {
+  max-width: none;
+  width: 100%;
+  box-sizing: border-box;
+}

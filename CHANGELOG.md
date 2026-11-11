@@ -6,6 +6,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
+### Fixed
+
+- Distraction-free mode now fills the available editor and preview width instead of leaving a large empty area on the right
+
 ### Added
 
 - Bidirectional synchronized scrolling between the Markdown editor and preview in split view
