@@ -200,10 +200,6 @@ docs/                     Roadmap and screenshot
 
 The detailed roadmap is in [`docs/ROADMAP.md`](docs/ROADMAP.md).
 
-## Acknowledgements
-
-Nibmark is inspired by the workflow of [Inkdrop](https://www.inkdrop.app/) by Takuya Matsuyama. It is an independent project, written from scratch, and is not affiliated with or endorsed by Inkdrop.
-
 ## License
 
 Nibmark is released under the [MIT License](LICENSE).

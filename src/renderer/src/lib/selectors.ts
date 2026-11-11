@@ -49,7 +49,7 @@ export function visibleNotes(s: Slice): Note[] {
     list = list.filter((n) => !n.trashed)
     if (selection.kind === 'book') {
       const ids = new Set([selection.id])
-      // Giống Inkdrop: notebook đang thu gọn thì hiện cả ghi chú của notebook con
+      // Notebook đang thu gọn thì hiện cả ghi chú của notebook con
       if (s.collapsedBooks[selection.id]) {
         for (const id of descendantIds(childrenByParent(s.books), selection.id)) ids.add(id)
       }
