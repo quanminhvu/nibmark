@@ -1,5 +1,6 @@
 import { useStore } from './store'
 import type { NoteStatus } from './types'
+import { KANBAN_TEMPLATE } from './kanban'
 
 export interface TemplateLike {
   id: string
@@ -48,6 +49,15 @@ export const BUILTIN_TEMPLATES: TemplateLike[] = [
     title: 'Plan: ',
     body: '## Goal\n\n\n## Why now\n\n\n## Scope\n\n- In: \n- Out: \n\n## Milestones\n\n- [ ] \n\n## Risks\n\n- \n\n## Open questions\n\n- \n',
     tagNames: ['plan'],
+    status: 'active',
+    builtin: true
+  },
+  {
+    id: 'builtin:kanban',
+    name: 'Kanban Board',
+    title: 'Board: ',
+    body: KANBAN_TEMPLATE,
+    tagNames: ['board'],
     status: 'active',
     builtin: true
   },

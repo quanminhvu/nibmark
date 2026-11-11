@@ -13,6 +13,8 @@ import { openMenu } from './ContextMenu'
 import { MarkdownEditor } from './MarkdownEditor'
 import { noteMenu } from './NoteList'
 import { Preview } from './Preview'
+import { KanbanBoard } from './KanbanBoard'
+import { isKanban } from '@/lib/kanban'
 import { StatusIcon } from './StatusIcon'
 import { TagInput } from './TagInput'
 
@@ -60,6 +62,7 @@ export function NotePane(): React.JSX.Element {
 
   const readOnly = note.trashed
   const mode: ViewMode = readOnly ? 'preview' : viewMode
+  const kanban = isKanban(note.body)
 
   return (
     <main className="notepane">
@@ -182,11 +185,15 @@ export function NotePane(): React.JSX.Element {
           </div>
         )}
         {mode !== 'edit' && (
-          <div className="note-preview">
-            <Preview
-              source={note.body}
-              onToggleTask={readOnly ? undefined : (index) => updateNote(note._id, { body: toggleTask(note.body, index) })}
-            />
+          <div className={cx('note-preview', kanban && 'is-kanban')}>
+            {kanban ? (
+              <KanbanBoard source={note.body} onChange={readOnly ? undefined : (body) => updateNote(note._id, { body })} />
+            ) : (
+              <Preview
+                source={note.body}
+                onToggleTask={readOnly ? undefined : (index) => updateNote(note._id, { body: toggleTask(note.body, index) })}
+              />
+            )}
           </div>
         )}
       </div>

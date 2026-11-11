@@ -8,6 +8,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ### Added
 
+- Kanban boards: a note with `view: kanban` in its front matter shows as a board in the preview. Each `##` heading is a column and each top-level list item is a card. Drag cards between columns, add, rename (double-click), check off and delete cards, and add or rename columns; every change is written back to the note's Markdown. Cards show their tags and sub-task progress. Boards from Obsidian's Kanban plugin open too
+- Kanban Board template
 - Mist and Night themes: a clean white and light-gray look with a blue accent, and its dark counterpart. They are now the default when the theme follows macOS (Paper, Stone, Ink and Indigo are still available)
 
 ### Changed

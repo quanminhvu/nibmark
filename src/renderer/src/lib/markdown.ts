@@ -60,6 +60,11 @@ export function renderMarkdown(source: string): string {
   return DOMPurify.sanitize(md.render(source), { ADD_ATTR: ['target'], ALLOWED_URI_REGEXP: ALLOWED_URI })
 }
 
+/** Markdown trong một dòng (không bọc <p>), dùng cho tiêu đề thẻ Kanban. */
+export function renderInlineMarkdown(source: string): string {
+  return DOMPurify.sanitize(md.renderInline(source), { ADD_ATTR: ['target'], ALLOWED_URI_REGEXP: ALLOWED_URI })
+}
+
 const TASK_LINE = /^(\s*(?:>\s*)*(?:[-*+]|\d+[.)])\s+\[)([ xX])(\])/
 const FENCE = /^\s*(```|~~~)/
 
