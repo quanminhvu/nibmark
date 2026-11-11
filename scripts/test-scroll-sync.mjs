@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict'
-import { syncScroll } from '../src/renderer/src/lib/scrollSync.ts'
+import { mapScroll, syncScroll } from '../src/renderer/src/lib/scrollSync.ts'
 
 let resized
 let disconnected = false
@@ -12,6 +12,7 @@ class Pane extends EventTarget {
   scrollTop = 0
   clientHeight = 200
   firstElementChild = null
+  querySelector() { return null }
   constructor(height) { super(); this.scrollHeight = height }
   scroll(top) { this.scrollTop = top; this.dispatchEvent(new Event('scroll')) }
 }
@@ -46,3 +47,11 @@ short.scroll(0)
 assert.equal(preview.scrollTop, 1000, 'short pane does not reset a scrollable pane')
 stopShort()
 console.log('✓ bidirectional scroll, feedback guard, endpoints, resize, short content and cleanup')
+
+const anchors = [{left:0,right:0},{left:100,right:800},{left:1000,right:2000}]
+assert.equal(mapScroll(100, anchors), 800, 'image-heavy block maps by source rather than overall ratio')
+assert.equal(mapScroll(800, anchors, true), 100, 'reverse mapping reaches same source block')
+assert.equal(mapScroll(550, anchors), 1400, 'interpolates between block anchors')
+assert.equal(mapScroll(0, anchors), 0)
+assert.equal(mapScroll(3000, anchors), 2000)
+console.log('✓ block mapping, reverse mapping, interpolation and clamping')

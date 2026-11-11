@@ -53,6 +53,8 @@ export interface State extends Prefs {
   notes: Record<string, Note>
   books: Record<string, Book>
   statuses: Record<string, CustomStatus>
+  setStatusOrder: (ids: NoteStatus[]) => void
+  setTagOrder: (ids: string[]) => void
   deleteStatus: (id: NoteStatus) => void
   ensureStatus: (name: string) => NoteStatus
   setStatusAppearance: (id: NoteStatus, color: string, icon: string, name?: string) => boolean
@@ -492,6 +494,31 @@ export const useStore = create<State>((set, get) => {
       for (const bid of ids) erase(bid)
     },
 
+    setStatusOrder: (ids) => {
+      const now = Date.now()
+      const statuses = { ...get().statuses }
+      for (const [order, id] of [...new Set(ids)].entries()) {
+        const key = (id.startsWith('status:') ? id : `status:${id}`) as CustomStatus['_id']
+        const existing = statuses[key]
+        const builtin = STATUSES.find((s) => s.id === id)
+        if ((!existing && !builtin) || existing?.deleted) continue
+        const status: CustomStatus = { ...existing, _id: key, type: 'status', name: existing?.name ?? builtin!.label,
+          color: existing?.color ?? ({active:'#80A4CD',onHold:'#F5A623',completed:'#2FB457',dropped:'#E5484D'} as Record<string,string>)[id] ?? '#2F6FE4',
+          order, createdAt: existing?.createdAt ?? now, updatedAt: now }
+        statuses[key] = status
+        persist(status)
+      }
+      set({ statuses })
+    },
+
+    setTagOrder: (ids) => {
+      const now = Date.now()
+      for (const [order, id] of [...new Set(ids)].entries()) {
+        const tag = get().tags[id]
+        if (tag) putTag({ ...tag, order, updatedAt: now })
+      }
+    },
+
     deleteStatus: (id) => {
       if (id === 'none') return
       const key = (id.startsWith('status:') ? id : `status:${id}`) as CustomStatus['_id']
@@ -523,7 +550,7 @@ export const useStore = create<State>((set, get) => {
       const duplicates = [...STATUSES.filter((s) => !get().statuses[`status:${s.id}`]?.deleted).map((s) => ({ id: `status:${s.id}`, name: get().statuses[`status:${s.id}`]?.name ?? s.label })), ...Object.values(get().statuses).filter((s) => !s.deleted).map((s) => ({ id: s._id, name: s.name }))]
       if (!nextName || duplicates.some((s) => s.id !== key && s.name.toLowerCase() === nextName.toLowerCase())) return false
       const now = Date.now()
-      const status: CustomStatus = { _id: key, type: 'status', name: nextName,
+      const status: CustomStatus = { ...existing, _id: key, type: 'status', name: nextName,
         createdAt: existing?.createdAt ?? now, updatedAt: now, color, icon }
       set((s) => ({ statuses: { ...s.statuses, [key]: status } }))
       persist(status)

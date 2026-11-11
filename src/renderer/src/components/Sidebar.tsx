@@ -28,6 +28,8 @@ export function noteIdsFromDrag(data: string): string[] {
   }
   return data ? [data] : []
 }
+const STATUS_MIME = 'application/x-nibmark-status'
+const TAG_MIME = 'application/x-nibmark-tag'
 const BOOK_MIME = 'application/x-nibmark-book'
 
 type Editing = { kind: 'new'; parentId: string | null } | { kind: 'rename'; id: string } | { kind: 'renameTag'; id: string } | { kind: 'newTag' | 'newStatus' } | null
@@ -112,9 +114,10 @@ interface RowProps {
   onDropItem?: (type: string, id: string, zone: DropZone) => void
   onContextMenu?: (e: React.MouseEvent) => void
   children?: React.ReactNode
+  dragData?: { type: string; id: string }
 }
 
-function Row({ selection, icon, label, count, depth = 0, accept = [], zoned = [], onDropItem, onContextMenu, children }: RowProps): React.JSX.Element {
+function Row({ selection, icon, label, count, depth = 0, accept = [], zoned = [], onDropItem, onContextMenu, children, dragData }: RowProps): React.JSX.Element {
   const current = useStore((s) => s.selection)
   const select = useStore((s) => s.select)
   const drop = useDropTarget(accept, (type, id, zone) => onDropItem?.(type, id, zone), zoned)
@@ -128,6 +131,8 @@ function Row({ selection, icon, label, count, depth = 0, accept = [], zoned = []
         drop.zone === 'after' && 'drop-after'
       )}
       style={{ paddingLeft: 10 + depth * 14 }}
+      draggable={!!dragData}
+      onDragStart={dragData ? (e) => { e.stopPropagation(); e.dataTransfer.setData(dragData.type, dragData.id); e.dataTransfer.effectAllowed = 'move' } : undefined}
       onClick={() => select(selection)}
       onContextMenu={onContextMenu}
       {...drop.props}
@@ -359,7 +364,7 @@ export function Sidebar(): React.JSX.Element {
   )
 
   const rootDrop = useDropTarget([BOOK_MIME], (_type, id) => actions.moveBook(id, null))
-  const sortedTags = useMemo(() => Object.values(tags).sort((a, b) => a.name.localeCompare(b.name)), [tags])
+  const sortedTags = useMemo(() => Object.values(tags).sort((a, b) => (a.order ?? Infinity) - (b.order ?? Infinity) || a.name.localeCompare(b.name)), [tags])
 
   return (
     <aside className="sidebar">
@@ -434,6 +439,8 @@ export function Sidebar(): React.JSX.Element {
         {!sections.status && getStatuses().map((status) => (
           <Row
             key={status.id}
+            dragData={{ type: STATUS_MIME, id: status.id }}
+            zoned={[STATUS_MIME]}
             selection={{ kind: 'status', status: status.id }}
             icon={<StatusIcon status={status.id} size={15} />}
             onContextMenu={(e) => openMenu(e, [{ label: 'Edit Status…', onClick: () => setAppearance({
@@ -445,8 +452,17 @@ export function Sidebar(): React.JSX.Element {
             } }])}
             label={status.label}
             count={counts.byStatus.get(status.id) ?? 0}
-            accept={[NOTE_MIME]}
-            onDropItem={(_type, id) => moveNoteTo(id, { status: status.id })}
+            accept={[NOTE_MIME, STATUS_MIME]}
+            onDropItem={(type, id, zone) => {
+              if (type === NOTE_MIME) moveNoteTo(id, { status: status.id })
+              else {
+                const ids = getStatuses().map((s) => s.id)
+                if (id === status.id || !ids.includes(id as NoteStatus)) return
+                const next = ids.filter((x) => x !== id)
+                next.splice(next.indexOf(status.id) + (zone === 'after' ? 1 : 0), 0, id as NoteStatus)
+                actions.setStatusOrder(next)
+              }
+            }}
           />
         ))}
 
@@ -479,12 +495,21 @@ export function Sidebar(): React.JSX.Element {
           ) : (
             <Row
               key={tag._id}
+              dragData={{ type: TAG_MIME, id: tag._id }}
+              zoned={[TAG_MIME]}
               selection={{ kind: 'tag', id: tag._id }}
               icon={<span className="tag-dot ring" style={{ '--tag': tag.color } as React.CSSProperties} />}
               label={tag.name}
               count={counts.byTag.get(tag._id) ?? 0}
-              accept={[NOTE_MIME]}
-              onDropItem={(_type, data) => {
+              accept={[NOTE_MIME, TAG_MIME]}
+              onDropItem={(type, data, zone) => {
+                if (type === TAG_MIME) {
+                  if (data === tag._id || !tags[data]) return
+                  const next = sortedTags.map((t) => t._id).filter((id) => id !== data)
+                  next.splice(next.indexOf(tag._id) + (zone === 'after' ? 1 : 0), 0, data)
+                  actions.setTagOrder(next)
+                  return
+                }
                 for (const id of noteIdsFromDrag(data)) {
                   const note = useStore.getState().notes[id]
                   if (note && !note.tags.includes(tag._id)) actions.updateNote(id, { tags: [...note.tags, tag._id] })

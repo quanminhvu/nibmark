@@ -1,3 +1,5 @@
+import { sourceScrollAnchors } from '@/lib/scrollAnchors'
+import { Backlinks } from './Backlinks'
 import type { CSSProperties } from 'react'
 import { ResizeHandle, usePaneSize } from './ResizeHandle'
 import { useEffect, useRef } from 'react'
@@ -43,7 +45,7 @@ export function NotePane(): React.JSX.Element {
     if (!syncEnabled) return
     const editor = bodyRef.current?.querySelector<HTMLElement>('.cm-scroller')
     const preview = bodyRef.current?.querySelector<HTMLElement>('.note-preview')
-    if (editor && preview) return syncScroll(editor, preview)
+    if (editor && preview) return syncScroll(editor, preview, () => sourceScrollAnchors(editor, preview))
   }, [note?._id, syncEnabled])
 
   if (multiCount > 1) return <BulkPanel />
@@ -190,6 +192,7 @@ export function NotePane(): React.JSX.Element {
           </div>
         )}
       </div>
+      {!readOnly && <Backlinks key={note._id} noteId={note._id} />}
     </main>
   )
 }

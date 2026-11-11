@@ -27,6 +27,9 @@ jobs:
       - run: npm run build
       # Bản đóng gói không kèm node_modules: main/preload chỉ được require electron và module có sẵn của Node
       - run: npm run check:bundle
+      - run: npm run test:scroll
+      - name: Desktop feature regressions
+        run: xvfb-run --auto-servernum npm run test:desktop
 
   package:
     name: Package and smoke test (${{ matrix.os }})

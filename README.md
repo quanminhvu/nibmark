@@ -10,7 +10,7 @@
 
 Nibmark keeps your notes as plain Markdown, organized in nested notebooks, tags and statuses, and stored on your own machine. It is a desktop app built with Electron, React and CodeMirror 6.
 
-> **Status:** v0.4, in active development. macOS is the primary target; Windows and Linux installers are built for every release but get less testing. Sync and mobile apps are on the [roadmap](#roadmap). Download the latest build from [Releases](https://github.com/quanminhvu/nibmark/releases).
+> **Status:** v0.6.0, in active development. macOS is the primary target; Windows and Linux installers are built for every release but get less testing. Sync and mobile apps are on the [roadmap](#roadmap). Download the latest build from [Releases](https://github.com/quanminhvu/nibmark/releases).
 
 <p align="center">
   <img src="docs/screenshot.png" alt="Nibmark with the Mist theme: notebooks and tags in the sidebar, the note list with task progress, and a note in side-by-side editor and preview" />
@@ -21,11 +21,14 @@ Nibmark keeps your notes as plain Markdown, organized in nested notebooks, tags 
 **Writing**
 
 - CodeMirror 6 editor with Markdown and code-block syntax highlighting, line numbers and folding
-- Three views: editor, side-by-side, preview; plus a distraction-free mode
+- Three views: editor, side-by-side, preview; plus a full-width distraction-free mode
+- Resize the sidebar, note list and editor/preview split; widths are remembered
+- Bidirectional scrolling follows Markdown source blocks, keeping corresponding sections aligned around images, tables and diagrams
 - Editor preferences: line numbers, readable line width, spell check, strike-through for done tasks, and wrap modes (all lines, text only, none)
 - GitHub Flavored Markdown: tables, task lists, footnotes, strikethrough, sub/superscript
 - Mermaid diagrams (with a zoomable full-screen viewer) and KaTeX math (`$…$`, `$$…$$`)
 - Note links: type `[[` to link to another note, or create one on the fly
+- Backlinks show which notes link to the current note; click one to open its source
 - Paste a URL to get `[Page title](url)`, or paste it over selected text to link that text
 - Slash commands (`/`) for headings, lists, tasks, code, tables, diagrams, math, alerts, links and files
 - A floating toolbar on selected text, emoji (`:smile`) and code-language suggestions
@@ -46,7 +49,10 @@ Nibmark keeps your notes as plain Markdown, organized in nested notebooks, tags 
 
 **Organizing**
 
-- Nested notebooks with icons and a manual order, tags, and statuses (Active, On Hold, Completed, Dropped)
+- Nested notebooks with icons and a manual order
+- Create, rename and recolor tags; create, rename, recolor and choose icons for statuses, including the built-in statuses
+- Drag statuses and tags into your preferred order; the order persists and is included in backups
+- Delete a status without losing content: affected notes and templates move to No status
 - Pin, duplicate, trash and restore notes; drag notes onto notebooks, statuses, tags or the Trash
 - Select several notes (`⌘`-click, `⇧`-click, `⌘A`) to move, tag, set status, pin or trash them together
 - Version history with a line diff and one-click restore

@@ -9,11 +9,11 @@ Ký hiệu: `[x]` đã xong · `[ ]` chưa làm · *(một phần: …)* đã l�
 | Giai đoạn | Số mục | Đã xong |
 |---|---|---|
 | 1. Ứng dụng desktop (đã phát hành tới 0.3) | 53 | 53 |
-| 2. Hoàn thiện trải nghiệm (phần lớn có trong 0.4) | 31 | 25 |
+| 2. Hoàn thiện trải nghiệm (phát hành tới 0.6) | 36 | 30 |
 | 3. Đồng bộ và bảo mật | 8 | 0 |
 | 4. Mobile, plugin và AI | 20 | 0 |
 | 5. Phát hành rộng và mô hình kinh doanh | 9 | 0 |
-| **Tổng** | **121** | **78** |
+| **Tổng** | **126** | **83** |
 
 ---
 
@@ -106,6 +106,9 @@ Làm được ngay, không phụ thuộc đồng bộ.
 
 ### Giao diện
 
+- [x] Kéo giãn sidebar, danh sách ghi chú và editor/preview; nhớ kích thước
+- [x] Đồng bộ cuộn hai chiều theo khối Markdown, tự đo lại khi nội dung hoặc kích thước thay đổi
+
 - [x] Giao diện bo tròn: sidebar trong mờ với nhóm thu gọn được, thẻ ghi chú có thanh tiến độ task, thanh công cụ và công tắc chế độ xem kiểu viên
 - [x] Theme Mist (sáng) và Night (tối) làm mặc định khi theo hệ điều hành
 - [x] Bảng Kanban: ghi chú có `view: kanban` hiện thành bảng, kéo thả thẻ giữa các cột, mọi thay đổi ghi lại vào Markdown
@@ -128,6 +131,10 @@ Làm được ngay, không phụ thuộc đồng bộ.
 - [x] Nhúng đoạn code từ GitHub qua link có dải dòng
 
 ### Tổ chức và điều hướng
+
+- [x] Backlinks: xem và mở các ghi chú đang liên kết tới ghi chú hiện tại
+- [x] Kéo thả sắp thứ tự status/tag, lưu cùng dữ liệu và backup
+- [x] Status tùy chỉnh: tạo, đổi tên/màu/icon, xóa; tag tạo và đổi tên/màu từ sidebar
 
 - [x] Thống kê hoạt động: ghi chú tạo mới và task theo 52 tuần, chuỗi ngày liên tục
 - [x] Tìm mờ trong menu notebook, menu tag và ô nhập tag

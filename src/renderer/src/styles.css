@@ -3459,3 +3459,13 @@ html.resizing-panes, html.resizing-panes * {
 @media (prefers-reduced-motion: reduce) {
   .notelist-header .search-box { transition: none; }
 }
+
+.backlinks { flex: none; border-top: 1px solid var(--line); padding: 8px 18px; background: var(--surface-2); }
+.backlinks-heading { display: flex; align-items: center; gap: 7px; padding: 4px 0; font-size: 12px; color: var(--ink-3); cursor: pointer; }
+.backlinks-count { font-variant-numeric: tabular-nums; }
+.backlinks-list { max-height: 110px; overflow: auto; }
+.backlinks-list > button { display: flex; align-items: center; gap: 8px; width: 100%; border-radius: 6px; padding: 6px 8px; text-align: left; color: var(--ink-2); cursor: pointer; }
+.backlinks-list > button:hover { background: var(--selection-row); }
+.backlinks-list > button span { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; flex: 1; font-size: 12px; }
+.backlinks-list small { max-width: 30%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--ink-3); font-size: 11px; }
+.backlinks-list p { color: var(--ink-3); font-size: 11px; margin: 5px 0; }
