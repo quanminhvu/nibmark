@@ -1,0 +1,82 @@
+{
+  "name": "nibmark",
+  "productName": "Nibmark",
+  "version": "0.1.0",
+  "description": "Markdown note-taking app for developers",
+  "author": "Vu Minh Quan",
+  "license": "UNLICENSED",
+  "private": true,
+  "main": "./out/main/index.js",
+  "scripts": {
+    "dev": "electron-vite dev",
+    "build": "electron-vite build",
+    "start": "electron-vite preview",
+    "typecheck": "tsc --noEmit -p tsconfig.json",
+    "pack": "electron-vite build && electron-builder --mac --dir",
+    "dist": "electron-vite build && electron-builder --mac"
+  },
+  "devDependencies": {
+    "@types/dompurify": "^3.0.5",
+    "@types/markdown-it": "^14.2.0",
+    "@types/node": "^26.6.6",
+    "@types/pouchdb-browser": "^6.1.5",
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
+    "@vitejs/plugin-react": "^6.3.0",
+    "electron": "^45.2.3",
+    "electron-builder": "^26.18.0",
+    "electron-vite": "^6.0.0",
+    "typescript": "^7.0.2",
+    "vite": "^8.3.7"
+  },
+  "dependencies": {
+    "@codemirror/autocomplete": "^6.20.4",
+    "@codemirror/commands": "^6.11.1",
+    "@codemirror/lang-markdown": "^6.5.2",
+    "@codemirror/language": "^6.13.1",
+    "@codemirror/language-data": "^6.5.2",
+    "@codemirror/search": "^6.7.2",
+    "@codemirror/state": "^6.7.6",
+    "@codemirror/view": "^6.43.15",
+    "@lezer/highlight": "^1.2.5",
+    "@vscode/markdown-it-katex": "^1.1.2",
+    "codemirror": "^6.0.2",
+    "dompurify": "^3.4.17",
+    "events": "^3.3.0",
+    "highlight.js": "^11.12.0",
+    "katex": "^0.19.1",
+    "lucide-react": "^1.71.0",
+    "markdown-it": "^15.0.3",
+    "markdown-it-footnote": "^4.0.0",
+    "markdown-it-sub": "^2.0.0",
+    "markdown-it-sup": "^2.0.0",
+    "markdown-it-task-lists": "^2.1.1",
+    "mermaid": "^12.3.0",
+    "pouchdb-browser": "^9.0.0",
+    "react": "^19.3.1",
+    "react-dom": "^19.3.1",
+    "zustand": "^5.1.0"
+  },
+  "build": {
+    "appId": "dev.nibmark.app",
+    "productName": "Nibmark",
+    "directories": {
+      "output": "dist",
+      "buildResources": "build"
+    },
+    "files": [
+      "out/**/*",
+      "package.json",
+      "!node_modules/**/*"
+    ],
+    "mac": {
+      "category": "public.app-category.productivity",
+      "icon": "build/icon.icns",
+      "target": [
+        "dir"
+      ],
+      "identity": "-",
+      "hardenedRuntime": false
+    }
+  }
+}
