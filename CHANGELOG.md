@@ -6,9 +6,15 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
+## [0.3.1] - 2026-11-11
+
 ### Fixed
 
 - The installed app crashed on launch with “Cannot find module 'fflate'” (introduced in 0.3.0)
+
+### Added
+
+- Installers for macOS (Apple Silicon and Intel), Windows and Linux are built and smoke-tested automatically for every release
 
 ## [0.3.0] - 2026-11-11
 
