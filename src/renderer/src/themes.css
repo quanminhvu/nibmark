@@ -1,0 +1,144 @@
+/*
+ * Theme có sẵn của Nibmark. Mỗi theme là một bộ CSS variables gắn với
+ * <html data-theme="…">. Paper là mặc định, nên theme người dùng tự viết
+ * chỉ cần ghi đè những biến muốn đổi.
+ */
+
+:root,
+:root[data-theme='paper'],
+[data-theme='paper'] {
+  color-scheme: light;
+  --paper: #f4efe6; /* giấy washi: sidebar */
+  --surface: #faf7f1; /* cột danh sách */
+  --surface-2: #fffdfa; /* vùng soạn thảo */
+  --ink: #1c1a18; /* mực sumi */
+  --ink-2: #5c554d;
+  --ink-3: #9a9187;
+  --line: rgba(28, 26, 24, 0.1);
+  --hover: rgba(28, 26, 24, 0.05);
+  --selected: rgba(28, 26, 24, 0.09);
+  --accent: #c8402e; /* son đỏ */
+  --accent-soft: rgba(200, 64, 46, 0.12);
+  --on-accent: #fffdfa;
+  --code-bg: #f1ece3;
+  --mark: rgba(233, 183, 88, 0.45);
+  --shadow: 0 8px 28px rgba(28, 26, 24, 0.16);
+  --backdrop: rgba(28, 26, 24, 0.28);
+
+  --status-active: #3f6fb5;
+  --status-onhold: #c98a2e;
+  --status-completed: #5e8c4a;
+  --status-dropped: #9a9187;
+
+  --syn-keyword: #a63a2a;
+  --syn-string: #5e7a3a;
+  --syn-number: #b5761f;
+  --syn-function: #2f6f8f;
+  --syn-type: #7a5bb8;
+  --syn-attr: #8a6a2a;
+  --syn-link: #2f6f8f;
+}
+
+:root[data-theme='ink'],
+[data-theme='ink'] {
+  color-scheme: dark;
+  --paper: #1a1816;
+  --surface: #1f1d1a;
+  --surface-2: #242220;
+  --ink: #ede7dc;
+  --ink-2: #b3aa9d;
+  --ink-3: #7c746a;
+  --line: rgba(237, 231, 220, 0.1);
+  --hover: rgba(237, 231, 220, 0.06);
+  --selected: rgba(237, 231, 220, 0.11);
+  --accent: #e2604c;
+  --accent-soft: rgba(226, 96, 76, 0.18);
+  --on-accent: #1a1816;
+  --code-bg: #1a1816;
+  --mark: rgba(233, 183, 88, 0.3);
+  --shadow: 0 8px 28px rgba(0, 0, 0, 0.5);
+  --backdrop: rgba(0, 0, 0, 0.45);
+
+  --status-active: #7fa6e0;
+  --status-onhold: #e0b366;
+  --status-completed: #9cc487;
+  --status-dropped: #7c746a;
+
+  --syn-keyword: #e8806e;
+  --syn-string: #a9c77e;
+  --syn-number: #e0b366;
+  --syn-function: #7fc1de;
+  --syn-type: #b9a3ea;
+  --syn-attr: #d8b878;
+  --syn-link: #7fc1de;
+}
+
+/* Indigo: mực xanh chàm, tối và lạnh */
+:root[data-theme='indigo'],
+[data-theme='indigo'] {
+  color-scheme: dark;
+  --paper: #121826;
+  --surface: #161d2d;
+  --surface-2: #1a2234;
+  --ink: #e4e9f3;
+  --ink-2: #a6b0c4;
+  --ink-3: #6c7890;
+  --line: rgba(228, 233, 243, 0.09);
+  --hover: rgba(228, 233, 243, 0.05);
+  --selected: rgba(228, 233, 243, 0.1);
+  --accent: #ee8a6c;
+  --accent-soft: rgba(238, 138, 108, 0.17);
+  --on-accent: #121826;
+  --code-bg: #121826;
+  --mark: rgba(238, 196, 108, 0.28);
+  --shadow: 0 8px 28px rgba(0, 0, 0, 0.55);
+  --backdrop: rgba(4, 8, 18, 0.5);
+
+  --status-active: #82aaf0;
+  --status-onhold: #e8bd6e;
+  --status-completed: #8fd0a0;
+  --status-dropped: #6c7890;
+
+  --syn-keyword: #f0907a;
+  --syn-string: #a4d39a;
+  --syn-number: #e8bd6e;
+  --syn-function: #82c8f0;
+  --syn-type: #c0a8f5;
+  --syn-attr: #e0c48a;
+  --syn-link: #82c8f0;
+}
+
+/* Stone: đá xám sáng, trung tính và mát */
+:root[data-theme='stone'],
+[data-theme='stone'] {
+  color-scheme: light;
+  --paper: #eceeef;
+  --surface: #f4f5f6;
+  --surface-2: #fbfbfc;
+  --ink: #1d2125;
+  --ink-2: #4f5862;
+  --ink-3: #8a939c;
+  --line: rgba(29, 33, 37, 0.1);
+  --hover: rgba(29, 33, 37, 0.05);
+  --selected: rgba(29, 33, 37, 0.09);
+  --accent: #c8402e;
+  --accent-soft: rgba(200, 64, 46, 0.11);
+  --on-accent: #fbfbfc;
+  --code-bg: #eef0f2;
+  --mark: rgba(240, 196, 90, 0.42);
+  --shadow: 0 8px 28px rgba(29, 33, 37, 0.15);
+  --backdrop: rgba(29, 33, 37, 0.25);
+
+  --status-active: #3f6fb5;
+  --status-onhold: #b8801f;
+  --status-completed: #4f8a52;
+  --status-dropped: #8a939c;
+
+  --syn-keyword: #b0402e;
+  --syn-string: #4f7a3a;
+  --syn-number: #a86d14;
+  --syn-function: #2a6a92;
+  --syn-type: #6f52b5;
+  --syn-attr: #7f6327;
+  --syn-link: #2a6a92;
+}
