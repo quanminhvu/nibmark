@@ -11,8 +11,10 @@ const devCsp = (): Plugin => ({
 })
 
 export default defineConfig({
-  main: {},
-  preload: {},
+  // Bản đóng gói không kèm node_modules, nên mọi thư viện mà main/preload dùng phải được gộp
+  // thẳng vào file build (chỉ electron và module có sẵn của Node là để ngoài).
+  main: { build: { externalizeDeps: false } },
+  preload: { build: { externalizeDeps: false } },
   renderer: {
     resolve: {
       alias: { '@': resolve('src/renderer/src') }

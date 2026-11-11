@@ -6,14 +6,20 @@
   "author": "Vu Minh Quan",
   "license": "MIT",
   "private": true,
+  "engines": {
+    "node": ">=22"
+  },
   "main": "./out/main/index.js",
   "scripts": {
     "dev": "electron-vite dev",
     "build": "electron-vite build",
     "start": "electron-vite preview",
     "typecheck": "tsc --noEmit -p tsconfig.json",
-    "pack": "electron-vite build && electron-builder --mac --dir",
-    "dist": "electron-vite build && electron-builder --mac"
+    "check:bundle": "node scripts/check-bundle.mjs",
+    "test:smoke": "node scripts/smoke-test.mjs",
+    "verify": "npm run typecheck && npm run build && npm run check:bundle",
+    "pack": "electron-vite build && npm run check:bundle && electron-builder --dir",
+    "dist": "electron-vite build && npm run check:bundle && electron-builder --publish never"
   },
   "devDependencies": {
     "@types/dompurify": "^3.0.5",
@@ -82,10 +88,55 @@
       "category": "public.app-category.productivity",
       "icon": "build/icon.icns",
       "target": [
-        "dir"
+        {
+          "target": "dmg",
+          "arch": [
+            "arm64",
+            "x64"
+          ]
+        },
+        {
+          "target": "zip",
+          "arch": [
+            "arm64",
+            "x64"
+          ]
+        }
       ],
       "identity": "-",
       "hardenedRuntime": false
+    },
+    "artifactName": "${productName}-${version}-${os}-${arch}.${ext}",
+    "dmg": {
+      "title": "${productName} ${version}"
+    },
+    "win": {
+      "icon": "build/icon.png",
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64",
+            "arm64"
+          ]
+        }
+      ]
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true
+    },
+    "linux": {
+      "icon": "build/icon.png",
+      "category": "Office",
+      "target": [
+        {
+          "target": "AppImage",
+          "arch": [
+            "x64"
+          ]
+        }
+      ]
     }
   }
 }
