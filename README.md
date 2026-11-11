@@ -170,7 +170,7 @@ docs/                     Feature checklist and notes
 - [ ] **Phase 3 — Mobile and extensibility:** iOS and Android apps, plugin system
 - [ ] **Phase 4 — Distribution:** signed builds, accounts
 
-The full feature checklist is in [`docs/list_danh_sach_feature_inkdrop.md`](docs/list_danh_sach_feature_inkdrop.md).
+The detailed roadmap is in [`docs/ROADMAP.md`](docs/ROADMAP.md).
 
 ## Acknowledgements
 
