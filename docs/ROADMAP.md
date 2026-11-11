@@ -9,11 +9,11 @@ Ký hiệu: `[x]` đã xong · `[ ]` chưa làm · *(một phần: …)* đã l�
 | Giai đoạn | Số mục | Đã xong |
 |---|---|---|
 | 1. Ứng dụng desktop (đã phát hành tới 0.3) | 53 | 53 |
-| 2. Hoàn thiện trải nghiệm (phát hành tới 0.6) | 36 | 30 |
+| 2. Hoàn thiện trải nghiệm (phát hành tới 0.7) | 37 | 31 |
 | 3. Đồng bộ và bảo mật | 8 | 0 |
 | 4. Mobile, plugin và AI | 20 | 0 |
 | 5. Phát hành rộng và mô hình kinh doanh | 9 | 0 |
-| **Tổng** | **126** | **83** |
+| **Tổng** | **127** | **84** |
 
 ---
 
@@ -112,6 +112,7 @@ Làm được ngay, không phụ thuộc đồng bộ.
 - [x] Giao diện bo tròn: sidebar trong mờ với nhóm thu gọn được, thẻ ghi chú có thanh tiến độ task, thanh công cụ và công tắc chế độ xem kiểu viên
 - [x] Theme Mist (sáng) và Night (tối) làm mặc định khi theo hệ điều hành
 - [x] Bảng Kanban: ghi chú có `view: kanban` hiện thành bảng, kéo thả thẻ giữa các cột, mọi thay đổi ghi lại vào Markdown
+- [x] Sửa trạng thái và tag dễ hơn: bộ chọn trạng thái có tìm kiếm, gợi ý tag có màu và số ghi chú, đổi tên ngay trên sidebar, hộp thoại đổi màu và icon có xem trước
 
 ### Soạn thảo
 
