@@ -186,7 +186,8 @@ function normalize(raw: unknown): AnyDoc | null {
       title: str(d.title),
       body: str(d.body),
       tags: Array.isArray(d.tags) ? d.tags.filter((t): t is string => typeof t === 'string') : [],
-      status: (STATUS_IDS.includes(d.status as string) ? d.status : 'none') as Note['status']
+      status: (STATUS_IDS.includes(d.status as string) ? d.status : 'none') as Note['status'],
+      ...(typeof d.bookId === 'string' && d.bookId.startsWith('book:') ? { bookId: d.bookId } : {})
     }
   }
   if (d.type === 'tag') {

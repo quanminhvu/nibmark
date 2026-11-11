@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react'
-import { ChevronDown, ChevronRight, Files, LayoutTemplate, Plus, Search, Settings, Trash2, X } from 'lucide-react'
+import { openActivity } from './ActivityPanel'
+import { ChartNoAxesColumn, ChevronDown, ChevronRight, Files, LayoutTemplate, Plus, Search, Settings, Trash2, X } from 'lucide-react'
 import { useStore } from '@/lib/store'
 import { childrenByParent, descendantIds } from '@/lib/selectors'
 import { STATUSES } from '@/lib/types'
@@ -360,6 +361,9 @@ export function Sidebar(): React.JSX.Element {
     <aside className="sidebar">
       <div className="titlebar-drag sidebar-top">
         <span className="flex-1" />
+        <button className="icon-btn" title="Activity" onClick={openActivity}>
+          <ChartNoAxesColumn size={16} />
+        </button>
         <button className="icon-btn" title="Preferences (⌘,)" onClick={() => actions.setPrefsOpen(true)}>
           <Settings size={16} />
         </button>

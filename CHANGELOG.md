@@ -27,6 +27,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 - Open a note in its own window with `⌘⇧N`, from the note list menu or from `⌘J`. Edits show up in both windows right away
 - Two-finger swipe left or right on the trackpad to go back or forward between notes (three-finger swipes work too when macOS is set up for them)
 - Fuzzy search in the notebook picker (note header and multi-select panel, matches nested paths too) and in tag suggestions
+- Activity (chart button in the sidebar or “Show Activity” in the palette): notes, words and task totals, current and longest writing streak, and a year grid of notes created, notes edited and tasks completed. Edits and completed tasks are read from the version history kept on this computer
+- Template preview: `⌘T` shows each template's content (or board) next to the list before you pick it
+- Your templates can put new notes into a chosen notebook (Preferences → Templates)
 - Mist and Night themes: a clean white and light-gray look with a blue accent, and its dark counterpart. They are now the default when the theme follows macOS (Paper, Stone, Ink and Indigo are still available)
 
 ### Changed

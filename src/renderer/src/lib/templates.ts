@@ -12,6 +12,7 @@ export interface TemplateLike {
   tagIds?: string[]
   status: NoteStatus
   builtin: boolean
+  bookId?: string
 }
 
 // Template có sẵn. Chỉ dùng biến {{...}} an toàn, không bao giờ chạy code.
@@ -98,7 +99,8 @@ export function allTemplates(): TemplateLike[] {
       body: t.body,
       tagIds: t.tags,
       status: t.status,
-      builtin: false
+      builtin: false,
+      bookId: t.bookId
     }))
   return [...user, ...BUILTIN_TEMPLATES]
 }
@@ -122,7 +124,9 @@ export function applyTemplate(template: TemplateLike): void {
     title: fillPlaceholders(template.title),
     body: fillPlaceholders(template.body),
     tags: [...new Set([...existing, ...tags])],
-    ...(template.status !== 'none' ? { status: template.status } : {})
+    ...(template.status !== 'none' ? { status: template.status } : {}),
+    // Notebook đặt sẵn của template (nếu notebook đó vẫn còn)
+    ...(template.bookId && useStore.getState().books[template.bookId] ? { bookId: template.bookId } : {})
   })
   useStore.getState().flush()
 

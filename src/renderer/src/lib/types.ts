@@ -45,6 +45,8 @@ export interface Template {
   body: string
   tags: string[]
   status: NoteStatus
+  /** Notebook đặt sẵn cho ghi chú tạo từ template (không bắt buộc) */
+  bookId?: string
   createdAt: number
   updatedAt: number
 }

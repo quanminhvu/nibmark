@@ -10,6 +10,7 @@ import { cx } from '@/lib/util'
 import { relativeTime } from '@/lib/util'
 import { runImport } from '@/lib/importer'
 import { useEditorPrefs } from '@/lib/editorPrefs'
+import { NotebookPicker } from './NotebookPicker'
 import type { PasteLink, WrapMode } from '@/lib/editorPrefs'
 
 export function Preferences(): React.JSX.Element | null {
@@ -275,7 +276,8 @@ function EditorSection(): React.JSX.Element {
 
 function Templates(): React.JSX.Element {
   const templates = useStore((s) => s.templates)
-  const { renameTemplate, deleteTemplate } = useStore.getState()
+  const { renameTemplate, deleteTemplate, setTemplateBook } = useStore.getState()
+  const books = useStore((s) => s.books)
   const list = Object.values(templates).sort((a, b) => a.name.localeCompare(b.name))
   return (
     <section className="pref-section">
@@ -296,6 +298,19 @@ function Templates(): React.JSX.Element {
                 onBlur={(e) => renameTemplate(t._id, e.target.value)}
                 onKeyDown={(e) => e.key === 'Enter' && e.currentTarget.blur()}
               />
+              <span className="pref-tpl-book" title="Notes from this template go into this notebook">
+                <NotebookPicker
+                  value={t.bookId && books[t.bookId] ? t.bookId : ''}
+                  placeholder="Current notebook"
+                  showIcon={false}
+                  onPick={(bookId) => setTemplateBook(t._id, bookId)}
+                />
+                {t.bookId && books[t.bookId] && (
+                  <button className="icon-btn small" title="Use the current notebook" onClick={() => setTemplateBook(t._id, null)}>
+                    <X size={12} />
+                  </button>
+                )}
+              </span>
               <button
                 className="text-btn danger"
                 onClick={() => {
