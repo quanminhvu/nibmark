@@ -3,6 +3,7 @@ import { useStore } from '@/lib/store'
 import { cx, isMac } from '@/lib/util'
 import { backupNow, exportNote, exportNotes, restoreFromBackup } from '@/lib/actions'
 import { flushBackup, startBackup } from '@/lib/backup'
+import { goBack, goForward } from '@/lib/navigation'
 import { CommandPalette } from './components/CommandPalette'
 import { ContextMenuHost } from './components/ContextMenu'
 import { NoteList } from './components/NoteList'
@@ -57,7 +58,21 @@ export function App(): React.JSX.Element {
         s.toggleDistractionFree()
         return
       }
-      if (!(e.metaKey || e.ctrlKey) || e.altKey) return
+      if (!(e.metaKey || e.ctrlKey)) return
+      // Back/forward: Cmd+Alt+←/→ ở mọi nơi; Cmd+[ / Cmd+] khi không gõ trong editor
+      // (trong editor, CodeMirror dùng Cmd+[ / Cmd+] để thụt lề)
+      const inEditor = !!(document.activeElement as HTMLElement | null)?.closest?.('.cm-editor')
+      if ((e.altKey && e.key === 'ArrowLeft') || (!e.altKey && !inEditor && e.key === '[')) {
+        e.preventDefault()
+        goBack()
+        return
+      }
+      if ((e.altKey && e.key === 'ArrowRight') || (!e.altKey && !inEditor && e.key === ']')) {
+        e.preventDefault()
+        goForward()
+        return
+      }
+      if (e.altKey) return
       const key = e.key.toLowerCase()
       if (e.shiftKey) {
         if (key === 'd') s.toggleDistractionFree()
@@ -80,9 +95,18 @@ export function App(): React.JSX.Element {
       e.preventDefault()
       e.stopPropagation()
     }
+    // Nút back/forward phụ trên chuột
+    const onMouseUp = (e: MouseEvent): void => {
+      if (e.button === 3) goBack()
+      else if (e.button === 4) goForward()
+    }
     // capture để phím tắt toàn app chạy trước keymap của editor
     window.addEventListener('keydown', onKeyDown, true)
-    return () => window.removeEventListener('keydown', onKeyDown, true)
+    window.addEventListener('mouseup', onMouseUp)
+    return () => {
+      window.removeEventListener('keydown', onKeyDown, true)
+      window.removeEventListener('mouseup', onMouseUp)
+    }
   }, [])
 
   if (!ready) return <div className="boot" />

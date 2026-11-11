@@ -1715,3 +1715,17 @@ mark {
   border-left: 1px solid var(--line);
   border-radius: 0 5px 5px 0;
 }
+
+/* ───────── Back / forward ───────── */
+.nav-buttons {
+  display: flex;
+  gap: 0;
+  margin: 0 6px 0 -10px;
+}
+.nav-buttons .icon-btn {
+  width: 24px;
+}
+.nav-buttons .icon-btn:disabled {
+  opacity: 0.3;
+  pointer-events: none;
+}

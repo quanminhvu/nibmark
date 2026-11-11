@@ -1,11 +1,12 @@
 import { useMemo } from 'react'
-import { Columns2, Ellipsis, Eye, LayoutTemplate, Maximize2, Minimize2, Pencil, Pin, RotateCcw, Trash2 } from 'lucide-react'
+import { ChevronLeft, ChevronRight, Columns2, Ellipsis, Eye, LayoutTemplate, Maximize2, Minimize2, Pencil, Pin, RotateCcw, Trash2 } from 'lucide-react'
 import { useStore } from '@/lib/store'
 import { childrenByParent } from '@/lib/selectors'
 import { toggleTask } from '@/lib/markdown'
 import { STATUSES } from '@/lib/types'
 import type { Book, NoteStatus, ViewMode } from '@/lib/types'
 import { cx, isMac, relativeTime } from '@/lib/util'
+import { goBack, goForward, useNav } from '@/lib/navigation'
 import { openMenu } from './ContextMenu'
 import { MarkdownEditor } from './MarkdownEditor'
 import { noteMenu } from './NoteList'
@@ -58,6 +59,7 @@ export function NotePane(): React.JSX.Element {
   return (
     <main className="notepane">
       <header className="notepane-header titlebar-drag">
+        <NavButtons />
         <input
           className="note-title"
           value={note.title}
@@ -178,5 +180,21 @@ export function NotePane(): React.JSX.Element {
         )}
       </div>
     </main>
+  )
+}
+
+function NavButtons(): React.JSX.Element {
+  const canBack = useNav((s) => s.back.length > 0)
+  const canForward = useNav((s) => s.forward.length > 0)
+  const mac = isMac()
+  return (
+    <div className="nav-buttons">
+      <button className="icon-btn" disabled={!canBack} title={mac ? 'Back (⌘⌥←)' : 'Back (Ctrl+Alt+←)'} onClick={() => goBack()}>
+        <ChevronLeft size={16} />
+      </button>
+      <button className="icon-btn" disabled={!canForward} title={mac ? 'Forward (⌘⌥→)' : 'Forward (Ctrl+Alt+→)'} onClick={() => goForward()}>
+        <ChevronRight size={16} />
+      </button>
+    </div>
   )
 }
