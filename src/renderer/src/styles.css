@@ -2811,3 +2811,149 @@ html.strike-done .markdown-body .task-list-item:has(> input:checked):not(:has(ul
   background: var(--accent-soft);
   color: var(--accent);
 }
+
+/* ── Khối code: số dòng, thanh tên file, icon ngôn ngữ ── */
+.markdown-body pre .code-body {
+  display: flex;
+  align-items: flex-start;
+}
+.markdown-body pre .code-body > code {
+  flex: 1;
+  min-width: 0;
+}
+.markdown-body pre .code-gutter {
+  flex: none;
+  margin: 0 12px 0 -4px;
+  padding-right: 10px;
+  border-right: 1px solid var(--line);
+  color: color-mix(in srgb, var(--ink-3) 75%, transparent);
+  font: 12.5px/1.55 var(--font-mono);
+  text-align: right;
+  white-space: pre;
+  user-select: none;
+}
+html.no-code-ln .markdown-body pre .code-gutter {
+  display: none;
+}
+.markdown-body pre.has-head {
+  padding-top: 0;
+}
+.markdown-body pre .code-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0 -16px 12px;
+  padding: 7px 16px;
+  border-bottom: 1px solid var(--line);
+  background: color-mix(in srgb, var(--ink) 3%, transparent);
+  font: 12px var(--font-ui);
+  color: var(--ink-2);
+  user-select: none;
+}
+.markdown-body pre .code-head .code-title {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-weight: 550;
+  color: var(--ink);
+}
+.markdown-body pre .code-head .code-lang {
+  position: static;
+}
+.markdown-body pre.has-head:hover .code-lang {
+  visibility: visible;
+}
+.markdown-body pre.has-head .code-copy {
+  top: 4px;
+}
+.markdown-body pre.has-head:hover .code-head .code-lang {
+  opacity: 0;
+}
+/* Icon ngôn ngữ: chấm màu theo ngôn ngữ (màu quen thuộc của từng ngôn ngữ) */
+.code-icon {
+  flex: none;
+  width: 10px;
+  height: 10px;
+  border-radius: 3px;
+  background: var(--lang, var(--ink-3));
+}
+.code-icon[data-family='javascript'], .code-icon[data-lang='js'], .code-icon[data-lang='jsx'] { --lang: #f1e05a; }
+.code-icon[data-family='typescript'], .code-icon[data-lang='ts'], .code-icon[data-lang='tsx'] { --lang: #3178c6; }
+.code-icon[data-family='python'] { --lang: #3572a5; }
+.code-icon[data-family='go'] { --lang: #00add8; }
+.code-icon[data-family='rust'] { --lang: #dea584; }
+.code-icon[data-family='java'] { --lang: #b07219; }
+.code-icon[data-family='kotlin'] { --lang: #a97bff; }
+.code-icon[data-family='swift'] { --lang: #f05138; }
+.code-icon[data-family='dart'] { --lang: #00b4ab; }
+.code-icon[data-family='php'] { --lang: #4f5d95; }
+.code-icon[data-family='ruby'] { --lang: #701516; }
+.code-icon[data-family='c'], .code-icon[data-family='c++'] { --lang: #555555; }
+.code-icon[data-family='c#'] { --lang: #178600; }
+.code-icon[data-family='css'], .code-icon[data-family='scss'], .code-icon[data-family='less'] { --lang: #663399; }
+.code-icon[data-family='htmlxml'], .code-icon[data-lang='html'], .code-icon[data-lang='xml'] { --lang: #e34c26; }
+.code-icon[data-family='bash'], .code-icon[data-family='shell'] { --lang: #89e051; }
+.code-icon[data-family='sql'] { --lang: #e38c00; }
+.code-icon[data-family='json'], .code-icon[data-family='yaml'] { --lang: #cb171e; }
+.code-icon[data-family='markdown'] { --lang: #083fa1; }
+.code-icon[data-family='dockerfile'] { --lang: #384d54; }
+
+/* ── Code nhúng từ GitHub ── */
+.markdown-body .gh-embed {
+  margin: 0 0 1em;
+}
+.markdown-body .gh-embed > pre {
+  margin-bottom: 4px;
+}
+.markdown-body .gh-embed-link {
+  font-size: 11.5px;
+  color: var(--ink-3);
+}
+.markdown-body .gh-embed:not(.failed):not(:has(pre)) > a::after {
+  content: '  · loading…';
+  color: var(--ink-3);
+}
+
+/* ── Tìm trong preview ── */
+.preview-find-anchor {
+  position: sticky;
+  top: 0;
+  z-index: 5;
+  height: 0;
+}
+.preview-find {
+  position: absolute;
+  top: 10px;
+  right: 16px;
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  padding: 4px 4px 4px 10px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--surface-2);
+  box-shadow: var(--shadow);
+}
+.preview-find input {
+  width: 180px;
+  border: 0;
+  outline: 0;
+  background: transparent;
+  color: var(--ink);
+  font: inherit;
+}
+.preview-find-count {
+  min-width: 56px;
+  padding: 0 6px;
+  color: var(--ink-3);
+  font-size: 11.5px;
+  text-align: right;
+}
+::highlight(preview-find) {
+  background-color: var(--mark);
+}
+::highlight(preview-find-active) {
+  background-color: color-mix(in srgb, var(--status-onhold) 70%, transparent);
+  color: var(--ink);
+}

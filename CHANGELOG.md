@@ -20,6 +20,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 - `⌘D` outside the editor duplicates the current note (inside the editor it still selects the next match)
 - Pasting a URL makes a Markdown link titled with the page's title (Preferences → Editor: title, URL as text, or paste as is). URLs pasted inside code or link syntax stay as they are
 - Image sizes: `![alt|small](…)`, `|half`, `|full` or `|320` for a width in pixels, plus a size bar when the cursor is on an image
+- Code blocks in the preview: line numbers (can be turned off in Preferences → Editor), a file name bar with ```` ```ts title="app.ts" ```` or ```` ```ts:app.ts ````, a language color badge, and highlighting for about 40 more languages (Dart, Dockerfile, Elixir, Haskell, Scala, Nginx, PowerShell, LaTeX…)
+- Find in the preview with `⌘F` (when the cursor is not in the editor), including text inside code blocks; `↵` / `⇧↵` move between matches
+- A GitHub link to a line range on its own line (`https://github.com/owner/repo/blob/main/file.ts#L10-L25`) shows those lines as a code block in the preview
 - Mist and Night themes: a clean white and light-gray look with a blue accent, and its dark counterpart. They are now the default when the theme follows macOS (Paper, Stone, Ink and Indigo are still available)
 
 ### Changed

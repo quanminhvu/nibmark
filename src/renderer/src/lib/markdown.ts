@@ -4,6 +4,7 @@ import footnote from 'markdown-it-footnote'
 import sub from 'markdown-it-sub'
 import sup from 'markdown-it-sup'
 import hljs from 'highlight.js/lib/common'
+import { extraLanguages } from './hljsExtra'
 import DOMPurify from 'dompurify'
 import katex from '@vscode/markdown-it-katex'
 import alerts from 'markdown-it-github-alerts'
@@ -13,15 +14,44 @@ import { parseImageAlt } from './imageTools'
 const escapeHtml = (s: string): string =>
   s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;')
 
+// Thêm các ngôn ngữ hay gặp ngoài bộ "common" của highlight.js
+for (const [name, lang] of Object.entries(extraLanguages)) if (!hljs.getLanguage(name)) hljs.registerLanguage(name, lang)
+hljs.registerAliases(['sh', 'zsh', 'console'], { languageName: 'bash' })
+hljs.registerAliases(['dockerfile', 'docker'], { languageName: 'dockerfile' })
+hljs.registerAliases(['tf', 'hcl'], { languageName: 'ini' })
+
+/**
+ * Khối code: ```js title="app.js" (hoặc ```js:app.js) có thanh tên file.
+ * Luôn có cột số dòng; ẩn/hiện bằng tùy chọn (class trên <html>).
+ */
+export function renderCodeBlock(code: string, rawLang: string, attrs = '', startLine = 1): string {
+  let lang = rawLang
+  let title = /(?:^|\s)title=(?:"([^"]*)"|'([^']*)'|(\S+))/.exec(attrs)
+    ?.slice(1)
+    .find((x) => x !== undefined)
+  const colon = /^([^:\s]+):(.+)$/.exec(lang)
+  if (colon) {
+    lang = colon[1]
+    title = title ?? colon[2]
+  }
+  const language = lang && hljs.getLanguage(lang) ? lang : null
+  const html = language ? hljs.highlight(code, { language, ignoreIllegals: true }).value : escapeHtml(code)
+  const lines = Math.max(1, code.replace(/\n$/, '').split('\n').length)
+  const gutter = Array.from({ length: lines }, (_, i) => i + startLine).join('\n')
+  const key = escapeHtml((language ? hljs.getLanguage(language)?.name ?? lang : lang).toLowerCase().replace(/[^a-z0-9#+-]/g, ''))
+  const langLabel = lang ? `<span class="code-lang">${escapeHtml(lang)}</span>` : ''
+  const head = title
+    ? `<span class="code-head"><span class="code-icon" data-lang="${escapeHtml(lang.toLowerCase())}" data-family="${key}"></span><span class="code-title">${escapeHtml(title)}</span>${langLabel}</span>`
+    : langLabel
+  return `<pre class="hljs${title ? ' has-head' : ''}">${head}<button class="code-copy" type="button" title="Copy code">Copy</button><span class="code-body"><span class="code-gutter" aria-hidden="true">${gutter}</span><code>${html}</code></span></pre>`
+}
+
 const md = new MarkdownIt({
   html: true,
   linkify: true,
   breaks: false,
-  highlight(code, lang): string {
-    const language = lang && hljs.getLanguage(lang) ? lang : null
-    const html = language ? hljs.highlight(code, { language, ignoreIllegals: true }).value : escapeHtml(code)
-    const label = lang ? `<span class="code-lang">${escapeHtml(lang)}</span>` : ''
-    return `<pre class="hljs">${label}<button class="code-copy" type="button" title="Copy code">Copy</button><code>${html}</code></pre>`
+  highlight(code, lang, attrs): string {
+    return renderCodeBlock(code, lang, attrs)
   }
 })
   .use(taskLists, { enabled: true })
@@ -66,8 +96,49 @@ md.renderer.rules.fence = (tokens, idx, options, env, self) => {
   return defaultFence(tokens, idx, options, env, self)
 }
 
+// Link GitHub tới một dải dòng, đứng riêng một đoạn, được nhúng thành khối code.
+// Preview tải nội dung sau (qua main process) rồi điền vào chỗ giữ chỗ này.
+const GITHUB_LINES = /^https:\/\/github\.com\/[^/\s]+\/[^/\s]+\/blob\/\S+#L\d+(?:-L\d+)?$/
+md.core.ruler.push('github_embed', (state) => {
+  const t = state.tokens
+  for (let i = 0; i + 2 < t.length; i++) {
+    if (t[i].type !== 'paragraph_open' || t[i + 1].type !== 'inline' || t[i + 2].type !== 'paragraph_close') continue
+    const kids = t[i + 1].children ?? []
+    if (kids.length !== 3 || kids[0].type !== 'link_open' || kids[2].type !== 'link_close') continue
+    const href = String(kids[0].attrGet('href') ?? '')
+    if (!GITHUB_LINES.test(href) || kids[1].content.trim() !== href) continue
+    const block = new state.Token('html_block', '', 0)
+    const safe = escapeHtml(href)
+    block.content = `<div class="gh-embed" data-src="${safe}"><a href="${safe}">${safe}</a></div>\n`
+    t.splice(i, 3, block)
+  }
+})
+
 // Danh sách giao thức mặc định của DOMPurify, thêm nibmark: cho link giữa các ghi chú
 const ALLOWED_URI = /^(?:(?:(?:f|ht)tps?|mailto|tel|nibmark):|[^a-z]|[a-z+.\-]+(?:[^a-z+.\-:]|$))/i
+
+/** Điền các khối nhúng GitHub trong `root` (có cache, chỉ tải mỗi link một lần). */
+const ghCache = new Map<string, Promise<Awaited<ReturnType<NibmarkBridge['web']['githubSnippet']>>>>()
+export function fillGithubEmbeds(root: HTMLElement): void {
+  const bridge = window.nibmark
+  if (!bridge) return
+  for (const el of root.querySelectorAll<HTMLElement>('.gh-embed:not(.loaded)')) {
+    const src = el.dataset.src ?? ''
+    el.classList.add('loaded')
+    if (!ghCache.has(src)) ghCache.set(src, bridge.web.githubSnippet(src))
+    void ghCache.get(src)!.then((res) => {
+      if (!res) {
+        el.classList.add('failed')
+        return
+      }
+      const ext = /\.([a-z0-9]+)$/i.exec(res.path)?.[1]?.toLowerCase() ?? ''
+      const title = `${res.path}  ·  L${res.start}${res.end > res.start ? `–${res.end}` : ''}`
+      const html = renderCodeBlock(res.code + '\n', ext, `title="${title.replace(/"/g, "'")}"`, res.start)
+      const link = `<a class="gh-embed-link" href="${escapeHtml(src)}">View on GitHub</a>`
+      el.innerHTML = DOMPurify.sanitize(html + link, { ALLOWED_URI_REGEXP: ALLOWED_URI })
+    })
+  }
+}
 
 export function renderMarkdown(source: string): string {
   return DOMPurify.sanitize(md.render(source), { ADD_ATTR: ['target'], ALLOWED_URI_REGEXP: ALLOWED_URI })

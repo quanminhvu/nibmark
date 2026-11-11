@@ -236,7 +236,7 @@ function Appearance(): React.JSX.Element {
 
 function EditorSection(): React.JSX.Element {
   const p = useEditorPrefs()
-  const toggle = (key: 'lineNumbers' | 'readableWidth' | 'spellcheck' | 'strikeDone', label: string): React.JSX.Element => (
+  const toggle = (key: 'lineNumbers' | 'readableWidth' | 'spellcheck' | 'strikeDone' | 'codeLineNumbers', label: string): React.JSX.Element => (
     <label className="pref-toggle">
       <input type="checkbox" checked={p[key]} onChange={(e) => p.set({ [key]: e.target.checked })} />
       <span>{label}</span>
@@ -249,6 +249,7 @@ function EditorSection(): React.JSX.Element {
       {toggle('readableWidth', 'Limit line width for easier reading')}
       {toggle('spellcheck', 'Check spelling')}
       {toggle('strikeDone', 'Strike through completed tasks')}
+      {toggle('codeLineNumbers', 'Show line numbers in preview code blocks')}
       <div className="pref-row">
         <span className="pref-label">Line wrapping</span>
         <select className="pref-select" value={p.wrap} onChange={(e) => p.set({ wrap: e.target.value as WrapMode })}>

@@ -1,17 +1,20 @@
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import { X } from 'lucide-react'
 import { renderMermaidIn } from '@/lib/mermaid'
-import { renderMarkdown } from '@/lib/markdown'
+import { fillGithubEmbeds, renderMarkdown } from '@/lib/markdown'
 import { fileIdFromUrl, openAttachment, resolveFileUrls, useFileTick } from '@/lib/attachments'
 import { followNoteLink } from '@/lib/noteLinks'
+import { PreviewFind } from './PreviewFind'
 
 interface Props {
   source: string
   /** Bỏ trống thì các checkbox chỉ để xem. */
   onToggleTask?: (index: number) => void
+  /** Bật ⌘F để tìm trong preview (chỉ preview chính của ghi chú) */
+  findable?: boolean
 }
 
-export function Preview({ source, onToggleTask }: Props): React.JSX.Element {
+export function Preview({ source, onToggleTask, findable }: Props): React.JSX.Element {
   const rendered = useMemo(() => renderMarkdown(source), [source])
   const fileTick = useFileTick((s) => s.tick)
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -19,6 +22,23 @@ export function Preview({ source, onToggleTask }: Props): React.JSX.Element {
   const rootRef = useRef<HTMLDivElement>(null)
   const generation = useRef(0)
   const [viewer, setViewer] = useState<string | null>(null)
+  const [finding, setFinding] = useState(false)
+
+  // ⌘F khi con trỏ không ở trong editor: tìm trong preview (trong editor, CodeMirror tự lo)
+  useEffect(() => {
+    if (!findable) return
+    const onKey = (e: KeyboardEvent): void => {
+      if (!(e.metaKey || e.ctrlKey) || e.shiftKey || e.altKey || e.key.toLowerCase() !== 'f') return
+      if ((document.activeElement as HTMLElement | null)?.closest?.('.cm-editor')) return
+      if (!rootRef.current?.isConnected) return
+      e.preventDefault()
+      setFinding(true)
+      // Đã mở thì chọn lại chữ trong ô tìm
+      document.querySelector<HTMLInputElement>('.preview-find input')?.select()
+    }
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [findable])
 
   // Sau mỗi lần HTML đổi: gắn lại sơ đồ Mermaid (từ cache, hoặc vẽ mới)
   useLayoutEffect(() => {
@@ -26,6 +46,7 @@ export function Preview({ source, onToggleTask }: Props): React.JSX.Element {
     if (!root) return
     const gen = ++generation.current
     renderMermaidIn(root, () => generation.current === gen)
+    fillGithubEmbeds(root)
   }, [html])
 
   // Đổi theme: vẽ lại sơ đồ với màu mới
@@ -105,6 +126,7 @@ export function Preview({ source, onToggleTask }: Props): React.JSX.Element {
 
   return (
     <>
+      {finding && <PreviewFind root={rootRef} html={html} onClose={() => setFinding(false)} />}
       <div ref={rootRef} className="preview markdown-body" onClick={handleClick} dangerouslySetInnerHTML={{ __html: html }} />
       {viewer && <DiagramViewer svg={viewer} onClose={() => setViewer(null)} />}
     </>
