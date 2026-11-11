@@ -10,25 +10,39 @@
 
 Nibmark keeps your notes as plain Markdown, organized in nested notebooks, tags and statuses, and stored on your own machine. It is a desktop app built with Electron, React and CodeMirror 6.
 
-> **Status:** early development (v0.1). macOS is the primary target today. Sync and mobile apps are on the [roadmap](#roadmap).
+> **Status:** v0.4, in active development. macOS is the primary target; Windows and Linux installers are built for every release but get less testing. Sync and mobile apps are on the [roadmap](#roadmap). Download the latest build from [Releases](https://github.com/quanminhvu/nibmark/releases).
+
+<p align="center">
+  <img src="docs/screenshot.png" alt="Nibmark with the Mist theme: notebooks and tags in the sidebar, the note list with task progress, and a note in side-by-side editor and preview" />
+</p>
 
 ## Features
 
 **Writing**
 
-- CodeMirror 6 editor with Markdown and code-block syntax highlighting
+- CodeMirror 6 editor with Markdown and code-block syntax highlighting, line numbers and folding
 - Three views: editor, side-by-side, preview; plus a distraction-free mode
+- Editor preferences: line numbers, readable line width, spell check, strike-through for done tasks, and wrap modes (all lines, text only, none)
 - GitHub Flavored Markdown: tables, task lists, footnotes, strikethrough, sub/superscript
 - Mermaid diagrams (with a zoomable full-screen viewer) and KaTeX math (`$…$`, `$$…$$`)
 - Note links: type `[[` to link to another note, or create one on the fly
-- Paste a URL over selected text to turn it into a link
+- Paste a URL to get `[Page title](url)`, or paste it over selected text to link that text
 - Slash commands (`/`) for headings, lists, tasks, code, tables, diagrams, math, alerts, links and files
 - A floating toolbar on selected text, emoji (`:smile`) and code-language suggestions
 - A table toolbar: format, align, insert, delete and move rows and columns
 - Multiple cursors, rectangular selection and line tools (sort, join, case); numbered lists renumber themselves
-- GitHub alerts (`> [!NOTE]`, `[!TIP]`, `[!WARNING]`…) in the preview
-- Paste or drop images and files (PDFs, archives, anything up to 100 MB) straight into a note
+- GitHub alerts (`> [!NOTE]`, `[!TIP]`, `[!WARNING]`…), colored in the editor and the preview
+- Paste or drop images and files (PDFs, archives, anything up to 100 MB) straight into a note; size images with `![alt|small](…)`, `|half`, `|full` or `|320`
+- Code blocks with line numbers, a file name bar (```` ```ts title="app.ts" ````) and highlighting for about 75 languages
+- A GitHub link to a line range (`…/blob/main/app.ts#L10-L25`) on its own line shows those lines in the preview
+- Find in the preview with `⌘F`
 - Click a checkbox in the preview to tick the task in the source
+
+**Kanban boards**
+
+- Add `view: kanban` to a note's front matter and the preview becomes a board: each `##` heading is a column, each list item a card
+- Drag cards between columns, add, rename, check off and delete them; every change is written back to the Markdown
+- Start from the built-in Kanban Board template (`⌘T`)
 
 **Organizing**
 
@@ -36,9 +50,12 @@ Nibmark keeps your notes as plain Markdown, organized in nested notebooks, tags 
 - Pin, duplicate, trash and restore notes; drag notes onto notebooks, statuses, tags or the Trash
 - Select several notes (`⌘`-click, `⇧`-click, `⌘A`) to move, tag, set status, pin or trash them together
 - Version history with a line diff and one-click restore
-- Back and forward between notes, like a browser
+- Back and forward between notes, like a browser, with buttons, shortcuts or a two-finger swipe
+- Open a note in its own window (`⌘⇧N`)
 - Search with qualifiers: `book:` `tag:` `status:` `title:` `body:` `"exact phrase"` `-exclude`
-- Templates with `{{date}}`, `{{time}}` and `{{weekday}}` placeholders, plus five built-in templates
+- Every open task across your notes in the command palette (type `[`)
+- Templates with `{{date}}`, `{{time}}` and `{{weekday}}` placeholders, a preview before you pick one, and an optional notebook for new notes; six built-in templates
+- An activity view: writing streaks and a year grid of notes created, notes edited and tasks completed
 
 **Your data**
 
@@ -46,13 +63,16 @@ Nibmark keeps your notes as plain Markdown, organized in nested notebooks, tags 
 - Continuous JSON backup to a folder of your choice; backups never delete files
 - Restore from a backup folder (merge: newer notes in the app are never overwritten)
 - Attachments are backed up as their original files and exported to an `attachments/` folder
-- Import from Markdown folders (Obsidian, Notion exports and `.zip`s, Bear TextBundles), HTML files and Evernote `.enex` files
-- Export a note, a notebook or everything as Markdown files with YAML front matter
+- Import from Markdown folders (Obsidian, Notion exports and `.zip`s, Bear TextBundles), HTML files, Evernote `.enex` files and Apple Notes
+- Import Kindle highlights from `My Clippings.txt`; importing again only adds new highlights
+- Export a note, a notebook or everything as Markdown files with YAML front matter, or a note as a single HTML file
+- Drag a note into another app or a terminal to paste a link to it
 
 **Make it yours**
 
-- Command palette (`⌘K`) for notes, commands, notebooks, tags, headings and themes
-- Four built-in themes (Paper, Stone, Ink, Indigo) or follow the system appearance
+- Command palette (`⌘K`) for notes, commands, notebooks, tags, headings, tasks and themes, and a note actions menu (`⌘J`)
+- Six built-in themes: Mist and Night (the defaults for light and dark), Paper, Stone, Ink and Indigo
+- Global shortcuts for a quick note and for showing or hiding Nibmark; on Windows and Linux, an optional system tray icon
 - Write your own themes as CSS files, and tweak anything with a personal `styles.css`
 
 ## Keyboard shortcuts
@@ -61,7 +81,11 @@ Nibmark keeps your notes as plain Markdown, organized in nested notebooks, tags 
 | --- | --- |
 | `⌘N` | New note |
 | `⌘T` | New note from template |
-| `⌘K` | Command palette (`>` commands, `@` notebooks, `#` tags, `:` headings) |
+| `⌘K` | Command palette (`>` commands, `@` notebooks, `#` tags, `:` headings, `[` tasks) |
+| `⌘J` | Actions for the current note (move, tag, status, export…) |
+| `⌘D` | Duplicate the note (outside the editor) |
+| `⌘⇧N` | Open the note in a new window |
+| `⌘F` | Find in the editor, or in the preview when the editor isn't focused |
 | `⌘E` | Toggle preview |
 | `⌘P` | Toggle side-by-side view |
 | `⌘⇧D` | Distraction-free mode |
@@ -113,7 +137,7 @@ Everything is stored in the app's user data folder (`~/Library/Application Suppo
 | `Backups/` | Default continuous backup folder (change it in Preferences) |
 | `themes/*.css` | Your own themes |
 | `styles.css` | Your personal CSS overrides |
-| `settings.json` | Backup settings |
+| `settings.json` | Backup folder, global shortcuts and tray settings |
 
 ### Writing a theme
 
@@ -127,18 +151,24 @@ Create a `.css` file in the themes folder (Preferences → Open Themes Folder). 
 --accent: #4f7a3a;
 ```
 
-Bases are `paper`, `stone`, `ink` and `indigo`. See `src/renderer/src/themes.css` for every variable.
+Bases are `mist`, `night`, `paper`, `stone`, `ink` and `indigo`. See `src/renderer/src/themes.css` for every variable.
 
 ## Project structure
 
 ```
 src/
 ├── main/                 Electron main process
-│   ├── index.ts          Window, app lifecycle
+│   ├── index.ts          Windows, app lifecycle
+│   ├── windows.ts        Tracks the main window (note windows are separate)
 │   ├── menu.ts           Application menu
-│   ├── ipc.ts            IPC handlers (dialogs, backup, export, themes)
+│   ├── ipc.ts            IPC handlers (dialogs, backup, import, export, themes, web)
 │   ├── backup.ts         Continuous JSON backup and restore reader
 │   ├── exporter.ts       Markdown export to folders
+│   ├── importer.ts       Reads files, folders and archives picked for import
+│   ├── appleNotes.ts     Apple Notes import (JXA)
+│   ├── web.ts            Page titles and GitHub snippets (http/https only, size and time limits)
+│   ├── shortcuts.ts      Global shortcuts
+│   ├── tray.ts           System tray (Windows, Linux)
 │   ├── settings.ts       settings.json in the user data folder
 │   └── themes.ts         User themes and styles.css
 ├── preload/index.ts      The only bridge between renderer and main
@@ -150,7 +180,7 @@ src/
     └── styles.css        Layout and components
 assets/icon/              Icon and logo sources (SVG + PNG)
 build/                    Packaging resources (icon.icns)
-docs/                     Feature checklist and notes
+docs/                     Roadmap and screenshot
 ```
 
 ### Design principles
@@ -162,13 +192,11 @@ docs/                     Feature checklist and notes
 
 ## Roadmap
 
-- [x] **Phase 1 — Desktop app:** editor, notebooks, tags, statuses, search, backup, export
-- [x] Themes, command palette, templates, note links, Mermaid and math
-- [x] Attachments, version history, slash commands, bulk actions, quick note
-- [x] Import, table toolbar, multiple cursors, notebook icons and order
-- [ ] **Phase 2 — Sync and security:** CouchDB sync, end-to-end encryption
-- [ ] **Phase 3 — Mobile and extensibility:** iOS and Android apps, plugin system
-- [ ] **Phase 4 — Distribution:** signed builds, accounts
+- [x] **Phase 1 — Desktop app (0.1–0.3):** editor, notebooks, tags, statuses, search, backup, import and export, themes, command palette, templates, note links, Mermaid and math, attachments, version history
+- [x] **Phase 2 — A better everyday experience (0.4):** new look, Kanban boards, editor and preview improvements, tasks palette, note windows, activity view, Apple Notes and Kindle import, HTML export
+- [ ] **Phase 3 — Sync and security:** CouchDB sync, end-to-end encryption
+- [ ] **Phase 4 — Mobile, plugins and AI:** iOS and Android apps, plugin system, optional AI assistant
+- [ ] **Phase 5 — Distribution:** signed builds, accounts
 
 The detailed roadmap is in [`docs/ROADMAP.md`](docs/ROADMAP.md).
 
