@@ -9,6 +9,9 @@ import { backupDir, defaultBackupDir, getSettings, updateSettings } from './sett
 import { ensureStylesFile, ensureThemesDir, listUserThemes, readUserStyles } from './themes'
 import { scanImport } from './importer'
 import { fetchGithubSnippet, fetchTitle } from './web'
+import { readAppleNotes, scanFromDump } from './appleNotes'
+import type { AppleNotesDump } from './appleNotes'
+import { readFileSync, statSync } from 'node:fs'
 
 export interface SettingsView {
   backupEnabled: boolean
@@ -123,6 +126,37 @@ export function registerIpc(openNoteWindow: (noteId: string) => void): void {
 
   ipcMain.handle('web:title', (_e, url: unknown) => fetchTitle(url))
   ipcMain.handle('web:githubSnippet', (_e, url: unknown) => fetchGithubSnippet(url))
+  // Apple Notes: hồ sơ thử nghiệm có thể dùng dữ liệu mẫu thay cho Notes thật
+  ipcMain.handle('import:appleNotes', async () => {
+    const fixture = process.env['NIBMARK_USER_DATA'] ? process.env['NIBMARK_APPLE_NOTES_FIXTURE'] : undefined
+    if (fixture) return scanFromDump(JSON.parse(readFileSync(fixture, 'utf8')) as AppleNotesDump)
+    return readAppleNotes()
+  })
+  // Kindle: người dùng chọn file "My Clippings.txt"
+  ipcMain.handle('import:kindlePick', async (event) => {
+    const res = await dialog.showOpenDialog(win(event)!, {
+      title: 'Import Kindle Highlights',
+      buttonLabel: 'Import',
+      message: 'Choose “My Clippings.txt” from the documents folder of your Kindle.',
+      properties: ['openFile'],
+      filters: [{ name: 'Kindle clippings', extensions: ['txt'] }]
+    })
+    const path = res.filePaths[0]
+    if (res.canceled || !path) return null
+    if (statSync(path).size > 50 * 1024 * 1024) return { error: 'This file is larger than 50 MB.' }
+    return { text: readFileSync(path, 'utf8') }
+  })
+  ipcMain.handle('export:html', async (event, title: unknown, html: unknown) => {
+    if (typeof title !== 'string' || typeof html !== 'string') return null
+    const res = await dialog.showSaveDialog(win(event)!, {
+      title: 'Export Note as HTML',
+      defaultPath: `${safeName(title)}.html`,
+      filters: [{ name: 'HTML', extensions: ['html'] }]
+    })
+    if (res.canceled || !res.filePath) return null
+    await writeFile(res.filePath, html, 'utf8')
+    return res.filePath
+  })
   ipcMain.handle('app:openDataFolder', async () => (await shell.openPath(app.getPath('userData'))) || null)
   ipcMain.handle('themes:list', () => listUserThemes())
   // Lớp trong mờ của macOS (vibrancy) theo giao diện hệ thống; đổi sang sáng/tối

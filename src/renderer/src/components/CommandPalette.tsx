@@ -3,7 +3,9 @@ import { FileText, Hash, Heading, LayoutTemplate, ListChecks, Notebook, Palette,
 import { collectTasks } from '@/lib/tasks'
 import { toggleTask } from '@/lib/markdown'
 import { backupNow, exportNote, exportNotes, restoreFromBackup } from '@/lib/actions'
-import { runImport } from '@/lib/importer'
+import { runAppleNotesImport, runImport } from '@/lib/importer'
+import { runKindleImport } from '@/lib/kindle'
+import { exportNoteHtml } from '@/lib/exportHtml'
 import { fuzzyMatch } from '@/lib/fuzzy'
 import { useStore } from '@/lib/store'
 import { allTemplates, applyTemplate, fillPlaceholders } from '@/lib/templates'
@@ -119,6 +121,7 @@ function noteActionItems(id: string, withTargets = false): Item[] {
       if (s.saveTemplate(id)) s.showNotice(`Saved "${note.title || 'Untitled'}" as a template.`)
     }),
     cmd('export-note', 'Export Note as Markdown…', () => void exportNote(id)),
+    cmd('export-html', 'Export Note as HTML…', () => void exportNoteHtml(id), undefined, 'web page save share'),
     cmd('copy-link', 'Copy Note Link', () => copyNoteLink(id), undefined, 'markdown reference'),
     cmd('copy-id', 'Copy Note ID', () => copyId(id)),
     cmd('history', 'Show Version History…', () => openHistory(id), undefined, 'revisions versions restore undo diff'),
@@ -177,6 +180,8 @@ function commandItems(): Item[] {
     cmd('tasks', 'Show Open Tasks…', () => s.setPalette('tasks'), undefined, 'todo to-do checklist checkbox'),
     cmd('prefs', 'Open Preferences', () => s.setPrefsOpen(true), `${mod()},`, 'settings options'),
     cmd('import', 'Import Notes…', () => void runImport(), undefined, 'markdown html evernote enex notion bear obsidian'),
+    ...(window.nibmark?.platform === 'darwin' ? [cmd('import-apple', 'Import from Apple Notes…', () => void runAppleNotesImport(), undefined, 'icloud notes')] : []),
+    cmd('import-kindle', 'Import Kindle Highlights…', () => void runKindleImport(), undefined, 'my clippings books reading'),
     cmd('export-all', 'Export All Notes as Markdown…', () => void exportNotes(null), undefined, 'save download'),
     cmd('backup', 'Back Up Now', () => void backupNow(), undefined, 'save'),
     cmd('restore', 'Restore from Backup…', () => void restoreFromBackup())

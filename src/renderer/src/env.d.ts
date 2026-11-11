@@ -71,6 +71,7 @@ interface NibmarkBridge {
   }
   exporter: {
     note(title: string, content: string, attachments?: { name: string; data: Uint8Array }[]): Promise<string | null>
+    html(title: string, html: string): Promise<string | null>
     tree(
       label: string,
       files: { folders: string[]; name: string; content: string }[],
@@ -108,6 +109,10 @@ interface NibmarkBridge {
   importer: {
     /** null = người dùng hủy */
     pick(): Promise<NibmarkImportScan | null>
+    /** Đọc Apple Notes (macOS sẽ hỏi quyền ở lần đầu) */
+    appleNotes(): Promise<NibmarkImportScan | { error: string }>
+    /** Chọn và đọc file "My Clippings.txt" */
+    kindlePick(): Promise<{ text: string } | { error: string } | null>
   }
   onMenu(callback: (command: string) => void): () => void
 }
