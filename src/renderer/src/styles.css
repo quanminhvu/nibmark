@@ -3080,3 +3080,17 @@ html.vibrant .app.note-window .notepane {
   background: var(--surface-2);
   font-weight: 400;
 }
+
+/* Sửa: quy tắc cũ ".side-heading button" (ô vuông 20px, nền khi rê chuột) đè lên nút tiêu đề,
+   làm chữ bị bóp và mũi tên rơi xuống dòng dưới */
+.side-heading .side-heading-title {
+  display: inline-flex;
+  width: auto;
+  height: 22px;
+  padding: 0;
+  white-space: nowrap;
+  background: none;
+}
+.side-heading .side-heading-title:hover {
+  background: none;
+}
