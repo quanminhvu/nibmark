@@ -2729,3 +2729,64 @@ html.vibrant .sidebar {
   min-height: 28px;
   padding: 4px 8px;
 }
+
+/* ── Tùy chọn editor ── */
+.editor-host .cm-task-done {
+  color: var(--ink-3);
+  text-decoration: line-through;
+}
+.editor-host .cm-line.cm-nowrap {
+  white-space: pre;
+  overflow-wrap: normal;
+  word-break: normal;
+}
+.editor-host.readable .cm-content {
+  max-width: 760px;
+}
+.editor-host .cm-line.cm-alert {
+  --alert: var(--status-active);
+  border-left: 3px solid var(--alert);
+  background: color-mix(in srgb, var(--alert) 7%, transparent);
+}
+.editor-host .cm-line.cm-alert-head {
+  color: var(--alert);
+  font-weight: 600;
+}
+.editor-host .cm-alert-tip {
+  --alert: var(--status-completed);
+}
+.editor-host .cm-alert-important {
+  --alert: var(--syn-type);
+}
+.editor-host .cm-alert-warning {
+  --alert: var(--status-onhold);
+}
+.editor-host .cm-alert-caution,
+.markdown-body .markdown-alert-caution {
+  --alert: #e0484e;
+}
+.cm-format-toolbar .tb-alert {
+  font-weight: 700;
+  color: var(--status-onhold);
+}
+/* Preview: gạch ngang task đã xong (bỏ qua mục có danh sách con, để không gạch cả việc con) */
+html.strike-done .markdown-body .task-list-item:has(> input:checked):not(:has(ul, ol)) {
+  color: var(--ink-3);
+  text-decoration: line-through;
+}
+
+.pref-section > .pref-toggle + .pref-toggle {
+  margin-top: 6px;
+}
+.pref-section > .pref-toggle:last-of-type + .pref-row {
+  margin-top: 10px;
+}
+.pref-select {
+  height: 28px;
+  padding: 0 8px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  background: var(--surface-2);
+  color: var(--ink);
+  font: inherit;
+}

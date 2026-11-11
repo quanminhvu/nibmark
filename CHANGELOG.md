@@ -6,10 +6,18 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
+### Fixed
+
+- A relative `NIBMARK_USER_DATA` path was ignored, so a development or test run could open your real notes; it is now resolved to an absolute path
+
 ### Added
 
 - Kanban boards: a note with `view: kanban` in its front matter shows as a board in the preview. Each `##` heading is a column and each top-level list item is a card. Drag cards between columns, add, rename (double-click), check off and delete cards, and add or rename columns; every change is written back to the note's Markdown. Cards show their tags and sub-task progress. Boards from Obsidian's Kanban plugin open too
 - Kanban Board template
+- Preferences → Editor: show or hide line numbers, limit line width, turn spell checking on or off, strike through completed tasks (editor and preview), and choose how lines wrap: all lines, text only (code blocks and tables keep their lines), or none
+- Alert button in the formatting toolbar; alert blocks are colored in the editor too
+- Note actions menu (`⌘J`): pin, duplicate, move to a notebook, add or remove tags, set status, copy link, export, history, save as template, trash
+- `⌘D` outside the editor duplicates the current note (inside the editor it still selects the next match)
 - Mist and Night themes: a clean white and light-gray look with a blue accent, and its dark counterpart. They are now the default when the theme follows macOS (Paper, Stone, Ink and Indigo are still available)
 
 ### Changed

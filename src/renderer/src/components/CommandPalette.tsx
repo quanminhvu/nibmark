@@ -63,6 +63,62 @@ function headingsOf(body: string): { text: string; level: number; line: number }
   return out
 }
 
+/** Các hành động trên một ghi chú: dùng trong palette chung và menu ⌘J. */
+function noteActionItems(id: string, withTargets = false): Item[] {
+  const s = useStore.getState()
+  const note = s.notes[id]
+  if (!note || note.trashed) return []
+  const cmd = (key: string, label: string, run: () => void, shortcut?: string, keywords?: string): Item => ({
+    id: `note:${key}`,
+    section: 'Commands',
+    label,
+    shortcut,
+    keywords,
+    icon: <TerminalSquare size={15} />,
+    run
+  })
+  const items: Item[] = [
+    cmd('pin', note.pinned ? 'Unpin Note' : 'Pin Note to Top', () => s.updateNote(id, { pinned: !note.pinned }), undefined, 'favorite'),
+    cmd('duplicate', 'Duplicate Note', () => s.duplicateNote(id), `${mod()}D`, 'copy'),
+    cmd('save-template', 'Save Note as Template', () => {
+      if (s.saveTemplate(id)) s.showNotice(`Saved "${note.title || 'Untitled'}" as a template.`)
+    }),
+    cmd('export-note', 'Export Note as Markdown…', () => void exportNote(id)),
+    cmd('copy-link', 'Copy Note Link', () => copyNoteLink(id), undefined, 'markdown reference'),
+    cmd('copy-id', 'Copy Note ID', () => copyId(id)),
+    cmd('history', 'Show Version History…', () => openHistory(id), undefined, 'revisions versions restore undo diff'),
+    cmd('trash', 'Move Note to Trash', () => s.trashNote(id), undefined, 'delete remove'),
+    cmd('status-none', 'Set Status: None', () => s.updateNote(id, { status: 'none' }), undefined, 'clear'),
+    ...STATUSES.map((st) => cmd(`status-${st.id}`, `Set Status: ${st.label}`, () => s.updateNote(id, { status: st.id })))
+  ]
+  if (!withTargets) return items
+  // Menu ⌘J: thêm chuyển notebook và gắn/bỏ tag
+  const books = Object.values(s.books)
+    .filter((b) => b._id !== note.bookId)
+    .sort((a, b) => a.name.localeCompare(b.name))
+    .map<Item>((b) => ({
+      id: `move:${b._id}`,
+      section: 'Notebooks',
+      label: `Move to ${b.name}`,
+      detail: b.parentId && s.books[b.parentId] ? `in ${s.books[b.parentId].name}` : undefined,
+      icon: <Notebook size={15} />,
+      run: () => s.updateNote(id, { bookId: b._id })
+    }))
+  const tags = Object.values(s.tags)
+    .sort((a, b) => a.name.localeCompare(b.name))
+    .map<Item>((t) => {
+      const has = note.tags.includes(t._id)
+      return {
+        id: `tag:${t._id}`,
+        section: 'Tags',
+        label: `${has ? 'Remove' : 'Add'} Tag: ${t.name}`,
+        icon: <Hash size={15} style={{ color: t.color }} />,
+        run: () => s.updateNote(id, { tags: has ? note.tags.filter((x) => x !== t._id) : [...note.tags, t._id] })
+      }
+    })
+  return [...items, ...books, ...tags]
+}
+
 function commandItems(): Item[] {
   const s = useStore.getState()
   const note = s.selectedNoteId ? s.notes[s.selectedNoteId] : undefined
@@ -88,22 +144,7 @@ function commandItems(): Item[] {
     cmd('backup', 'Back Up Now', () => void backupNow(), undefined, 'save'),
     cmd('restore', 'Restore from Backup…', () => void restoreFromBackup())
   ]
-  if (note && !note.trashed) {
-    items.push(
-      cmd('pin', note.pinned ? 'Unpin Note' : 'Pin Note to Top', () => s.updateNote(note._id, { pinned: !note.pinned })),
-      cmd('duplicate', 'Duplicate Note', () => s.duplicateNote(note._id), undefined, 'copy'),
-      cmd('save-template', 'Save Note as Template', () => {
-        if (s.saveTemplate(note._id)) s.showNotice(`Saved "${note.title || 'Untitled'}" as a template.`)
-      }),
-      cmd('export-note', 'Export Note as Markdown…', () => void exportNote(note._id)),
-      cmd('copy-link', 'Copy Note Link', () => copyNoteLink(note._id), undefined, 'markdown reference'),
-      cmd('copy-id', 'Copy Note ID', () => copyId(note._id)),
-      cmd('history', 'Show Version History…', () => openHistory(note._id), undefined, 'revisions versions restore undo diff'),
-      cmd('trash', 'Move Note to Trash', () => s.trashNote(note._id), undefined, 'delete remove'),
-      cmd('status-none', 'Set Status: None', () => s.updateNote(note._id, { status: 'none' }), undefined, 'clear'),
-      ...STATUSES.map((st) => cmd(`status-${st.id}`, `Set Status: ${st.label}`, () => s.updateNote(note._id, { status: st.id })))
-    )
-  }
+  if (note && !note.trashed) items.push(...noteActionItems(note._id))
   // Lệnh soạn thảo: chỉ khi đang có editor (không ở chế độ preview hay ghi chú trong thùng rác)
   if (getActiveEditor()) {
     const ed = (id: string, label: string, run: Parameters<typeof runEditorCommand>[0], shortcut?: string, keywords?: string): Item =>
@@ -142,8 +183,12 @@ function themeItems(): Item[] {
   }))
 }
 
-function buildItems(mode: 'commands' | 'templates', raw: string): { items: Item[]; query: string } {
+function buildItems(mode: 'commands' | 'templates' | 'actions', raw: string): { items: Item[]; query: string } {
   const s = useStore.getState()
+
+  if (mode === 'actions') {
+    return { items: s.selectedNoteId ? noteActionItems(s.selectedNoteId, true) : [], query: raw }
+  }
 
   if (mode === 'templates') {
     const note = s.selectedNoteId ? s.notes[s.selectedNoteId] : undefined
@@ -256,7 +301,7 @@ export function CommandPalette(): React.JSX.Element | null {
   return <PaletteBody key={mode} mode={mode} />
 }
 
-function PaletteBody({ mode }: { mode: 'commands' | 'templates' }): React.JSX.Element {
+function PaletteBody({ mode }: { mode: 'commands' | 'templates' | 'actions' }): React.JSX.Element {
   const [raw, setRaw] = useState('')
   const [active, setActive] = useState(0)
   const listRef = useRef<HTMLDivElement>(null)
@@ -342,7 +387,13 @@ function PaletteBody({ mode }: { mode: 'commands' | 'templates' }): React.JSX.El
             autoFocus
             value={raw}
             spellCheck={false}
-            placeholder={mode === 'templates' ? 'Choose a template…' : 'Search notes, commands, notebooks, tags…'}
+            placeholder={
+              mode === 'templates'
+                ? 'Choose a template…'
+                : mode === 'actions'
+                  ? `Actions for “${useStore.getState().notes[useStore.getState().selectedNoteId ?? '']?.title || 'Untitled'}”…`
+                  : 'Search notes, commands, notebooks, tags…'
+            }
             onChange={(e) => setRaw(e.target.value)}
             onKeyDown={onKeyDown}
           />

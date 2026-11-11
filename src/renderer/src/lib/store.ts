@@ -60,7 +60,7 @@ export interface State extends Prefs {
   multi: string[]
   setMulti: (ids: string[]) => void
   /** Command palette đang mở ở chế độ nào */
-  palette: 'commands' | 'templates' | null
+  palette: 'commands' | 'templates' | 'actions' | null
   notice: { text: string; tone: 'info' | 'error'; id: number } | null
 
   init: () => Promise<void>
@@ -74,7 +74,7 @@ export interface State extends Prefs {
   toggleDistractionFree: () => void
   toggleSidebar: () => void
   setPrefsOpen: (open: boolean) => void
-  setPalette: (mode: 'commands' | 'templates' | null) => void
+  setPalette: (mode: 'commands' | 'templates' | 'actions' | null) => void
   /** Mở một ghi chú ở bất cứ đâu, đổi sidebar nếu ghi chú đang bị ẩn khỏi danh sách */
   openNote: (id: string) => boolean
   showNotice: (text: string, tone?: 'info' | 'error') => void
