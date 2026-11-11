@@ -1,9 +1,11 @@
-import { app, BrowserWindow, shell, nativeImage } from 'electron'
+import { app, BrowserWindow, ipcMain, shell, nativeImage } from 'electron'
 import { isAbsolute, join, resolve } from 'node:path'
-import { registerIpc } from './ipc'
+import { registerIpc, settingsView } from './ipc'
 import { getMainWindow, setMainWindow } from './windows'
 import { buildMenu } from './menu'
 import { registerShortcuts } from './shortcuts'
+import { applyTray, hideOnClose, setupTray } from './tray'
+import { updateSettings } from './settings'
 
 const isDev = !app.isPackaged && !!process.env['ELECTRON_RENDERER_URL']
 
@@ -75,6 +77,7 @@ function createWindow(noteId?: string): BrowserWindow {
   }
   if (!noteId) {
     setMainWindow(win)
+    hideOnClose(win)
     // macOS: vuốt ba ngón (nếu bật trong cài đặt trackpad) để back/forward
     win.on('swipe', (_e, direction) => {
       if (direction === 'left' || direction === 'right') win.webContents.send('menu', direction === 'right' ? 'back' : 'forward')
@@ -97,7 +100,22 @@ app.whenReady().then(() => {
   registerIpc(openNoteWindow)
   buildMenu()
   createWindow()
-  registerShortcuts(getOrCreateWindow)
+  const shortcutActions = registerShortcuts(getOrCreateWindow)
+  const trayActions = {
+    show: () => {
+      const win = getOrCreateWindow()
+      if (win.isMinimized()) win.restore()
+      win.show()
+      win.focus()
+    },
+    quickNote: shortcutActions.quickNote
+  }
+  setupTray(trayActions)
+  ipcMain.handle('settings:setTray', (_e, enabled: unknown) => {
+    if (typeof enabled === 'boolean') updateSettings({ trayEnabled: enabled })
+    applyTray(trayActions)
+    return settingsView()
+  })
   app.on('activate', () => {
     if (!getMainWindow()) createWindow()
   })

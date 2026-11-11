@@ -18,11 +18,13 @@ export interface SettingsView {
   backupDir: string
   isDefaultDir: boolean
   lastBackupAt: number | null
+  trayEnabled: boolean
+  traySupported: boolean
 }
 
 function view(): SettingsView {
   const s = getSettings()
-  return { backupEnabled: s.backupEnabled, backupDir: backupDir(), isDefaultDir: s.backupDir === null, lastBackupAt: s.lastBackupAt }
+  return { backupEnabled: s.backupEnabled, backupDir: backupDir(), isDefaultDir: s.backupDir === null, lastBackupAt: s.lastBackupAt, trayEnabled: s.trayEnabled, traySupported: process.platform !== 'darwin' }
 }
 
 const today = (): string => {
@@ -44,6 +46,8 @@ function isExportFiles(value: unknown): value is ExportFile[] {
     )
   )
 }
+
+export { view as settingsView }
 
 export function registerIpc(openNoteWindow: (noteId: string) => void): void {
   ipcMain.on('window:openNote', (_e, id: unknown) => {

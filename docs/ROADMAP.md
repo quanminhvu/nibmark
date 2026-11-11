@@ -9,11 +9,11 @@ Ký hiệu: `[x]` đã xong · `[ ]` chưa làm · *(một phần: …)* đã l�
 | Giai đoạn | Số mục | Đã xong |
 |---|---|---|
 | 1. Ứng dụng desktop (đã phát hành tới 0.3) | 53 | 53 |
-| 2. Hoàn thiện trải nghiệm (đang làm) | 38 | 23 |
+| 2. Hoàn thiện trải nghiệm (đang làm) | 31 | 25 |
 | 3. Đồng bộ và bảo mật | 8 | 0 |
 | 4. Mobile, plugin và AI | 20 | 0 |
 | 5. Phát hành rộng và mô hình kinh doanh | 9 | 0 |
-| **Tổng** | **128** | **76** |
+| **Tổng** | **121** | **78** |
 
 ---
 
@@ -129,7 +129,6 @@ Làm được ngay, không phụ thuộc đồng bộ.
 
 ### Tổ chức và điều hướng
 
-- [ ] Workspace: thu sidebar vào một nhánh notebook
 - [x] Thống kê hoạt động: ghi chú tạo mới và task theo 52 tuần, chuỗi ngày liên tục
 - [x] Tìm mờ trong menu notebook, menu tag và ô nhập tag
 - [x] Mở ghi chú trong cửa sổ riêng (⌘⇧N)
@@ -137,16 +136,10 @@ Làm được ngay, không phụ thuộc đồng bộ.
 - [x] Vuốt trackpad để back/forward
 - [x] Xem trước template khi chọn; đặt sẵn notebook trong template
 
-### Phím tắt và tự động hóa
+### Phím tắt
 
-- [ ] Keymap tùy chỉnh theo ngữ cảnh (editor, danh sách ghi chú, toàn app), hỗ trợ chuỗi nhiều phím
-- [ ] Chế độ phím Vim
-- [ ] Chế độ phím Sublime Text
-- [ ] Phím tắt toàn cục ẩn/hiện cửa sổ
-- [ ] `init.js`: script chạy khi khởi động
-- [ ] Kéo ghi chú vào terminal hoặc editor khác để dán link
-- [ ] Local HTTP server cho script và công cụ tự động hóa
-- [ ] Tích hợp Alfred và Raycast
+- [x] Phím tắt toàn cục ẩn/hiện cửa sổ
+- [x] Kéo ghi chú vào terminal hoặc editor khác để dán link
 
 ### Dữ liệu
 
@@ -159,9 +152,18 @@ Làm được ngay, không phụ thuộc đồng bộ.
 - [ ] Bản Windows (x64, ARM64) *(một phần: CI đã build bộ cài, chưa thử trên máy thật)*
 - [ ] Bản Linux *(một phần: CI đã build AppImage, chưa thử trên máy thật)*
 - [ ] Bản macOS chip Intel *(một phần: CI đã build, chưa thử trên máy thật)*
-- [ ] Chế độ chạy nền ở khay hệ thống (Windows, Linux)
+- [ ] Chế độ chạy nền ở khay hệ thống (Windows, Linux) *(một phần: đã làm, chưa thử trên máy Windows/Linux thật)*
 - [ ] Chỉ mục tìm kiếm SQLite cho thư viện rất lớn (hàng chục nghìn ghi chú)
 - [ ] Hỗ trợ proxy công ty (có xác thực, chứng chỉ tự ký) và công cụ chẩn đoán mạng
+
+### Tạm gác
+
+Chưa làm trong giai đoạn này (không tính vào tiến độ), có thể xem lại sau:
+
+- Workspace: thu sidebar vào một nhánh notebook
+- Keymap tùy chỉnh theo ngữ cảnh, chuỗi nhiều phím; chế độ phím Vim và Sublime Text
+- `init.js`: script chạy khi khởi động
+- Local HTTP server cho script và công cụ tự động hóa; tích hợp Alfred và Raycast
 
 ---
 

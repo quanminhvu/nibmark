@@ -11,7 +11,7 @@ import { openInNewWindow } from '@/lib/windowMode'
 import { exportNoteHtml } from '@/lib/exportHtml'
 import { exportNote } from '@/lib/actions'
 import { openHistory } from './HistoryPanel'
-import { copyId, copyNoteLink } from '@/lib/clipboard'
+import { copyId, copyNoteLink, noteLinkMarkdown } from '@/lib/clipboard'
 import { openMenu } from './ContextMenu'
 import type { MenuItem } from './ContextMenu'
 import { NOTE_MIME } from './Sidebar'
@@ -249,7 +249,9 @@ export function NoteList({ searchRef }: { searchRef: React.RefObject<HTMLInputEl
               onDragStart={(e) => {
                 const ids = multiSet.has(note._id) && multi.length > 1 ? multi : [note._id]
                 e.dataTransfer.setData(NOTE_MIME, JSON.stringify(ids))
-                e.dataTransfer.effectAllowed = 'move'
+                // Thả sang editor khác, terminal hoặc vào một ghi chú: dán link Markdown của ghi chú
+                e.dataTransfer.setData('text/plain', ids.map(noteLinkMarkdown).join('\n'))
+                e.dataTransfer.effectAllowed = 'copyMove'
               }}
               onClick={(e) => clickNote(e, note._id)}
               onContextMenu={(e) => {

@@ -11,9 +11,20 @@ export interface Settings {
   lastBackupAt: number | null
   /** Phím tắt toàn cục để ghi nhanh; chuỗi rỗng = tắt */
   quickNoteShortcut: string
+  /** Phím tắt toàn cục ẩn/hiện cửa sổ; chuỗi rỗng = tắt (mặc định) */
+  toggleShortcut: string
+  /** Windows/Linux: đóng cửa sổ thì chạy nền ở khay hệ thống */
+  trayEnabled: boolean
 }
 
-const defaults: Settings = { backupEnabled: true, backupDir: null, lastBackupAt: null, quickNoteShortcut: 'CommandOrControl+Alt+N' }
+const defaults: Settings = {
+  backupEnabled: true,
+  backupDir: null,
+  lastBackupAt: null,
+  quickNoteShortcut: 'CommandOrControl+Alt+N',
+  toggleShortcut: '',
+  trayEnabled: false
+}
 
 const file = (): string => join(app.getPath('userData'), 'settings.json')
 
@@ -27,7 +38,9 @@ export function getSettings(): Settings {
       backupEnabled: typeof raw.backupEnabled === 'boolean' ? raw.backupEnabled : defaults.backupEnabled,
       backupDir: typeof raw.backupDir === 'string' && isAbsolute(raw.backupDir) ? raw.backupDir : null,
       lastBackupAt: typeof raw.lastBackupAt === 'number' ? raw.lastBackupAt : null,
-      quickNoteShortcut: typeof raw.quickNoteShortcut === 'string' ? raw.quickNoteShortcut : defaults.quickNoteShortcut
+      quickNoteShortcut: typeof raw.quickNoteShortcut === 'string' ? raw.quickNoteShortcut : defaults.quickNoteShortcut,
+      toggleShortcut: typeof raw.toggleShortcut === 'string' ? raw.toggleShortcut : defaults.toggleShortcut,
+      trayEnabled: typeof raw.trayEnabled === 'boolean' ? raw.trayEnabled : defaults.trayEnabled
     }
   } catch {
     cache = { ...defaults }
