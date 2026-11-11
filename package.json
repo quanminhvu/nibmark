@@ -22,7 +22,6 @@
     "dist": "electron-vite build && npm run check:bundle && electron-builder --publish never"
   },
   "devDependencies": {
-    "@types/dompurify": "^3.0.5",
     "@types/markdown-it": "^14.2.0",
     "@types/node": "^26.6.6",
     "@types/pouchdb-browser": "^6.1.5",
