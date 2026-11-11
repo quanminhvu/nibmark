@@ -1,0 +1,18 @@
+version: 2
+updates:
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 5
+    groups:
+      codemirror:
+        patterns: ['@codemirror/*', '@lezer/*', 'codemirror']
+      markdown:
+        patterns: ['markdown-it*', '@vscode/markdown-it-katex', 'katex', 'mermaid', 'highlight.js', 'dompurify']
+      build-tooling:
+        patterns: ['electron', 'electron-vite', 'electron-builder', 'vite', '@vitejs/*', 'typescript', '@types/*']
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: monthly
