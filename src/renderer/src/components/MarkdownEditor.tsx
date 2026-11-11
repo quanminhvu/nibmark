@@ -238,7 +238,12 @@ export function MarkdownEditor({ value, readOnly = false, onChange }: Props): Re
               const text = event.clipboardData?.getData('text/plain').trim() ?? ''
               const { main } = view.state.selection
               if (view.state.selection.ranges.length > 1 || !/^https?:\/\/\S+$/.test(text)) return false
-              if (main.empty) return pasteUrl(view, text)
+              if (main.empty) {
+                if (!pasteUrl(view, text)) return false
+                // Đã tự chèn: chặn thao tác dán mặc định để URL không bị chèn lần nữa
+                event.preventDefault()
+                return true
+              }
               const selected = view.state.sliceDoc(main.from, main.to)
               if (selected.includes('\n') || /^https?:\/\//.test(selected.trim())) return false
               const insert = `[${selected}](${text})`

@@ -21,12 +21,19 @@ export function startSwipeNavigation(): () => void {
   let total = 0
   let last = 0
   let blockedUntil = 0
+  // Một cử chỉ (các sự kiện cách nhau < QUIET_MS) đã từng cuộn một vùng cuộn ngang được:
+  // bỏ qua cả phần còn lại của cử chỉ đó, kể cả khi vùng đã cuộn tới mép (quán tính)
+  let gestureScrolled = false
   const onWheel = (e: WheelEvent): void => {
     if (e.ctrlKey || Math.abs(e.deltaX) < Math.abs(e.deltaY) * 2) return
     const now = performance.now()
-    if (now - last > QUIET_MS) total = 0
+    if (now - last > QUIET_MS) {
+      total = 0
+      gestureScrolled = false
+    }
     last = now
-    if (now < blockedUntil || canScrollX(e.target, e.deltaX)) {
+    if (canScrollX(e.target, e.deltaX)) gestureScrolled = true
+    if (now < blockedUntil || gestureScrolled) {
       total = 0
       return
     }
