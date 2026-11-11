@@ -1,18 +1,16 @@
-import { useMemo } from 'react'
 import { ArrowLeft, ArrowRight, CircleDashed, Columns2, EllipsisVertical, Eye, LayoutTemplate, Maximize2, Minimize2, Pencil, Pin, RotateCcw, Trash2 } from 'lucide-react'
 import { useStore } from '@/lib/store'
-import { childrenByParent } from '@/lib/selectors'
 import { toggleTask } from '@/lib/markdown'
 import { STATUSES } from '@/lib/types'
-import type { Book, NoteStatus, ViewMode } from '@/lib/types'
+import type { NoteStatus, ViewMode } from '@/lib/types'
 import { cx, isMac, relativeTime } from '@/lib/util'
 import { goBack, goForward, useNav } from '@/lib/navigation'
 import { BulkPanel } from './BulkPanel'
-import { BookIcon } from './BookIcon'
 import { openMenu } from './ContextMenu'
 import { MarkdownEditor } from './MarkdownEditor'
 import { noteMenu } from './NoteList'
 import { Preview } from './Preview'
+import { NotebookPicker } from './NotebookPicker'
 import { KanbanBoard } from './KanbanBoard'
 import { isKanban } from '@/lib/kanban'
 import { StatusIcon } from './StatusIcon'
@@ -24,18 +22,6 @@ const VIEW_MODES: { mode: ViewMode; title: string; icon: React.ReactNode }[] = [
   { mode: 'preview', title: 'Preview (Cmd/Ctrl+E)', icon: <Eye size={14} /> }
 ]
 
-function flattenBooks(books: Record<string, Book>): { book: Book; depth: number }[] {
-  const children = childrenByParent(books)
-  const out: { book: Book; depth: number }[] = []
-  const walk = (parent: string | null, depth: number): void => {
-    for (const book of children.get(parent) ?? []) {
-      out.push({ book, depth })
-      walk(book._id, depth + 1)
-    }
-  }
-  walk(null, 0)
-  return out
-}
 
 export function NotePane(): React.JSX.Element {
   const note = useStore((s) => (s.selectedNoteId ? s.notes[s.selectedNoteId] : undefined))
@@ -43,7 +29,6 @@ export function NotePane(): React.JSX.Element {
   const viewMode = useStore((s) => s.viewMode)
   const distractionFree = useStore((s) => s.distractionFree)
   const { updateNote, setViewMode, toggleDistractionFree, restoreNote, deleteNoteForever } = useStore.getState()
-  const bookOptions = useMemo(() => flattenBooks(books), [books])
   const multiCount = useStore((s) => s.multi.length)
 
   if (multiCount > 1) return <BulkPanel />
@@ -136,17 +121,7 @@ export function NotePane(): React.JSX.Element {
         </div>
       ) : (
         <div className="note-meta">
-          <label className="meta-field" title="Notebook">
-            <BookIcon name={books[note.bookId]?.icon} size={15} />
-            <select value={books[note.bookId] ? note.bookId : ''} onChange={(e) => updateNote(note._id, { bookId: e.target.value })}>
-              {!books[note.bookId] && <option value="">No notebook</option>}
-              {bookOptions.map(({ book, depth }) => (
-                <option key={book._id} value={book._id}>
-                  {'  '.repeat(depth) + book.name}
-                </option>
-              ))}
-            </select>
-          </label>
+          <NotebookPicker value={books[note.bookId] ? note.bookId : ''} placeholder="No notebook" onPick={(bookId) => updateNote(note._id, { bookId })} />
           <label className="meta-field" title="Status">
             {note.status === 'none' ? <CircleDashed size={15} className="status-none" /> : <StatusIcon status={note.status} size={15} />}
             <select value={note.status} onChange={(e) => updateNote(note._id, { status: e.target.value as NoteStatus })}>

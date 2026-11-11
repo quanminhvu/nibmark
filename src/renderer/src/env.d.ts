@@ -81,6 +81,8 @@ interface NibmarkBridge {
     /** Trả về thông báo lỗi, hoặc null nếu mở được */
     open(id: string, name: string, bytes: Uint8Array): Promise<string | null>
   }
+  /** Mở một ghi chú trong cửa sổ riêng */
+  openNoteWindow(id: string): void
   web: {
     /** Tiêu đề trang web (og:title hoặc <title>), null nếu không lấy được */
     title(url: string): Promise<string | null>

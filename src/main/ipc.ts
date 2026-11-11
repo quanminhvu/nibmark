@@ -42,7 +42,10 @@ function isExportFiles(value: unknown): value is ExportFile[] {
   )
 }
 
-export function registerIpc(): void {
+export function registerIpc(openNoteWindow: (noteId: string) => void): void {
+  ipcMain.on('window:openNote', (_e, id: unknown) => {
+    if (typeof id === 'string' && /^note:[A-Za-z0-9_-]{1,64}$/.test(id)) openNoteWindow(id)
+  })
   const win = (event: Electron.IpcMainInvokeEvent): BrowserWindow | undefined =>
     BrowserWindow.fromWebContents(event.sender) ?? undefined
 

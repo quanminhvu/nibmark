@@ -29,6 +29,7 @@ contextBridge.exposeInMainWorld('nibmark', {
     githubSnippet: (url: string) => ipcRenderer.invoke('web:githubSnippet', url)
   },
   openDataFolder: () => ipcRenderer.invoke('app:openDataFolder'),
+  openNoteWindow: (id: string) => ipcRenderer.send('window:openNote', id),
   importer: {
     pick: () => ipcRenderer.invoke('import:pick')
   },

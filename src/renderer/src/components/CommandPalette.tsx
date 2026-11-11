@@ -1,5 +1,7 @@
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
-import { FileText, Hash, Heading, LayoutTemplate, Notebook, Palette, Search, TerminalSquare } from 'lucide-react'
+import { FileText, Hash, Heading, LayoutTemplate, ListChecks, Notebook, Palette, Search, Square, TerminalSquare } from 'lucide-react'
+import { collectTasks } from '@/lib/tasks'
+import { toggleTask } from '@/lib/markdown'
 import { backupNow, exportNote, exportNotes, restoreFromBackup } from '@/lib/actions'
 import { runImport } from '@/lib/importer'
 import { fuzzyMatch } from '@/lib/fuzzy'
@@ -12,6 +14,7 @@ import { cx, isMac, relativeTime } from '@/lib/util'
 import { StatusIcon } from './StatusIcon'
 import { openHistory } from './HistoryPanel'
 import { copyId, copyNoteLink } from '@/lib/clipboard'
+import { noteWindowId, openInNewWindow } from '@/lib/windowMode'
 import {
   duplicateLine,
   getActiveEditor,
@@ -27,7 +30,7 @@ import {
   upperCase
 } from '@/lib/editorCommands'
 
-type Section = 'Commands' | 'Notes' | 'Notebooks' | 'Tags' | 'Status' | 'Themes' | 'Headings' | 'Templates'
+type Section = 'Commands' | 'Notes' | 'Notebooks' | 'Tags' | 'Status' | 'Themes' | 'Headings' | 'Templates' | 'Open Tasks'
 
 interface Item {
   id: string
@@ -41,6 +44,31 @@ interface Item {
   run: () => void
   /** Xem thử khi đang chọn (dùng cho theme) */
   preview?: () => void
+  /** ⌘↵: hành động phụ, palette vẫn mở (ví dụ đánh dấu task xong) */
+  altRun?: () => void
+}
+
+function taskItems(): Item[] {
+  const s = useStore.getState()
+  return collectTasks(s.notes)
+    .filter((t) => !t.done)
+    .map<Item>((t) => ({
+      id: `task:${t.noteId}:${t.line}`,
+      section: 'Open Tasks',
+      label: t.text,
+      detail: t.noteTitle,
+      keywords: t.noteTitle,
+      icon: <Square size={15} />,
+      run: () => {
+        if (!s.openNote(t.noteId)) return
+        // Chờ editor của ghi chú mở xong rồi nhảy tới dòng của task
+        setTimeout(() => gotoHeading(t.line, -1), 60)
+      },
+      altRun: () => {
+        const note = useStore.getState().notes[t.noteId]
+        if (note) useStore.getState().updateNote(t.noteId, { body: toggleTask(note.body, t.index) })
+      }
+    }))
 }
 
 const mod = (): string => (isMac() ? '⌘' : 'Ctrl+')
@@ -80,6 +108,7 @@ function noteActionItems(id: string, withTargets = false): Item[] {
   const items: Item[] = [
     cmd('pin', note.pinned ? 'Unpin Note' : 'Pin Note to Top', () => s.updateNote(id, { pinned: !note.pinned }), undefined, 'favorite'),
     cmd('duplicate', 'Duplicate Note', () => s.duplicateNote(id), `${mod()}D`, 'copy'),
+    ...(window.nibmark && !noteWindowId ? [cmd('window', 'Open in New Window', () => openInNewWindow(id), `${mod()}${shift()}N`, 'separate window detach')] : []),
     cmd('save-template', 'Save Note as Template', () => {
       if (s.saveTemplate(id)) s.showNotice(`Saved "${note.title || 'Untitled'}" as a template.`)
     }),
@@ -138,6 +167,7 @@ function commandItems(): Item[] {
     cmd('preview', 'Toggle Preview', () => s.setViewMode(useStore.getState().viewMode === 'preview' ? 'edit' : 'preview'), `${mod()}E`),
     cmd('split', 'Toggle Side-by-Side View', () => s.setViewMode(useStore.getState().viewMode === 'split' ? 'edit' : 'split'), `${mod()}P`, 'split'),
     cmd('focus', 'Toggle Distraction-Free Mode', () => s.toggleDistractionFree(), `${mod()}${shift()}D`, 'focus zen fullscreen'),
+    cmd('tasks', 'Show Open Tasks…', () => s.setPalette('tasks'), undefined, 'todo to-do checklist checkbox'),
     cmd('prefs', 'Open Preferences', () => s.setPrefsOpen(true), `${mod()},`, 'settings options'),
     cmd('import', 'Import Notes…', () => void runImport(), undefined, 'markdown html evernote enex notion bear obsidian'),
     cmd('export-all', 'Export All Notes as Markdown…', () => void exportNotes(null), undefined, 'save download'),
@@ -183,8 +213,11 @@ function themeItems(): Item[] {
   }))
 }
 
-function buildItems(mode: 'commands' | 'templates' | 'actions', raw: string): { items: Item[]; query: string } {
+function buildItems(mode: 'commands' | 'templates' | 'actions' | 'tasks', raw: string): { items: Item[]; query: string } {
   const s = useStore.getState()
+
+  if (mode === 'tasks') return { items: taskItems(), query: raw }
+  if (raw.startsWith('[')) return { items: taskItems(), query: raw.replace(/^\[\s?\]?\s*/, '') }
 
   if (mode === 'actions') {
     return { items: s.selectedNoteId ? noteActionItems(s.selectedNoteId, true) : [], query: raw }
@@ -301,14 +334,17 @@ export function CommandPalette(): React.JSX.Element | null {
   return <PaletteBody key={mode} mode={mode} />
 }
 
-function PaletteBody({ mode }: { mode: 'commands' | 'templates' | 'actions' }): React.JSX.Element {
+function PaletteBody({ mode }: { mode: 'commands' | 'templates' | 'actions' | 'tasks' }): React.JSX.Element {
   const [raw, setRaw] = useState('')
   const [active, setActive] = useState(0)
   const listRef = useRef<HTMLDivElement>(null)
   const returnFocus = useRef<Element | null>(document.activeElement)
   const picked = useRef(false)
 
+  // Đổi khi hành động phụ (⌘↵) sửa dữ liệu, để danh sách được tính lại
+  const [tick, setTick] = useState(0)
   const results = useMemo(() => {
+    void tick
     const { items, query } = buildItems(mode, raw)
     if (!query.trim()) return items.slice(0, 80).map((item) => ({ item, indices: [] as number[] }))
     return items
@@ -319,7 +355,7 @@ function PaletteBody({ mode }: { mode: 'commands' | 'templates' | 'actions' }): 
       .filter((x): x is NonNullable<typeof x> => !!x)
       .sort((a, b) => b.score - a.score)
       .slice(0, 80)
-  }, [mode, raw])
+  }, [mode, raw, tick])
 
   const close = (): void => {
     useStore.getState().setPalette(null)
@@ -366,6 +402,10 @@ function PaletteBody({ mode }: { mode: 'commands' | 'templates' | 'actions' }): 
     } else if (e.key === 'ArrowUp' || (e.ctrlKey && e.key === 'p')) {
       e.preventDefault()
       setActive((i) => Math.max(i - 1, 0))
+    } else if (e.key === 'Enter' && (e.metaKey || e.ctrlKey) && current?.altRun) {
+      e.preventDefault()
+      current.altRun()
+      setTick((t) => t + 1)
     } else if (e.key === 'Enter') {
       e.preventDefault()
       run(current)
@@ -382,7 +422,7 @@ function PaletteBody({ mode }: { mode: 'commands' | 'templates' | 'actions' }): 
     <div className="palette-backdrop" onMouseDown={close}>
       <div className="palette" role="dialog" aria-label="Command palette" onMouseDown={(e) => e.stopPropagation()}>
         <div className="pal-input">
-          {mode === 'templates' ? <LayoutTemplate size={16} /> : <Search size={16} />}
+          {mode === 'templates' ? <LayoutTemplate size={16} /> : mode === 'tasks' ? <ListChecks size={16} /> : <Search size={16} />}
           <input
             autoFocus
             value={raw}
@@ -390,7 +430,9 @@ function PaletteBody({ mode }: { mode: 'commands' | 'templates' | 'actions' }): 
             placeholder={
               mode === 'templates'
                 ? 'Choose a template…'
-                : mode === 'actions'
+                : mode === 'tasks'
+                  ? 'Find an open task…'
+                  : mode === 'actions'
                   ? `Actions for “${useStore.getState().notes[useStore.getState().selectedNoteId ?? '']?.title || 'Untitled'}”…`
                   : 'Search notes, commands, notebooks, tags…'
             }
@@ -422,7 +464,21 @@ function PaletteBody({ mode }: { mode: 'commands' | 'templates' | 'actions' }): 
             )
           })}
         </div>
-        {mode === 'commands' && (
+        {(mode === 'tasks' || (mode === 'commands' && raw.startsWith('['))) && (
+          <div className="pal-footer">
+            <span>
+              <kbd>↵</kbd> open note
+            </span>
+            <span>
+              <kbd>{isMac() ? '⌘↵' : 'Ctrl+↵'}</kbd> mark done
+            </span>
+            <span className="flex-1" />
+            <span>
+              <kbd>esc</kbd> close
+            </span>
+          </div>
+        )}
+        {mode === 'commands' && !raw.startsWith('[') && (
           <div className="pal-footer">
             <span>
               <kbd>&gt;</kbd> commands
@@ -435,6 +491,9 @@ function PaletteBody({ mode }: { mode: 'commands' | 'templates' | 'actions' }): 
             </span>
             <span>
               <kbd>:</kbd> headings
+            </span>
+            <span>
+              <kbd>[</kbd> tasks
             </span>
             <span className="flex-1" />
             <span>

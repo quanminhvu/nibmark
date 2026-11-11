@@ -5,6 +5,7 @@ import { backupNow, exportNote, exportNotes, restoreFromBackup } from '@/lib/act
 import { flushBackup, startBackup } from '@/lib/backup'
 import { runImport } from '@/lib/importer'
 import { goBack, goForward } from '@/lib/navigation'
+import { startSwipeNavigation } from '@/lib/swipe'
 import { startHistory } from '@/lib/history'
 import { HistoryPanel, isHistoryOpen } from './components/HistoryPanel'
 import { IconPicker } from './components/BookIcon'
@@ -15,6 +16,16 @@ import { NotePane } from './components/NotePane'
 import { Notice } from './components/Notice'
 import { Preferences } from './components/Preferences'
 import { Sidebar } from './components/Sidebar'
+import { noteWindowId, openInNewWindow } from './lib/windowMode'
+
+/** Tiêu đề cửa sổ ghi chú riêng = tiêu đề ghi chú */
+function NoteWindowTitle(): null {
+  const title = useStore((s) => (noteWindowId ? s.notes[noteWindowId]?.title : undefined))
+  useEffect(() => {
+    document.title = title ? `${title} — Nibmark` : 'Nibmark'
+  }, [title])
+  return null
+}
 
 let started = false
 
@@ -32,8 +43,13 @@ export function App(): React.JSX.Element {
         .getState()
         .init()
         .then(() => {
+          if (noteWindowId) {
+            useStore.setState({ selectedNoteId: noteWindowId, distractionFree: false })
+            return
+          }
           startBackup()
           startHistory()
+          startSwipeNavigation()
           // Báo cho main là đã sẵn sàng nhận lệnh (ví dụ phím tắt ghi nhanh)
           window.nibmark?.ready()
         })
@@ -68,6 +84,8 @@ export function App(): React.JSX.Element {
       else if (command === 'export-all') void exportNotes(null)
       else if (command === 'backup-now') void backupNow()
       else if (command === 'restore') void restoreFromBackup()
+      else if (command === 'back') goBack()
+      else if (command === 'forward') goForward()
     })
   }, [])
 
@@ -96,7 +114,11 @@ export function App(): React.JSX.Element {
       if (e.altKey) return
       const key = e.key.toLowerCase()
       if (e.shiftKey) {
-        if (key === 'd') s.toggleDistractionFree()
+        if (key === 'n') {
+          const note = s.selectedNoteId ? s.notes[s.selectedNoteId] : undefined
+          if (!note || note.trashed || noteWindowId) return
+          openInNewWindow(note._id)
+        } else if (key === 'd') s.toggleDistractionFree()
         else if (key === 'f') {
           if (s.distractionFree) s.toggleDistractionFree()
           requestAnimationFrame(() => searchRef.current?.focus())
@@ -148,6 +170,19 @@ export function App(): React.JSX.Element {
   }, [])
 
   if (!ready) return <div className="boot" />
+
+  if (noteWindowId) {
+    return (
+      <div className={cx('app', 'note-window', isMac() && 'mac')}>
+        <NoteWindowTitle />
+        <NotePane />
+        <ContextMenuHost />
+        <CommandPalette />
+        <HistoryPanel />
+        <Notice />
+      </div>
+    )
+  }
 
   return (
     <div className={cx('app', isMac() && 'mac', distractionFree && 'distraction-free', sidebarHidden && 'sidebar-hidden')}>

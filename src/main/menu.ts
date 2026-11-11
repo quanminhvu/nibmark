@@ -1,11 +1,15 @@
 import { app, BrowserWindow, Menu } from 'electron'
 import type { MenuItemConstructorOptions } from 'electron'
+import { getMainWindow } from './windows'
 
-export type MenuCommand = 'preferences' | 'new-note' | 'import' | 'export-note' | 'export-all' | 'backup-now' | 'restore'
+export type MenuCommand = 'preferences' | 'new-note' | 'import' | 'export-note' | 'export-all' | 'backup-now' | 'restore' | 'back' | 'forward'
 
 const send = (command: MenuCommand) => (): void => {
-  const win = BrowserWindow.getFocusedWindow() ?? BrowserWindow.getAllWindows()[0]
-  win?.webContents.send('menu', command)
+  // Lệnh menu luôn chạy ở cửa sổ chính (cửa sổ ghi chú riêng không có danh sách ghi chú)
+  const win = getMainWindow() ?? BrowserWindow.getFocusedWindow()
+  if (!win) return
+  win.show()
+  win.webContents.send('menu', command)
 }
 
 // Lưu ý: không gán phím tắt cho những lệnh renderer đã tự xử lý
