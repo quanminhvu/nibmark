@@ -6,6 +6,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
+### Added
+
+- Bidirectional synchronized scrolling between the Markdown editor and preview in split view
+
 ## [0.4.1] - 2026-11-11
 
 ### Fixed

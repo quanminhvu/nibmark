@@ -1,3 +1,5 @@
+import { useEffect, useRef } from 'react'
+import { syncScroll } from '@/lib/scrollSync'
 import { ArrowLeft, ArrowRight, CircleDashed, Columns2, EllipsisVertical, Eye, LayoutTemplate, Maximize2, Minimize2, Pencil, Pin, RotateCcw, Trash2 } from 'lucide-react'
 import { useStore } from '@/lib/store'
 import { toggleTask } from '@/lib/markdown'
@@ -30,6 +32,15 @@ export function NotePane(): React.JSX.Element {
   const distractionFree = useStore((s) => s.distractionFree)
   const { updateNote, setViewMode, toggleDistractionFree, restoreNote, deleteNoteForever } = useStore.getState()
   const multiCount = useStore((s) => s.multi.length)
+
+  const bodyRef = useRef<HTMLDivElement>(null)
+  const syncEnabled = !!note && !note.trashed && viewMode === 'split' && !isKanban(note.body) && multiCount <= 1
+  useEffect(() => {
+    if (!syncEnabled) return
+    const editor = bodyRef.current?.querySelector<HTMLElement>('.cm-scroller')
+    const preview = bodyRef.current?.querySelector<HTMLElement>('.note-preview')
+    if (editor && preview) return syncScroll(editor, preview)
+  }, [note?._id, syncEnabled])
 
   if (multiCount > 1) return <BulkPanel />
 
@@ -149,7 +160,7 @@ export function NotePane(): React.JSX.Element {
         </div>
       )}
 
-      <div className={cx('note-body', `mode-${mode}`)}>
+      <div ref={bodyRef} className={cx('note-body', `mode-${mode}`)}>
         {mode !== 'preview' && (
           <div className="note-editor">
             <MarkdownEditor key={note._id} value={note.body} onChange={(body) => {
