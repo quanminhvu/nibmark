@@ -6,6 +6,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
+### Changed
+
+- Nibmark is now released under the MIT License
+
 ## [0.1.0] - 2026-11-11
 
 First working version of the desktop app.

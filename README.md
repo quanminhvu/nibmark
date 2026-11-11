@@ -159,4 +159,6 @@ Nibmark is inspired by the workflow of [Inkdrop](https://www.inkdrop.app/) by Ta
 
 ## License
 
-No license has been chosen yet. Until one is added, all rights are reserved.
+Nibmark is released under the [MIT License](LICENSE).
+
+The Nibmark name, icon and logo identify this project; please don't use them in a way that suggests your fork is the official app.

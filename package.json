@@ -4,7 +4,7 @@
   "version": "0.1.0",
   "description": "Markdown note-taking app for developers",
   "author": "Vu Minh Quan",
-  "license": "UNLICENSED",
+  "license": "MIT",
   "private": true,
   "main": "./out/main/index.js",
   "scripts": {
