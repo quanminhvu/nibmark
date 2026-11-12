@@ -214,7 +214,7 @@ Chưa làm trong giai đoạn này (không tính vào tiến độ), có thể x
 - [ ] Cấu hình nhà cung cấp: Anthropic, OpenAI-compatible, mô hình chạy cục bộ (Ollama); key lưu trong keychain hệ điều hành
 - [ ] Trợ lý AI trong editor: sửa lỗi, tóm tắt, định dạng lại, chuyển thành bảng/danh sách, vẽ Mermaid, prompt tùy chỉnh
 - [ ] Gợi ý chỉnh sửa tiếp theo dựa trên ghi chú liên kết
-- [ ] MCP server để Claude Code và các agent khác tìm, đọc, tạo, sửa ghi chú
+- [x] MCP server để Claude Code và các agent khác tìm, đọc, tạo, sửa ghi chú
 - [ ] Hướng dẫn cho AI agent nằm trong template, tự bỏ khỏi ghi chú được tạo
 
 ### Thu thập

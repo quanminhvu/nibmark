@@ -10,6 +10,7 @@ import { ensureStylesFile, ensureThemesDir, listUserThemes, readUserStyles } fro
 import { scanImport } from './importer'
 import { fetchGithubSnippet, fetchTitle } from './web'
 import { htmlToPdf } from './pdf'
+import { mcpCommand } from './mcp'
 import { readAppleNotes, scanFromDump } from './appleNotes'
 import type { AppleNotesDump } from './appleNotes'
 import { readFileSync, statSync } from 'node:fs'
@@ -21,11 +22,14 @@ export interface SettingsView {
   lastBackupAt: number | null
   trayEnabled: boolean
   traySupported: boolean
+  mcpEnabled: boolean
+  mcpAllowEdits: boolean
+  mcpCommand: { command: string; args: string[]; env: Record<string, string> }
 }
 
 function view(): SettingsView {
   const s = getSettings()
-  return { backupEnabled: s.backupEnabled, backupDir: backupDir(), isDefaultDir: s.backupDir === null, lastBackupAt: s.lastBackupAt, trayEnabled: s.trayEnabled, traySupported: process.platform !== 'darwin' }
+  return { backupEnabled: s.backupEnabled, backupDir: backupDir(), isDefaultDir: s.backupDir === null, lastBackupAt: s.lastBackupAt, trayEnabled: s.trayEnabled, traySupported: process.platform !== 'darwin', mcpEnabled: s.mcpEnabled, mcpAllowEdits: s.mcpAllowEdits, mcpCommand: mcpCommand() }
 }
 
 const today = (): string => {

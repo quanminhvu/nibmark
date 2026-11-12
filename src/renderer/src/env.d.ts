@@ -32,6 +32,9 @@ interface NibmarkSettings {
   trayEnabled: boolean
   /** Khay hệ thống chỉ có trên Windows và Linux */
   traySupported: boolean
+  mcpEnabled: boolean
+  mcpAllowEdits: boolean
+  mcpCommand: { command: string; args: string[]; env: Record<string, string> }
 }
 
 interface NibmarkImportScan {
@@ -63,6 +66,11 @@ interface NibmarkBridge {
     chooseBackupDir(): Promise<NibmarkSettings>
     resetBackupDir(): Promise<NibmarkSettings>
     setTray(enabled: boolean): Promise<NibmarkSettings>
+    setMcp(patch: { enabled?: boolean; allowEdits?: boolean }): Promise<NibmarkSettings>
+  }
+  mcp: {
+    /** Nhận yêu cầu của AI agent; trả về hàm hủy đăng ký */
+    serve(handler: (op: string, tool: string, args: unknown, allowEdits: boolean, client: string) => Promise<unknown>): () => void
   }
   backup: {
     write(upserts: unknown[], deletes: string[]): Promise<{ ok: boolean; written: number; error?: string }>

@@ -9,7 +9,22 @@ contextBridge.exposeInMainWorld('nibmark', {
     setBackupEnabled: (enabled: boolean) => ipcRenderer.invoke('settings:setBackupEnabled', enabled),
     chooseBackupDir: () => ipcRenderer.invoke('settings:chooseBackupDir'),
     resetBackupDir: () => ipcRenderer.invoke('settings:resetBackupDir'),
-    setTray: (enabled: boolean) => ipcRenderer.invoke('settings:setTray', enabled)
+    setTray: (enabled: boolean) => ipcRenderer.invoke('settings:setTray', enabled),
+    setMcp: (patch: { enabled?: boolean; allowEdits?: boolean }) => ipcRenderer.invoke('settings:setMcp', patch)
+  },
+  /** Yêu cầu từ AI agent (MCP), chuyển qua main; trả kết quả về main */
+  mcp: {
+    serve: (handler: (op: string, tool: string, args: unknown, allowEdits: boolean, client: string) => Promise<unknown>) => {
+      const listener = (_event: Electron.IpcRendererEvent, id: number, op: string, tool: string, args: unknown, allowEdits: boolean, client: string): void => {
+        handler(op, tool, args, allowEdits, client).then(
+          (result) => ipcRenderer.send('mcp:result', id, true, result),
+          (err: unknown) => ipcRenderer.send('mcp:result', id, false, err instanceof Error ? err.message : String(err))
+        )
+      }
+      ipcRenderer.on('mcp:call', listener)
+      ipcRenderer.send('mcp:ready')
+      return () => ipcRenderer.removeListener('mcp:call', listener)
+    }
   },
   backup: {
     write: (upserts: unknown[], deletes: string[]) => ipcRenderer.invoke('backup:write', upserts, deletes),

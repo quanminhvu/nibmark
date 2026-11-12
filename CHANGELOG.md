@@ -6,6 +6,14 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
+### Added
+
+- MCP server for AI agents (Claude Code, Claude Desktop, Cursor…): search, read, create, edit and delete notes from an agent. Turn it on in Preferences → AI Agents (MCP), which also shows the command to add Nibmark to Claude Code and the JSON for other clients. Agents connect through a local socket that only your user account can open; deleting moves notes to the Trash, every edit is kept in version history, and a switch limits agents to reading
+
+### Changed
+
+- Only one copy of Nibmark runs at a time for the same data; opening it again brings the existing window to the front
+
 ## [0.8.0] - 2026-11-12
 
 ### Added

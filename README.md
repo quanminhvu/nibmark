@@ -28,7 +28,10 @@ Nibmark keeps your notes as plain Markdown, organized in nested notebooks, tags 
 - GitHub Flavored Markdown: tables, task lists, footnotes, strikethrough, sub/superscript
 - Mermaid diagrams (with a zoomable full-screen viewer) and KaTeX math (`$…$`, `$$…$$`)
 - Note links: type `[[` to link to another note, or create one on the fly
-- Backlinks show which notes link to the current note; click one to open its source
+- Backlinks show which notes link to the current note; click one to open its source. Unlinked mentions list notes that mention its title without linking, with a button to turn each mention into a link
+- Hover a note link, in the editor or the preview, to see a preview card of that note
+- An outline panel (`⌘⇧O`) lists the note's headings, jumps to one on click and follows the section you are reading
+- Word count and reading time for the note, or for the selected text
 - Paste a URL to get `[Page title](url)`, or paste it over selected text to link that text
 - Slash commands (`/`) for headings, lists, tasks, code, tables, diagrams, math, alerts, links and files
 - A floating toolbar on selected text, emoji (`:smile`) and code-language suggestions
@@ -40,6 +43,12 @@ Nibmark keeps your notes as plain Markdown, organized in nested notebooks, tags 
 - A GitHub link to a line range (`…/blob/main/app.ts#L10-L25`) on its own line shows those lines in the preview
 - Find in the preview with `⌘F`
 - Click a checkbox in the preview to tick the task in the source
+
+**Present and explore**
+
+- Present a note as full-screen slides: each part separated by a `---` line is a slide; move with the arrow keys and start from the slide you are editing
+- A graph view (`⌘⇧G`) of how notes link to each other, for all notes or just the ones around the current note
+- Export a note as PDF (A4, page numbers, code blocks and tables kept whole)
 
 **Kanban boards**
 
@@ -58,6 +67,8 @@ Nibmark keeps your notes as plain Markdown, organized in nested notebooks, tags 
 - Pin, duplicate, trash and restore notes; drag notes onto notebooks, statuses, tags or the Trash
 - Select several notes (`⌘`-click, `⇧`-click, `⌘A`) to move, tag, set status, pin or trash them together
 - Version history with a line diff and one-click restore
+- Tabs: double-click a note to keep it open in a tab; switch with `Ctrl+Tab` or `⌘1`…`⌘9`, close with `⌘W`, drag to reorder. Each note remembers its cursor and scroll position
+- Today's note (`⌘⇧T` or the Today row in the sidebar) opens or creates the note for today from your daily template
 - Back and forward between notes, like a browser, with buttons, shortcuts or a two-finger swipe
 - Open a note in its own window (`⌘⇧N`)
 - Search with qualifiers: `book:` `tag:` `status:` `title:` `body:` `"exact phrase"` `-exclude`
@@ -73,7 +84,8 @@ Nibmark keeps your notes as plain Markdown, organized in nested notebooks, tags 
 - Attachments are backed up as their original files and exported to an `attachments/` folder
 - Import from Markdown folders (Obsidian, Notion exports and `.zip`s, Bear TextBundles), HTML files, Evernote `.enex` files and Apple Notes
 - Import Kindle highlights from `My Clippings.txt`; importing again only adds new highlights
-- Export a note, a notebook or everything as Markdown files with YAML front matter, or a note as a single HTML file
+- Export a note, a notebook or everything as Markdown files with YAML front matter, or a note as a single HTML file or a PDF
+- Let AI agents such as Claude Code search, read, create and edit your notes through MCP ([details](#use-your-notes-from-ai-agents-mcp))
 - Drag a note into another app or a terminal to paste a link to it
 
 **Make it yours**
@@ -93,6 +105,12 @@ Nibmark keeps your notes as plain Markdown, organized in nested notebooks, tags 
 | `⌘J` | Actions for the current note (move, tag, status, export…) |
 | `⌘D` | Duplicate the note (outside the editor) |
 | `⌘⇧N` | Open the note in a new window |
+| `⌘⇧T` | Today's note |
+| `⌘⇧O` | Outline panel |
+| `⌘⇧G` | Graph view |
+| `⌘W` | Close the tab (or the window when no tab is open) |
+| `Ctrl+Tab` / `Ctrl+⇧Tab` | Next / previous tab |
+| `⌘1` … `⌘9` | Go to a tab (`⌘9` is the last one) |
 | `⌘F` | Find in the editor, or in the preview when the editor isn't focused |
 | `⌘E` | Toggle preview |
 | `⌘P` | Toggle side-by-side view |
@@ -137,6 +155,32 @@ To run against a throwaway profile (useful when testing, so your real notes are 
 NIBMARK_USER_DATA="$PWD/.tmp-profile" npm run dev
 ```
 
+## Use your notes from AI agents (MCP)
+
+Nibmark can act as an [MCP](https://modelcontextprotocol.io) server, so Claude Code, Claude Desktop, Cursor and other agents can search, read, create, edit and delete your notes.
+
+1. Turn it on in **Preferences → AI Agents (MCP)**. It is off by default. A second switch limits agents to reading.
+2. Copy the command shown there. For Claude Code on macOS it looks like this:
+
+   ```bash
+   claude mcp add nibmark -e ELECTRON_RUN_AS_NODE=1 -- /Applications/Nibmark.app/Contents/MacOS/Nibmark /Applications/Nibmark.app/Contents/Resources/mcp.js
+   ```
+
+   For Claude Desktop or Cursor, use **Copy JSON** and paste it into the client's MCP config file.
+
+The bridge (`resources/mcp.js`) runs with the Node that ships inside Nibmark and talks to the running app over a local socket that only your user account can open. No network port is opened. If Nibmark is not running, the bridge starts it.
+
+| Tool | What it does |
+| --- | --- |
+| `search_notes` | Search with the app's syntax (`tag:`, `book:`, `status:`, `-exclude`); an empty query lists recent notes |
+| `read_note`, `get_backlinks` | Read a note's Markdown and details, or the notes linking to it |
+| `list_notebooks`, `list_tags`, `list_statuses` | See how notes are organized |
+| `create_note`, `append_to_note` | Create a note, or append to one (today's daily note by default) |
+| `edit_note`, `update_note` | Replace exact text, or change the title, body, notebook, tags, status or pin |
+| `trash_note`, `restore_note` | Move a note to the Trash and back. Agents cannot delete permanently |
+
+Every change goes through the app, so it shows up immediately and is kept in the note's version history.
+
 ## Where your data lives
 
 Everything is stored in the app's user data folder (`~/Library/Application Support/Nibmark` on macOS):
@@ -147,7 +191,8 @@ Everything is stored in the app's user data folder (`~/Library/Application Suppo
 | `Backups/` | Default continuous backup folder (change it in Preferences) |
 | `themes/*.css` | Your own themes |
 | `styles.css` | Your personal CSS overrides |
-| `settings.json` | Backup folder, global shortcuts and tray settings |
+| `settings.json` | Backup folder, global shortcuts, tray and MCP settings |
+| `mcp.sock` | Local socket for AI agents, only while MCP is on (macOS and Linux) |
 
 ### Writing a theme
 
@@ -177,6 +222,8 @@ src/
 │   ├── importer.ts       Reads files, folders and archives picked for import
 │   ├── appleNotes.ts     Apple Notes import (JXA)
 │   ├── web.ts            Page titles and GitHub snippets (http/https only, size and time limits)
+│   ├── pdf.ts            PDF export from a hidden window
+│   ├── mcp.ts            Local socket for AI agents (MCP), forwarded to the main window
 │   ├── shortcuts.ts      Global shortcuts
 │   ├── tray.ts           System tray (Windows, Linux)
 │   ├── settings.ts       settings.json in the user data folder
@@ -188,6 +235,7 @@ src/
     ├── lib/              Store, database, search, Markdown, backup, themes, templates…
     ├── themes.css        Built-in themes (CSS variables)
     └── styles.css        Layout and components
+resources/mcp.js          MCP bridge (stdio) that AI agents start; talks to the app's socket
 assets/icon/              Icon and logo sources (SVG + PNG)
 build/                    Packaging resources (icon.icns)
 docs/                     Roadmap and screenshot
@@ -203,9 +251,9 @@ docs/                     Roadmap and screenshot
 ## Roadmap
 
 - [x] **Phase 1 — Desktop app (0.1–0.3):** editor, notebooks, tags, statuses, search, backup, import and export, themes, command palette, templates, note links, Mermaid and math, attachments, version history
-- [x] **Phase 2 — A better everyday experience (0.4–0.7):** new look, Kanban boards, editor and preview improvements, tasks palette, note windows, activity view, Apple Notes and Kindle import, HTML export, resizable panes, custom statuses, backlinks, and easier status and tag editing
+- [x] **Phase 2 — A better everyday experience (0.4–0.8):** new look, Kanban boards, editor and preview improvements, tasks palette, note windows, activity view, Apple Notes and Kindle import, HTML and PDF export, resizable panes, custom statuses, backlinks and unlinked mentions, easier status and tag editing, tabs, outline, today's note, slides and graph view
 - [ ] **Phase 3 — Sync and security:** CouchDB sync, end-to-end encryption
-- [ ] **Phase 4 — Mobile, plugins and AI:** iOS and Android apps, plugin system, optional AI assistant
+- [ ] **Phase 4 — Mobile, plugins and AI:** iOS and Android apps, plugin system, optional AI assistant (the MCP server for AI agents is already available)
 - [ ] **Phase 5 — Distribution:** signed builds, accounts
 
 The detailed roadmap is in [`docs/ROADMAP.md`](docs/ROADMAP.md).
