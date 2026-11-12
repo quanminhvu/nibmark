@@ -2,7 +2,7 @@ import { app, BrowserWindow, Menu } from 'electron'
 import type { MenuItemConstructorOptions } from 'electron'
 import { getMainWindow } from './windows'
 
-export type MenuCommand = 'preferences' | 'new-note' | 'import' | 'export-note' | 'export-all' | 'backup-now' | 'restore' | 'back' | 'forward' | 'import-apple-notes' | 'import-kindle' | 'export-html'
+export type MenuCommand = 'preferences' | 'new-note' | 'import' | 'export-note' | 'export-all' | 'backup-now' | 'restore' | 'back' | 'forward' | 'import-apple-notes' | 'import-kindle' | 'export-html' | 'export-pdf' | 'close-tab'
 
 const send = (command: MenuCommand) => (): void => {
   // Lệnh menu luôn chạy ở cửa sổ chính (cửa sổ ghi chú riêng không có danh sách ghi chú)
@@ -50,12 +50,18 @@ export function buildMenu(): void {
         { type: 'separator' },
         { label: 'Export Note as Markdown…', click: send('export-note') },
         { label: 'Export Note as HTML…', click: send('export-html') },
+        { label: 'Export Note as PDF…', click: send('export-pdf') },
         { label: 'Export All Notes as Markdown…', click: send('export-all') },
         { type: 'separator' },
         { label: 'Back Up Now', click: send('backup-now') },
         { label: 'Restore from Backup…', click: send('restore') },
-        ...(isMac ? [] : ([{ type: 'separator' }, prefs, { type: 'separator' }, { role: 'quit' }] as MenuItemConstructorOptions[])),
-        ...(isMac ? ([{ type: 'separator' }, { role: 'close' }] as MenuItemConstructorOptions[]) : [])
+        { type: 'separator' },
+        // Cmd/Ctrl+W: đóng tab ghi chú; hết tab (hoặc cửa sổ ghi chú riêng) thì renderer tự đóng cửa sổ
+        { label: 'Close Tab', accelerator: 'CmdOrCtrl+W', click: (_item, focused) => {
+          const win = focused instanceof BrowserWindow ? focused : BrowserWindow.getFocusedWindow()
+          if (win) win.webContents.send('menu', 'close-tab')
+        } },
+        ...(isMac ? [] : ([{ type: 'separator' }, prefs, { type: 'separator' }, { role: 'quit' }] as MenuItemConstructorOptions[]))
       ]
     },
     // Bắt buộc phải có: thiếu các role này thì Cmd+C/V/Z không chạy trong editor trên macOS

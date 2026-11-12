@@ -6,6 +6,24 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
+### Added
+
+- Export a note as PDF (File menu, note menu or command palette): A4 pages with page numbers, light colors, and code blocks, tables and images kept whole across page breaks
+- Outline panel beside the note (⌘⇧O or the button in the note header): lists the note's headings, jumps to one on click, and highlights the section you are reading in the editor or the preview
+- Hover a link to another note, in the editor or the preview, to see a preview card with its title, notebook and the start of its content; click the card to open the note
+- Today's note (⌘⇧T, the Today row in the sidebar or the command palette): opens the note for today, or creates it from your daily template; it never creates a second one for the same day
+- Word count and reading time next to the note's last-edited time; select text to count just the selection
+- Unlinked mentions beside Backlinks: notes that mention this note's title without linking to it, with the sentence around each mention and a Link button that turns it into a link
+- Note tabs above the note: double-click a note (or middle-click it, or choose Open in New Tab) to add it to the tab bar; a single click just shows the note. ⌘W closes a tab, Ctrl+Tab / Ctrl+Shift+Tab switch tabs, ⌘1…⌘9 jump to a tab, drag to reorder, and tabs come back when you reopen the app. Each note remembers its cursor and scroll position. Turn tabs off in Preferences → Editor
+- Present a note as slides (note menu or command palette): each part separated by a `---` line is a slide, shown full screen; use the arrow keys or click to move, Esc to stop. Presenting starts from the slide you are editing, and long slides shrink to fit
+- Graph view (⌘⇧G or the Graph row in the sidebar): see how notes link to each other, drag nodes, scroll to zoom and click a note to open it; switch to “This note” to see only the notes around the current one, or show notes without links too
+
+### Changed
+
+- Mist theme: the selected sidebar row is now light blue, and the editor, preview and note list use a soft gray background
+- The Backlinks bar under a note only appears when another note links to it or mentions it
+- ⌘W / Ctrl+W closes the current tab first, and closes the window when no tab is open
+
 ## [0.7.1] - 2026-11-12
 
 ### Fixed

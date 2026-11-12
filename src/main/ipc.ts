@@ -9,6 +9,7 @@ import { backupDir, defaultBackupDir, getSettings, updateSettings } from './sett
 import { ensureStylesFile, ensureThemesDir, listUserThemes, readUserStyles } from './themes'
 import { scanImport } from './importer'
 import { fetchGithubSnippet, fetchTitle } from './web'
+import { htmlToPdf } from './pdf'
 import { readAppleNotes, scanFromDump } from './appleNotes'
 import type { AppleNotesDump } from './appleNotes'
 import { readFileSync, statSync } from 'node:fs'
@@ -159,6 +160,17 @@ export function registerIpc(openNoteWindow: (noteId: string) => void): void {
     })
     if (res.canceled || !res.filePath) return null
     await writeFile(res.filePath, html, 'utf8')
+    return res.filePath
+  })
+  ipcMain.handle('export:pdf', async (event, title: unknown, html: unknown) => {
+    if (typeof title !== 'string' || typeof html !== 'string') return null
+    const res = await dialog.showSaveDialog(win(event)!, {
+      title: 'Export Note as PDF',
+      defaultPath: `${safeName(title)}.pdf`,
+      filters: [{ name: 'PDF', extensions: ['pdf'] }]
+    })
+    if (res.canceled || !res.filePath) return null
+    await writeFile(res.filePath, new Uint8Array(await htmlToPdf(html)))
     return res.filePath
   })
   ipcMain.handle('app:openDataFolder', async () => (await shell.openPath(app.getPath('userData'))) || null)

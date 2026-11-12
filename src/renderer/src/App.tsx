@@ -7,7 +7,14 @@ import { backupNow, exportNote, exportNotes, restoreFromBackup } from '@/lib/act
 import { flushBackup, startBackup } from '@/lib/backup'
 import { runAppleNotesImport, runImport } from '@/lib/importer'
 import { runKindleImport } from '@/lib/kindle'
-import { exportNoteHtml } from '@/lib/exportHtml'
+import { exportNoteHtml, exportNotePdf } from '@/lib/exportHtml'
+import { toggleOutline } from '@/lib/outline'
+import { openTodayNote } from '@/lib/dailyNote'
+import { usePresentation } from '@/lib/slides'
+import { isGraphOpen, openGraph } from '@/lib/graph'
+import { GraphView } from './components/GraphView'
+import { Presentation } from './components/Presentation'
+import { closeTab, cycleTab, gotoTab, tabsEnabled, useTabs } from '@/lib/tabs'
 import { goBack, goForward } from '@/lib/navigation'
 import { startSwipeNavigation } from '@/lib/swipe'
 import { startHistory } from '@/lib/history'
@@ -94,15 +101,24 @@ export function App(): React.JSX.Element {
       else if (command === 'import-apple-notes') void runAppleNotesImport()
       else if (command === 'import-kindle') void runKindleImport()
       else if (command === 'export-html') void exportNoteHtml()
+      else if (command === 'export-pdf') void exportNotePdf()
       else if (command === 'back') goBack()
       else if (command === 'forward') goForward()
+      else if (command === 'close-tab') {
+        // Đang mở hộp thoại thì Cmd+W đóng hộp thoại trước
+        if (s.prefsOpen) return s.setPrefsOpen(false)
+        if (s.palette) return s.setPalette(null)
+        const id = s.selectedNoteId
+        if (tabsEnabled() && id && useTabs.getState().tabs.some((t) => t.id === id)) closeTab(id)
+        else window.close()
+      }
     })
   }, [])
 
   useEffect(() => {
     const onKeyDown = (e: KeyboardEvent): void => {
       const s = useStore.getState()
-      if (s.prefsOpen || s.palette || isHistoryOpen() || isActivityOpen()) return
+      if (s.prefsOpen || s.palette || isHistoryOpen() || isActivityOpen() || isGraphOpen() || usePresentation.getState().noteId) return
       // Esc trong một ô chọn/ô nhập nổi (notebook, status, tag…) chỉ đóng ô đó, không thoát chế độ tập trung
       const inPopover = !!(document.activeElement as HTMLElement | null)?.closest?.('.nbp-pop, .stp-pop, .tag-field, .kanban-input, .preview-find')
       if (e.key === 'Escape' && s.distractionFree && !e.defaultPrevented && !inPopover) {
@@ -110,6 +126,22 @@ export function App(): React.JSX.Element {
         return
       }
       if (!(e.metaKey || e.ctrlKey)) return
+      // Ctrl+Tab / Ctrl+Shift+Tab: chuyển tab; Cmd/Ctrl+1…9: nhảy tới tab
+      if (tabsEnabled() && !e.altKey) {
+        if (e.ctrlKey && e.key === 'Tab') {
+          e.preventDefault()
+          e.stopPropagation()
+          cycleTab(e.shiftKey ? -1 : 1)
+          return
+        }
+        if (!e.shiftKey && /^[1-9]$/.test(e.key) && (isMac() ? e.metaKey : e.ctrlKey)) {
+          if (gotoTab(Number(e.key))) {
+            e.preventDefault()
+            e.stopPropagation()
+          }
+          return
+        }
+      }
       // Back/forward: Cmd+Alt+←/→ ở mọi nơi; Cmd+[ / Cmd+] khi không gõ trong editor
       // (trong editor, CodeMirror dùng Cmd+[ / Cmd+] để thụt lề)
       const inEditor = !!(document.activeElement as HTMLElement | null)?.closest?.('.cm-editor')
@@ -131,6 +163,16 @@ export function App(): React.JSX.Element {
           if (!note || note.trashed || noteWindowId) return
           openInNewWindow(note._id)
         } else if (key === 'd') s.toggleDistractionFree()
+        else if (key === 'g') {
+          if (noteWindowId) return
+          openGraph()
+        } else if (key === 't') {
+          if (noteWindowId) return
+          openTodayNote()
+        } else if (key === 'o') {
+          if (!s.selectedNoteId) return
+          toggleOutline()
+        }
         else if (key === 'f') {
           if (s.distractionFree) s.toggleDistractionFree()
           requestAnimationFrame(() => searchRef.current?.focus())
@@ -207,6 +249,8 @@ export function App(): React.JSX.Element {
       <CommandPalette />
       <HistoryPanel />
       <ActivityPanel />
+      <Presentation />
+      <GraphView />
       <IconPicker />
       <Preferences />
       <Notice />

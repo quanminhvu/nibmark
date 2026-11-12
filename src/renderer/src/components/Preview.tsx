@@ -4,6 +4,7 @@ import { renderMermaidIn } from '@/lib/mermaid'
 import { fillGithubEmbeds, renderMarkdown } from '@/lib/markdown'
 import { fileIdFromUrl, openAttachment, resolveFileUrls, useFileTick } from '@/lib/attachments'
 import { followNoteLink } from '@/lib/noteLinks'
+import { previewLinkOut, previewLinkOver } from '@/lib/noteHover'
 import { PreviewFind } from './PreviewFind'
 
 interface Props {
@@ -64,8 +65,12 @@ export function Preview({ source, onToggleTask, findable }: Props): React.JSX.El
 
   useEffect(() => {
     const onGoto = (e: Event): void => {
-      const { index } = (e as CustomEvent<{ index: number }>).detail
-      rootRef.current?.querySelectorAll('h1, h2, h3, h4, h5, h6')[index]?.scrollIntoView({ block: 'start' })
+      const { index, line } = (e as CustomEvent<{ index: number; line: number }>).detail
+      const root = rootRef.current
+      if (!root?.isConnected) return
+      // Tìm heading theo dòng nguồn; không có thì theo thứ tự heading
+      const target = root.querySelector(`:is(h1, h2, h3, h4, h5, h6)[data-source-line="${line}"]`) ?? root.querySelectorAll('h1, h2, h3, h4, h5, h6')[index]
+      target?.scrollIntoView({ block: 'start' })
     }
     window.addEventListener('nibmark-goto', onGoto)
     return () => window.removeEventListener('nibmark-goto', onGoto)
@@ -127,7 +132,7 @@ export function Preview({ source, onToggleTask, findable }: Props): React.JSX.El
   return (
     <>
       {finding && <PreviewFind root={rootRef} html={html} onClose={() => setFinding(false)} />}
-      <div ref={rootRef} className="preview markdown-body" onClick={handleClick} dangerouslySetInnerHTML={{ __html: html }} />
+      <div ref={rootRef} className="preview markdown-body" onClick={handleClick} onMouseOver={previewLinkOver} onMouseOut={previewLinkOut} dangerouslySetInnerHTML={{ __html: html }} />
       {viewer && <DiagramViewer svg={viewer} onClose={() => setViewer(null)} />}
     </>
   )

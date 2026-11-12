@@ -76,6 +76,7 @@ interface NibmarkBridge {
   exporter: {
     note(title: string, content: string, attachments?: { name: string; data: Uint8Array }[]): Promise<string | null>
     html(title: string, html: string): Promise<string | null>
+    pdf(title: string, html: string): Promise<string | null>
     tree(
       label: string,
       files: { folders: string[]; name: string; content: string }[],
