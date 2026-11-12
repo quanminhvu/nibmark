@@ -4127,3 +4127,10 @@ html.resizing-panes, html.resizing-panes * {
   box-shadow: 0 0 0 1px var(--ap);
   color: var(--ink);
 }
+
+/* Linux/Windows: không có nút cửa sổ ở trên, nhưng thanh đầu sidebar vẫn chứa nút
+   Activity/Preferences nên phải đủ cao, thẳng hàng với tiêu đề danh sách ghi chú */
+.app:not(.mac) .sidebar-top {
+  height: 46px;
+  padding-left: 8px;
+}
