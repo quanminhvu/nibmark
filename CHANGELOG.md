@@ -6,6 +6,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
+## [0.8.0] - 2026-11-12
+
 ### Added
 
 - Export a note as PDF (File menu, note menu or command palette): A4 pages with page numbers, light colors, and code blocks, tables and images kept whole across page breaks

@@ -10,7 +10,7 @@
 
 Nibmark keeps your notes as plain Markdown, organized in nested notebooks, tags and statuses, and stored on your own machine. It is a desktop app built with Electron, React and CodeMirror 6.
 
-> **Status:** v0.7.1, in active development. macOS is the primary target; Windows and Linux installers are built for every release but get less testing. Sync and mobile apps are on the [roadmap](#roadmap). Download the latest build from [Releases](https://github.com/quanminhvu/nibmark/releases).
+> **Status:** v0.8.0, in active development. macOS is the primary target; Windows and Linux installers are built for every release but get less testing. Sync and mobile apps are on the [roadmap](#roadmap). Download the latest build from [Releases](https://github.com/quanminhvu/nibmark/releases).
 
 <p align="center">
   <img src="docs/screenshot.png" alt="Nibmark with the Mist theme: notebooks and tags in the sidebar, the note list with task progress, and a note in side-by-side editor and preview" />
