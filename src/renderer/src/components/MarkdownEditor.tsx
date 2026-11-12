@@ -8,6 +8,9 @@ import { languages } from '@codemirror/language-data'
 import { HighlightStyle, syntaxHighlighting, syntaxTree, indentOnInput, bracketMatching, foldGutter, foldKeymap } from '@codemirror/language'
 import { autocompletion, closeBrackets, closeBracketsKeymap, completionKeymap } from '@codemirror/autocomplete'
 import { followNoteLink, NOTE_LINK_PREFIX, noteLinkCompletions } from '@/lib/noteLinks'
+import { noteLinkHover } from '@/lib/noteHover'
+import { setSelectionText } from '@/lib/noteStats'
+import { editorSpot, saveEditorSpot } from '@/lib/viewMemory'
 import { emojiCompletions, fenceLanguageCompletions, slashCompletions } from '@/lib/completions'
 import { formatToolbar, toggleWrap } from '@/lib/formatToolbar'
 import { attachFiles, fileIdFromUrl, openAttachment } from '@/lib/attachments'
@@ -127,9 +130,11 @@ interface Props {
   value: string
   readOnly?: boolean
   onChange: (value: string) => void
+  /** Id ghi chú: để nhớ con trỏ và vị trí cuộn khi chuyển qua lại */
+  docId?: string
 }
 
-export function MarkdownEditor({ value, readOnly = false, onChange }: Props): React.JSX.Element {
+export function MarkdownEditor({ value, readOnly = false, onChange, docId }: Props): React.JSX.Element {
   const hostRef = useRef<HTMLDivElement>(null)
   const viewRef = useRef<EditorView | null>(null)
   const onChangeRef = useRef(onChange)
@@ -174,6 +179,7 @@ export function MarkdownEditor({ value, readOnly = false, onChange }: Props): Re
           formatToolbar(),
           tableToolbar(),
           imageToolbar(),
+          noteLinkHover,
           highlightSelectionMatches(),
           search({ top: true }),
           prefConf.current.wrap.of(wrapExt(useEditorPrefs.getState())),
@@ -258,14 +264,39 @@ export function MarkdownEditor({ value, readOnly = false, onChange }: Props): Re
           }),
           EditorView.updateListener.of((update) => {
             if (update.docChanged) onChangeRef.current(update.state.doc.toString())
+            if (update.selectionSet || update.docChanged) {
+              const { state } = update
+              setSelectionText(state.selection.ranges.filter((r) => !r.empty).map((r) => state.sliceDoc(r.from, r.to)).join('\n'))
+            }
           })
         ]
       })
     })
     viewRef.current = view
     setActiveEditor(view)
+    // Quay lại ghi chú đã xem trong phiên này: về đúng con trỏ và chỗ đang đọc
+    const spot = docId ? editorSpot(docId) : undefined
+    if (spot) {
+      const max = view.state.doc.length
+      view.dispatch({ selection: { anchor: Math.min(spot.anchor, max), head: Math.min(spot.head, max) } })
+      requestAnimationFrame(() => {
+        if (view.dom.isConnected) view.scrollDOM.scrollTop = spot.scrollTop
+      })
+    }
+    // Ghi vị trí cuộn mỗi lần cuộn: lúc gỡ editor, phần tử đã rời trang nên không đọc lại được
+    let lastScroll = spot?.scrollTop ?? 0
+    const onScroll = (): void => {
+      lastScroll = view.scrollDOM.scrollTop
+    }
+    view.scrollDOM.addEventListener('scroll', onScroll, { passive: true })
     return () => {
+      view.scrollDOM.removeEventListener('scroll', onScroll)
+      if (docId) {
+        const { anchor, head } = view.state.selection.main
+        saveEditorSpot(docId, { anchor, head, scrollTop: lastScroll })
+      }
       setActiveEditor(null, view)
+      setSelectionText('')
       view.destroy()
       viewRef.current = null
     }
@@ -287,11 +318,11 @@ export function MarkdownEditor({ value, readOnly = false, onChange }: Props): Re
   useEffect(() => {
     const onGoto = (e: Event): void => {
       const view = viewRef.current
-      const { line } = (e as CustomEvent<{ line: number }>).detail
+      const { line, focusEditor = true } = (e as CustomEvent<{ line: number; focusEditor?: boolean }>).detail
       if (!view || line + 1 > view.state.doc.lines) return
       const pos = view.state.doc.line(line + 1).from
       view.dispatch({ selection: { anchor: pos }, effects: EditorView.scrollIntoView(pos, { y: 'start', yMargin: 40 }) })
-      view.focus()
+      if (focusEditor) view.focus()
     }
     window.addEventListener('nibmark-goto', onGoto)
     return () => window.removeEventListener('nibmark-goto', onGoto)

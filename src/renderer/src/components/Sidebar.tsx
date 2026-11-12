@@ -2,12 +2,14 @@ import { AppearancePicker } from './AppearancePicker'
 import type { AppearanceTarget } from './AppearancePicker'
 import { useMemo, useState } from 'react'
 import { openActivity } from './ActivityPanel'
-import { ArrowUpToLine, ChartNoAxesColumn, ChevronDown, ChevronRight, Copy, Download, Files, FolderPlus, LayoutTemplate, MoreHorizontal, Palette, Pencil, Plus, Search, Settings, Smile, Trash2, Upload, X } from 'lucide-react'
+import { ArrowUpToLine, CalendarDays, ChartNoAxesColumn, ChevronDown, ChevronRight, Copy, Download, Files, FolderPlus, LayoutTemplate, MoreHorizontal, Palette, Pencil, Plus, Search, Settings, Smile, Trash2, Upload, Waypoints, X } from 'lucide-react'
 import { useStore } from '@/lib/store'
 import { childrenByParent, descendantIds } from '@/lib/selectors'
 import { getStatuses } from '@/lib/statuses'
 import type { Book, NoteStatus, Selection } from '@/lib/types'
-import { cx } from '@/lib/util'
+import { cx, isMac } from '@/lib/util'
+import { openTodayNote } from '@/lib/dailyNote'
+import { openGraph } from '@/lib/graph'
 import { exportNotes } from '@/lib/actions'
 import { copyId } from '@/lib/clipboard'
 import { fuzzyMatch } from '@/lib/fuzzy'
@@ -412,6 +414,18 @@ export function Sidebar(): React.JSX.Element {
             <LayoutTemplate size={15} />
           </span>
           <span className="side-label">Note Templates</span>
+        </div>
+        <div className="side-row" style={{ paddingLeft: 10 }} title={`Open today's note (${isMac() ? '⌘⇧T' : 'Ctrl+Shift+T'})`} onClick={() => openTodayNote()}>
+          <span className="side-icon">
+            <CalendarDays size={15} />
+          </span>
+          <span className="side-label">Today</span>
+        </div>
+        <div className="side-row" style={{ paddingLeft: 10 }} title={`Graph of linked notes (${isMac() ? '⌘⇧G' : 'Ctrl+Shift+G'})`} onClick={() => openGraph()}>
+          <span className="side-icon">
+            <Waypoints size={15} />
+          </span>
+          <span className="side-label">Graph</span>
         </div>
 
         <SectionHeading

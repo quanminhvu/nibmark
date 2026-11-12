@@ -156,8 +156,10 @@
 [data-theme='mist'] {
   color-scheme: light;
   --paper: #e9e9ec;
-  --surface: #f6f6f8;
-  --surface-2: #fcfcfd;
+  --surface: #f2f2f4;
+  --surface-2: #f7f7f8;
+  /* Dòng đang chọn ở sidebar và tab đang mở: xanh nhạt */
+  --selection-row: rgba(47, 111, 228, 0.13);
   --ink: #1d1d1f;
   --ink-2: #4b4b51;
   --ink-3: #8e8e93;

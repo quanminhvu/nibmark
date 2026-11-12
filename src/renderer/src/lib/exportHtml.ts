@@ -21,7 +21,7 @@ function blobToDataUrl(blob: Blob): Promise<string> {
 const sleep = (ms: number): Promise<void> => new Promise((r) => setTimeout(r, ms))
 
 /** Dựng HTML hoàn chỉnh của ghi chú (dùng chung cho export và kiểm thử). */
-export async function noteToHtml(title: string, body: string): Promise<string> {
+export async function noteToHtml(title: string, body: string, forPrint = false): Promise<string> {
   // Vẽ trong một vùng ẩn để Mermaid đo được kích thước chữ
   const host = document.createElement('div')
   host.className = 'markdown-body'
@@ -62,7 +62,7 @@ export async function noteToHtml(title: string, body: string): Promise<string> {
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="generator" content="Nibmark">
 <title>${escapeHtml(title || 'Untitled')}</title>
-${css}<style>${EXPORT_CSS}</style>
+${css}<style>${forPrint ? EXPORT_CSS + PRINT_CSS : EXPORT_CSS + DARK_CSS}</style>
 </head>
 <body>
 <main class="markdown-body">
@@ -86,11 +86,40 @@ export async function exportNoteHtml(noteId: string | null = useStore.getState()
   if (path) s.showNotice(`Exported “${note.title || 'Untitled'}” as HTML.`)
 }
 
+/** Xuất PDF: dựng HTML như export (luôn nền sáng), main in ra PDF trong một cửa sổ ẩn */
+export async function exportNotePdf(noteId: string | null = useStore.getState().selectedNoteId): Promise<void> {
+  const s = useStore.getState()
+  const note = noteId ? s.notes[noteId] : undefined
+  if (!note || !window.nibmark) return
+  const html = await noteToHtml(note.title, note.body, true)
+  try {
+    const path = await window.nibmark.exporter.pdf(note.title || 'Untitled', html)
+    if (path) s.showNotice(`Exported “${note.title || 'Untitled'}” as PDF.`)
+  } catch {
+    s.showNotice('Could not export the note as PDF.', 'error')
+  }
+}
+
+const DARK_CSS = `
+@media (prefers-color-scheme: dark) { :root { --fg:#f2f2f7; --fg2:#c4c4ca; --fg3:#8a8a91; --bg:#1a1a1c; --code:#26262a; --line:rgba(255,255,255,.12); --accent:#6aa7ff;
+  --k:#fc5fa3; --s:#fc6a5d; --n:#d0bf69; --f:#67b7a4; --t:#d0a8ff; --a:#d9c97c; } }
+`
+
+/** Trang in: nền sáng, không ngắt trang giữa khối code, bảng, ảnh; heading không đứng trơ trọi cuối trang */
+const PRINT_CSS = `
+:root { color-scheme: light; }
+body { font-size: 11pt; }
+.markdown-body { max-width: none; padding: 0; }
+pre, table, img, .mermaid, blockquote, .markdown-alert { break-inside: avoid; }
+h1, h2, h3, h4, h5, h6 { break-after: avoid; }
+pre { white-space: pre-wrap; word-break: break-word; }
+table { display: table; }
+a { text-decoration: none; }
+`
+
 const EXPORT_CSS = `
 :root { color-scheme: light dark; --fg:#1d1d1f; --fg2:#4b4b51; --fg3:#8e8e93; --bg:#fff; --code:#f4f5f7; --line:rgba(0,0,0,.1); --accent:#2f6fe4;
   --k:#ad3da4; --s:#c41a16; --n:#1c00cf; --f:#326d74; --t:#703daa; --a:#836c28; }
-@media (prefers-color-scheme: dark) { :root { --fg:#f2f2f7; --fg2:#c4c4ca; --fg3:#8a8a91; --bg:#1a1a1c; --code:#26262a; --line:rgba(255,255,255,.12); --accent:#6aa7ff;
-  --k:#fc5fa3; --s:#fc6a5d; --n:#d0bf69; --f:#67b7a4; --t:#d0a8ff; --a:#d9c97c; } }
 * { box-sizing: border-box; }
 body { margin: 0; background: var(--bg); color: var(--fg); font: 16px/1.7 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; }
 .markdown-body { max-width: 780px; margin: 0 auto; padding: 48px 24px 96px; }

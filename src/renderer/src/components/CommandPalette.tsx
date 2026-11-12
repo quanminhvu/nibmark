@@ -5,7 +5,7 @@ import { toggleTask } from '@/lib/markdown'
 import { backupNow, exportNote, exportNotes, restoreFromBackup } from '@/lib/actions'
 import { runAppleNotesImport, runImport } from '@/lib/importer'
 import { runKindleImport } from '@/lib/kindle'
-import { exportNoteHtml } from '@/lib/exportHtml'
+import { exportNoteHtml, exportNotePdf } from '@/lib/exportHtml'
 import { fuzzyMatch } from '@/lib/fuzzy'
 import { useStore } from '@/lib/store'
 import { allTemplates, applyTemplate, fillPlaceholders } from '@/lib/templates'
@@ -20,6 +20,11 @@ import { StatusIcon } from './StatusIcon'
 import { openHistory } from './HistoryPanel'
 import { openActivity } from './ActivityPanel'
 import { copyId, copyNoteLink } from '@/lib/clipboard'
+import { gotoHeading, headingsOf, toggleOutline } from '@/lib/outline'
+import { openTodayNote } from '@/lib/dailyNote'
+import { presentNote } from '@/lib/slides'
+import { openGraph } from '@/lib/graph'
+import { closeOtherTabs, reopenClosedTab, tabsEnabled } from '@/lib/tabs'
 import { noteWindowId, openInNewWindow } from '@/lib/windowMode'
 import {
   duplicateLine,
@@ -82,23 +87,6 @@ function taskItems(): Item[] {
 const mod = (): string => (isMac() ? '⌘' : 'Ctrl+')
 const shift = (): string => (isMac() ? '⇧' : 'Shift+')
 
-/** Nhảy tới một heading trong ghi chú đang mở (editor và preview tự lắng nghe). */
-export function gotoHeading(line: number, index: number): void {
-  window.dispatchEvent(new CustomEvent('nibmark-goto', { detail: { line, index } }))
-}
-
-function headingsOf(body: string): { text: string; level: number; line: number }[] {
-  const out: { text: string; level: number; line: number }[] = []
-  let fence = false
-  body.split('\n').forEach((raw, line) => {
-    if (/^\s*(```|~~~)/.test(raw)) fence = !fence
-    if (fence) return
-    const m = /^(#{1,6})\s+(.+?)\s*#*\s*$/.exec(raw)
-    if (m) out.push({ text: m[2], level: m[1].length, line })
-  })
-  return out
-}
-
 /** Các hành động trên một ghi chú: dùng trong palette chung và menu ⌘J. */
 function noteActionItems(id: string, withTargets = false): Item[] {
   const s = useStore.getState()
@@ -120,8 +108,11 @@ function noteActionItems(id: string, withTargets = false): Item[] {
     cmd('save-template', 'Save Note as Template', () => {
       if (s.saveTemplate(id)) s.showNotice(`Saved "${note.title || 'Untitled'}" as a template.`)
     }),
+    ...(noteWindowId ? [] : [cmd('local-graph', 'Show Note in Graph', () => openGraph('local', id), undefined, 'links network map connections local')]),
+    cmd('present', 'Start Presentation', () => presentNote(id), undefined, 'slides slideshow present deck'),
     cmd('export-note', 'Export Note as Markdown…', () => void exportNote(id)),
     cmd('export-html', 'Export Note as HTML…', () => void exportNoteHtml(id), undefined, 'web page save share'),
+    ...(window.nibmark ? [cmd('export-pdf', 'Export Note as PDF…', () => void exportNotePdf(id), undefined, 'print document share')] : []),
     cmd('copy-link', 'Copy Note Link', () => copyNoteLink(id), undefined, 'markdown reference'),
     cmd('copy-id', 'Copy Note ID', () => copyId(id)),
     cmd('history', 'Show Version History…', () => openHistory(id), undefined, 'revisions versions restore undo diff'),
@@ -171,6 +162,15 @@ function commandItems(): Item[] {
   })
   const items: Item[] = [
     cmd('new-note', 'New Note', () => s.createNote(), `${mod()}N`, 'create add'),
+    ...(noteWindowId ? [] : [cmd('today', "Open Today's Note", () => openTodayNote(), `${mod()}${shift()}T`, 'daily journal log date')]),
+    ...(tabsEnabled() ? [
+      cmd('reopen-tab', 'Reopen Closed Tab', () => {
+        if (!reopenClosedTab()) s.showNotice('No closed tabs to reopen.')
+      }, undefined, 'undo close restore'),
+      ...(s.selectedNoteId ? [cmd('close-other-tabs', 'Close Other Tabs', () => closeOtherTabs(s.selectedNoteId!), undefined, 'tabs')] : [])
+    ] : []),
+    ...(noteWindowId ? [] : [cmd('graph', 'Open Graph View', () => openGraph(), `${mod()}${shift()}G`, 'links network map connections')]),
+    cmd('outline', 'Toggle Outline', () => toggleOutline(), `${mod()}${shift()}O`, 'table of contents headings toc'),
     cmd('template', 'New Note from Template…', () => s.setPalette('templates'), `${mod()}T`, 'template'),
     cmd('search', 'Search Notes', () => document.querySelector<HTMLInputElement>('.search-box input')?.focus(), `${mod()}${shift()}F`, 'find filter'),
     cmd('preview', 'Toggle Preview', () => s.setViewMode(useStore.getState().viewMode === 'preview' ? 'edit' : 'preview'), `${mod()}E`),

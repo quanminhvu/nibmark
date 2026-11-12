@@ -21,6 +21,7 @@ contextBridge.exposeInMainWorld('nibmark', {
   exporter: {
     note: (title: string, content: string, attachments: unknown[] = []) => ipcRenderer.invoke('export:note', title, content, attachments),
     html: (title: string, html: string) => ipcRenderer.invoke('export:html', title, html),
+    pdf: (title: string, html: string) => ipcRenderer.invoke('export:pdf', title, html),
     tree: (label: string, files: unknown[], attachments: unknown[] = []) => ipcRenderer.invoke('export:tree', label, files, attachments)
   },
   files: {

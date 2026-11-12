@@ -2,9 +2,14 @@ import { sourceScrollAnchors } from '@/lib/scrollAnchors'
 import { Backlinks } from './Backlinks'
 import type { CSSProperties } from 'react'
 import { ResizeHandle, usePaneSize } from './ResizeHandle'
-import { useEffect, useRef } from 'react'
+import { useEffect, useLayoutEffect, useRef } from 'react'
+import { previewSpot, savePreviewSpot } from '@/lib/viewMemory'
 import { syncScroll } from '@/lib/scrollSync'
-import { ArrowLeft, ArrowRight, Columns2, EllipsisVertical, Eye, LayoutTemplate, Maximize2, Minimize2, Pencil, Pin, RotateCcw, Trash2 } from 'lucide-react'
+import { ArrowLeft, ArrowRight, Columns2, EllipsisVertical, Eye, LayoutTemplate, Maximize2, Minimize2, Pencil, Pin, RotateCcw, TableOfContents, Trash2 } from 'lucide-react'
+import { toggleOutline, useOutline } from '@/lib/outline'
+import { Outline } from './Outline'
+import { NoteStats } from './NoteStats'
+import { NoteTabs } from './NoteTabs'
 import { useStore } from '@/lib/store'
 import { toggleTask } from '@/lib/markdown'
 import type { ViewMode } from '@/lib/types'
@@ -39,6 +44,8 @@ export function NotePane(): React.JSX.Element {
   const multiCount = useStore((s) => s.multi.length)
 
   const bodyRef = useRef<HTMLDivElement>(null)
+  const mainRef = useRef<HTMLDivElement>(null)
+  const outlineOpen = useOutline((s) => s.open)
   const syncEnabled = !!note && !note.trashed && viewMode === 'split' && !isKanban(note.body) && multiCount <= 1
   useEffect(() => {
     if (!syncEnabled) return
@@ -46,6 +53,19 @@ export function NotePane(): React.JSX.Element {
     const preview = bodyRef.current?.querySelector<HTMLElement>('.note-preview')
     if (editor && preview) return syncScroll(editor, preview, () => sourceScrollAnchors(editor, preview))
   }, [note?._id, syncEnabled])
+
+  // Chế độ chỉ xem preview: nhớ vị trí cuộn của từng ghi chú (ghi lại mỗi lần cuộn)
+  const noteId = note?._id
+  useLayoutEffect(() => {
+    if (!noteId || viewMode !== 'preview') return
+    const preview = bodyRef.current?.querySelector<HTMLElement>('.note-preview')
+    if (!preview) return
+    const top = previewSpot(noteId)
+    if (top !== undefined) requestAnimationFrame(() => (preview.scrollTop = top))
+    const onScroll = (): void => savePreviewSpot(noteId, preview.scrollTop)
+    preview.addEventListener('scroll', onScroll, { passive: true })
+    return () => preview.removeEventListener('scroll', onScroll)
+  }, [noteId, viewMode])
 
   if (multiCount > 1) return <BulkPanel />
 
@@ -96,10 +116,19 @@ export function NotePane(): React.JSX.Element {
             <Pin size={15} />
           </button>
         )}
+        <button
+          className={cx('icon-btn', outlineOpen && 'on')}
+          title={outlineOpen ? 'Hide outline (Cmd/Ctrl+Shift+O)' : 'Show outline (Cmd/Ctrl+Shift+O)'}
+          aria-pressed={outlineOpen}
+          onClick={toggleOutline}
+        >
+          <TableOfContents size={16} />
+        </button>
         <button className="icon-btn" title="More actions" onClick={(e) => openMenu(e, noteMenu(note), true)}>
           <EllipsisVertical size={16} />
         </button>
       </header>
+      {!distractionFree && <NoteTabs />}
 
       <div className="note-title-row">
         <input
@@ -141,6 +170,7 @@ export function NotePane(): React.JSX.Element {
           <NotebookPicker value={books[note.bookId] ? note.bookId : ''} placeholder="No notebook" onPick={(bookId) => updateNote(note._id, { bookId })} />
           <StatusPicker value={note.status} onPick={(status) => updateNote(note._id, { status })} />
           <TagInput noteId={note._id} tagIds={note.tags} />
+          <NoteStats body={note.body} />
           <span className="note-updated" title={new Date(note.updatedAt).toLocaleString()}>
             {relativeTime(note.updatedAt)}
           </span>
@@ -156,10 +186,11 @@ export function NotePane(): React.JSX.Element {
         </div>
       )}
 
+      <div className="note-main" ref={mainRef}>
       <div ref={bodyRef} style={{ '--editor-split': `${Math.max(20, Math.min(80, split))}%` } as CSSProperties} className={cx('note-body', `mode-${mode}`)}>
         {mode !== 'preview' && (
           <div className="note-editor">
-            <MarkdownEditor key={note._id} value={note.body} onChange={(body) => {
+            <MarkdownEditor key={note._id} docId={note._id} value={note.body} onChange={(body) => {
                 // Bỏ qua khi nội dung không đổi (ví dụ editor vừa nhận nội dung từ bên ngoài)
                 if (body !== useStore.getState().notes[note._id]?.body) updateNote(note._id, { body })
               }}
@@ -180,6 +211,8 @@ export function NotePane(): React.JSX.Element {
             )}
           </div>
         )}
+      </div>
+      {outlineOpen && <Outline body={note.body} scope={mainRef} preferPreview={mode === 'preview'} />}
       </div>
       {!readOnly && <Backlinks key={note._id} noteId={note._id} />}
     </main>

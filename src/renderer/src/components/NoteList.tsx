@@ -8,7 +8,10 @@ import { getStatuses } from '@/lib/statuses'
 import type { Note, SortKey } from '@/lib/types'
 import { cx, relativeTime, snippet } from '@/lib/util'
 import { openInNewWindow } from '@/lib/windowMode'
-import { exportNoteHtml } from '@/lib/exportHtml'
+import { openInTab, tabsEnabled } from '@/lib/tabs'
+import { presentNote } from '@/lib/slides'
+import { openGraph } from '@/lib/graph'
+import { exportNoteHtml, exportNotePdf } from '@/lib/exportHtml'
 import { exportNote } from '@/lib/actions'
 import { openHistory } from './HistoryPanel'
 import { copyId, copyNoteLink, noteLinkMarkdown } from '@/lib/clipboard'
@@ -53,9 +56,13 @@ export function noteMenu(note: Note): MenuItem[] {
   return [
     { label: note.pinned ? 'Unpin from Top' : 'Pin to Top', onClick: () => a.updateNote(note._id, { pinned: !note.pinned }) },
     { label: 'Duplicate', onClick: () => a.duplicateNote(note._id) },
+    ...(tabsEnabled() ? [{ label: 'Open in New Tab', onClick: () => openInTab(note._id) }] : []),
     ...(window.nibmark ? [{ label: 'Open in New Window', onClick: () => openInNewWindow(note._id) }] : []),
+    { label: 'Present', onClick: () => presentNote(note._id) },
+    { label: 'Show in Graph', onClick: () => openGraph('local', note._id) },
     { label: 'Export as Markdown…', onClick: () => void exportNote(note._id) },
     { label: 'Export as HTML…', onClick: () => void exportNoteHtml(note._id) },
+    ...(window.nibmark ? [{ label: 'Export as PDF…', onClick: () => void exportNotePdf(note._id) }] : []),
     { label: 'Version History…', onClick: () => openHistory(note._id) },
     { label: 'Copy Link', onClick: () => copyNoteLink(note._id) },
     { label: 'Copy Note ID', onClick: () => copyId(note._id) },
@@ -261,6 +268,16 @@ export function NoteList({ searchRef }: { searchRef: React.RefObject<HTMLInputEl
                 e.dataTransfer.effectAllowed = 'copyMove'
               }}
               onClick={(e) => clickNote(e, note._id)}
+              onDoubleClick={(e) => {
+                if (!e.metaKey && !e.ctrlKey && !e.shiftKey && tabsEnabled()) openInTab(note._id)
+              }}
+              onMouseDown={(e) => {
+                if (e.button === 1 && tabsEnabled()) e.preventDefault()
+              }}
+              onAuxClick={(e) => {
+                // Chuột giữa: mở ở tab mới phía sau, giữ nguyên ghi chú đang xem
+                if (e.button === 1 && tabsEnabled()) openInTab(note._id, true)
+              }}
               onContextMenu={(e) => {
                 if (multi.length > 1 && multiSet.has(note._id)) {
                   openMenu(e, bulkMenu(multi))
