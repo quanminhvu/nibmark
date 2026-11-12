@@ -15,6 +15,10 @@ export interface Settings {
   toggleShortcut: string
   /** Windows/Linux: đóng cửa sổ thì chạy nền ở khay hệ thống */
   trayEnabled: boolean
+  /** Cho AI agent (MCP) truy cập ghi chú; mặc định tắt */
+  mcpEnabled: boolean
+  /** Agent được tạo, sửa, chuyển vào thùng rác; tắt = chỉ đọc */
+  mcpAllowEdits: boolean
 }
 
 const defaults: Settings = {
@@ -23,7 +27,9 @@ const defaults: Settings = {
   lastBackupAt: null,
   quickNoteShortcut: 'CommandOrControl+Alt+N',
   toggleShortcut: '',
-  trayEnabled: false
+  trayEnabled: false,
+  mcpEnabled: false,
+  mcpAllowEdits: true
 }
 
 const file = (): string => join(app.getPath('userData'), 'settings.json')
@@ -40,7 +46,9 @@ export function getSettings(): Settings {
       lastBackupAt: typeof raw.lastBackupAt === 'number' ? raw.lastBackupAt : null,
       quickNoteShortcut: typeof raw.quickNoteShortcut === 'string' ? raw.quickNoteShortcut : defaults.quickNoteShortcut,
       toggleShortcut: typeof raw.toggleShortcut === 'string' ? raw.toggleShortcut : defaults.toggleShortcut,
-      trayEnabled: typeof raw.trayEnabled === 'boolean' ? raw.trayEnabled : defaults.trayEnabled
+      trayEnabled: typeof raw.trayEnabled === 'boolean' ? raw.trayEnabled : defaults.trayEnabled,
+      mcpEnabled: typeof raw.mcpEnabled === 'boolean' ? raw.mcpEnabled : defaults.mcpEnabled,
+      mcpAllowEdits: typeof raw.mcpAllowEdits === 'boolean' ? raw.mcpAllowEdits : defaults.mcpAllowEdits
     }
   } catch {
     cache = { ...defaults }

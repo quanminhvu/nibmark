@@ -137,6 +137,32 @@ To run against a throwaway profile (useful when testing, so your real notes are 
 NIBMARK_USER_DATA="$PWD/.tmp-profile" npm run dev
 ```
 
+## Use your notes from AI agents (MCP)
+
+Nibmark can act as an [MCP](https://modelcontextprotocol.io) server, so Claude Code, Claude Desktop, Cursor and other agents can search, read, create, edit and delete your notes.
+
+1. Turn it on in **Preferences → AI Agents (MCP)**. It is off by default. A second switch limits agents to reading.
+2. Copy the command shown there. For Claude Code on macOS it looks like this:
+
+   ```bash
+   claude mcp add nibmark -e ELECTRON_RUN_AS_NODE=1 -- /Applications/Nibmark.app/Contents/MacOS/Nibmark /Applications/Nibmark.app/Contents/Resources/mcp.js
+   ```
+
+   For Claude Desktop or Cursor, use **Copy JSON** and paste it into the client's MCP config file.
+
+The bridge (`resources/mcp.js`) runs with the Node that ships inside Nibmark and talks to the running app over a local socket that only your user account can open. No network port is opened. If Nibmark is not running, the bridge starts it.
+
+| Tool | What it does |
+| --- | --- |
+| `search_notes` | Search with the app's syntax (`tag:`, `book:`, `status:`, `-exclude`); an empty query lists recent notes |
+| `read_note`, `get_backlinks` | Read a note's Markdown and details, or the notes linking to it |
+| `list_notebooks`, `list_tags`, `list_statuses` | See how notes are organized |
+| `create_note`, `append_to_note` | Create a note, or append to one (today's daily note by default) |
+| `edit_note`, `update_note` | Replace exact text, or change the title, body, notebook, tags, status or pin |
+| `trash_note`, `restore_note` | Move a note to the Trash and back. Agents cannot delete permanently |
+
+Every change goes through the app, so it shows up immediately and is kept in the note's version history.
+
 ## Where your data lives
 
 Everything is stored in the app's user data folder (`~/Library/Application Support/Nibmark` on macOS):

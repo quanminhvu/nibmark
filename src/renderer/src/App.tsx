@@ -10,6 +10,7 @@ import { runKindleImport } from '@/lib/kindle'
 import { exportNoteHtml, exportNotePdf } from '@/lib/exportHtml'
 import { toggleOutline } from '@/lib/outline'
 import { openTodayNote } from '@/lib/dailyNote'
+import { startMcpBridge } from '@/lib/mcpTools'
 import { usePresentation } from '@/lib/slides'
 import { isGraphOpen, openGraph } from '@/lib/graph'
 import { GraphView } from './components/GraphView'
@@ -79,6 +80,9 @@ export function App(): React.JSX.Element {
       window.removeEventListener('blur', flush)
     }
   }, [])
+
+  // AI agent (MCP): chỉ cửa sổ chính nhận yêu cầu
+  useEffect(() => startMcpBridge(), [])
 
   // Lệnh từ menu ứng dụng (File, Preferences)
   useEffect(() => {

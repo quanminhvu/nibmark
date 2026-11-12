@@ -146,6 +146,10 @@
       {
         "from": "resources/icon.png",
         "to": "icon.png"
+      },
+      {
+        "from": "resources/mcp.js",
+        "to": "mcp.js"
       }
     ]
   }

@@ -6,6 +6,7 @@ import { buildMenu } from './menu'
 import { registerShortcuts } from './shortcuts'
 import { applyTray, hideOnClose, setupTray } from './tray'
 import { updateSettings } from './settings'
+import { applyMcp, registerMcpIpc, stopMcp } from './mcp'
 
 const isDev = !app.isPackaged && !!process.env['ELECTRON_RENDERER_URL']
 
@@ -15,6 +16,12 @@ const isDev = !app.isPackaged && !!process.env['ELECTRON_RENDERER_URL']
 // bỏ qua nó thì app sẽ lặng lẽ chạy trên dữ liệu thật của người dùng.
 const customUserData = process.env['NIBMARK_USER_DATA']
 if (customUserData) app.setPath('userData', isAbsolute(customUserData) ? customUserData : resolve(customUserData))
+
+// Chỉ một bản app cho mỗi thư mục dữ liệu: hai bản cùng ghi một cơ sở dữ liệu (và cùng mở
+// socket MCP) sẽ hỏng dữ liệu. Mở lần hai thì đưa cửa sổ của bản đang chạy lên trước.
+if (!app.requestSingleInstanceLock()) {
+  app.exit(0)
+}
 
 /** Cửa sổ của từng ghi chú mở riêng (⌘⇧N), theo id ghi chú */
 const noteWindows = new Map<string, BrowserWindow>()
@@ -119,7 +126,21 @@ app.whenReady().then(() => {
   app.on('activate', () => {
     if (!getMainWindow()) createWindow()
   })
+  app.on('second-instance', () => trayActions.show())
+  registerMcpIpc()
+  applyMcp(getOrCreateWindow)
+  ipcMain.handle('settings:setMcp', (_e, patch: unknown) => {
+    const p = (patch ?? {}) as { enabled?: unknown; allowEdits?: unknown }
+    updateSettings({
+      ...(typeof p.enabled === 'boolean' ? { mcpEnabled: p.enabled } : {}),
+      ...(typeof p.allowEdits === 'boolean' ? { mcpAllowEdits: p.allowEdits } : {})
+    })
+    applyMcp(getOrCreateWindow)
+    return settingsView()
+  })
 })
+
+app.on('will-quit', stopMcp)
 
 app.on('window-all-closed', () => {
   if (process.platform !== 'darwin') app.quit()

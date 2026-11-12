@@ -55,6 +55,7 @@ export function Preferences(): React.JSX.Element | null {
         <Appearance />
         <EditorSection />
         <QuickNote />
+        <AgentsSection />
         <Templates />
 
         {!bridge ? (
@@ -461,5 +462,67 @@ function ShortcutField({
         </span>
       </div>
     </div>
+  )
+}
+
+/** Đặt trong dấu nháy nếu đường dẫn có khoảng trắng hoặc ký tự đặc biệt của shell */
+const shellQuote = (s: string): string => (/^[\w@%+=:,./-]+$/.test(s) ? s : `'${s.replace(/'/g, `'\\''`)}'`)
+
+function AgentsSection(): React.JSX.Element | null {
+  const bridge = window.nibmark
+  const [settings, setSettings] = useState<NibmarkSettings | null>(null)
+  const [copied, setCopied] = useState<string | null>(null)
+  useEffect(() => {
+    if (bridge) void bridge.settings.get().then(setSettings)
+  }, [bridge])
+  if (!bridge || !settings) return null
+  const { command, args, env } = settings.mcpCommand
+  const claudeCode = ['claude mcp add nibmark', ...Object.entries(env).map(([k, v]) => `-e ${k}=${shellQuote(v)}`), '--', shellQuote(command), ...args.map(shellQuote)].join(' ')
+  const desktopJson = JSON.stringify({ mcpServers: { nibmark: { command, args, env } } }, null, 2)
+  const copy = (key: string, value: string): void => {
+    void navigator.clipboard.writeText(value).then(() => {
+      setCopied(key)
+      setTimeout(() => setCopied((c) => (c === key ? null : c)), 1500)
+    })
+  }
+  return (
+    <section className="pref-section">
+      <h3>AI Agents (MCP)</h3>
+      <label className="pref-toggle">
+        <input type="checkbox" checked={settings.mcpEnabled} onChange={async (e) => setSettings(await bridge.settings.setMcp({ enabled: e.target.checked }))} />
+        <span>Let AI agents use your notes (Claude Code, Claude Desktop, Cursor…)</span>
+      </label>
+      <label className={cx('pref-toggle', !settings.mcpEnabled && 'disabled')}>
+        <input
+          type="checkbox"
+          disabled={!settings.mcpEnabled}
+          checked={settings.mcpAllowEdits}
+          onChange={async (e) => setSettings(await bridge.settings.setMcp({ allowEdits: e.target.checked }))}
+        />
+        <span>Allow agents to create, edit and delete notes</span>
+      </label>
+      <p className="pref-note">
+        Agents can only reach Nibmark from this computer and this user account. Deleted notes go to the Trash, and every edit is
+        kept in the note&apos;s version history, so you can always undo.
+      </p>
+      {settings.mcpEnabled && (
+        <div className="mcp-setup">
+          <div className="mcp-setup-row">
+            <span className="pref-label">Claude Code: run in a terminal</span>
+            <button className="text-btn" onClick={() => copy('code', claudeCode)}>
+              {copied === 'code' ? 'Copied' : 'Copy command'}
+            </button>
+          </div>
+          <pre className="mcp-snippet">{claudeCode}</pre>
+          <div className="mcp-setup-row">
+            <span className="pref-label">Claude Desktop, Cursor: add to the MCP config file</span>
+            <button className="text-btn" onClick={() => copy('json', desktopJson)}>
+              {copied === 'json' ? 'Copied' : 'Copy JSON'}
+            </button>
+          </div>
+          <pre className="mcp-snippet">{desktopJson}</pre>
+        </div>
+      )}
+    </section>
   )
 }
