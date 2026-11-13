@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="assets/icon/nibmark-icon-1024.png" width="128" alt="Nibmark icon" />
+  <img src="assets/icon/nibmark-logo-horizontal.png" width="600" alt="Nibmark — Text N logo" />
 </p>
 
 <h1 align="center">Nibmark</h1>
@@ -10,7 +10,7 @@
 
 Nibmark keeps your notes as plain Markdown, organized in nested notebooks, tags and statuses, and stored on your own machine. It is a desktop app built with Electron, React and CodeMirror 6.
 
-> **Status:** v1.0.0, in active development. macOS is the primary target; Windows and Linux installers are built for every release but get less testing. Sync and mobile apps are on the [roadmap](#roadmap). Download the latest build from [Releases](https://github.com/quanminhvu/nibmark/releases).
+> **Status:** v1.0.1, in active development. macOS is the primary target; Windows and Linux installers are built for every release but get less testing. Sync and mobile apps are on the [roadmap](#roadmap). Download the latest build from [Releases](https://github.com/quanminhvu/nibmark/releases).
 
 <p align="center">
   <img src="docs/screenshot.png" alt="Nibmark with the Mist theme: notebooks and tags in the sidebar, the note list with task progress, and a note in side-by-side editor and preview" />
@@ -236,7 +236,7 @@ src/
     ├── themes.css        Built-in themes (CSS variables)
     └── styles.css        Layout and components
 resources/mcp.js          MCP bridge (stdio) that AI agents start; talks to the app's socket
-assets/icon/              Icon and logo sources (SVG + PNG)
+assets/icon/              Text N icon, wordmark and monochrome mark (SVG + PNG)
 build/                    Packaging resources (icon.icns)
 docs/                     Roadmap and screenshot
 ```
@@ -261,5 +261,7 @@ The detailed roadmap is in [`docs/ROADMAP.md`](docs/ROADMAP.md).
 ## License
 
 Nibmark is released under the [MIT License](LICENSE).
+
+The [Text N brand assets](assets/icon/README.md) include the app icon, horizontal logo and monochrome mark.
 
 The Nibmark name, icon and logo identify this project; please don't use them in a way that suggests your fork is the official app.

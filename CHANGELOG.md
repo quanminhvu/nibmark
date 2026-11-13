@@ -6,6 +6,14 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
+## [1.0.1] - 2026-11-13
+
+### Changed
+
+- New Text N identity: three text rows with a diagonal cut, in brick red and charcoal, replacing the paper-and-bookmark logo
+- Updated app, Dock, tray and window icons, renderer favicon, and README branding
+- Added standalone color and monochrome SVG marks, a brand asset guide, and `npm run icons` to regenerate PNG and macOS ICNS assets
+
 ## [1.0.0] - 2026-11-12
 
 ### Added

@@ -1,48 +1,5 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" width="1024" height="1024">
-  <!-- Icon Nibmark dạng tờ ghi chú: ruy băng đánh dấu son đỏ + góc giấy cuộn màu mực -->
-  <defs>
-    <!-- Tờ giấy: bo góc kiểu macOS, góc dưới phải bị cắt theo đường cong để lộ phần cuộn -->
-    <path id="sheet" d="M285,100 H739 A185,185 0 0 1 924,285 V680 Q790,770 680,924 H285 A185,185 0 0 1 100,739 V285 A185,185 0 0 1 285,100 Z"/>
-    <clipPath id="sheetClip">
-      <use href="#sheet"/>
-    </clipPath>
-    <linearGradient id="paper" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0" stop-color="#ECE8E1"/>
-      <stop offset="1" stop-color="#DFDAD1"/>
-    </linearGradient>
-    <linearGradient id="curl" gradientUnits="userSpaceOnUse" x1="700" y1="700" x2="924" y2="924">
-      <stop offset="0" stop-color="#2E2A26"/>
-      <stop offset="1" stop-color="#141210"/>
-    </linearGradient>
-    <filter id="washi" x="0" y="0" width="100%" height="100%">
-      <feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2" seed="7" result="noise"/>
-      <feColorMatrix in="noise" type="matrix" values="0 0 0 0 0.45  0 0 0 0 0.40  0 0 0 0 0.32  0 0 0 0.05 0"/>
-    </filter>
-    <!-- Ký hiệu # khoét rỗng trên ruy băng -->
-    <mask id="hashCut" maskUnits="userSpaceOnUse" x="0" y="0" width="1024" height="1024">
-      <rect width="1024" height="1024" fill="#FFFFFF"/>
-      <g stroke="#000000" stroke-width="11" stroke-linecap="round" transform="translate(352 226)">
-        <path d="M-9,-28 L-16,28"/>
-        <path d="M17,-28 L10,28"/>
-        <path d="M-28,-10 L30,-10"/>
-        <path d="M-30,12 L28,12"/>
-      </g>
-    </mask>
-    <filter id="soft" x="-20%" y="-20%" width="140%" height="140%">
-      <feGaussianBlur stdDeviation="10"/>
-    </filter>
-  </defs>
-
-  <!-- Tờ giấy -->
-  <use href="#sheet" fill="url(#paper)"/>
-  <g clip-path="url(#sheetClip)">
-    <rect x="100" y="100" width="824" height="824" filter="url(#washi)"/>
-    <!-- Bóng mờ của phần giấy cuộn đổ lên tờ giấy -->
-    <path d="M924,680 Q790,770 680,924" fill="none" stroke="#000000" stroke-opacity="0.22" stroke-width="36" filter="url(#soft)"/>
-    <!-- Ruy băng đánh dấu son đỏ, đuôi xẻ chữ V, khoét ký hiệu # của Markdown -->
-    <path d="M296,100 H408 V344 L352,304 L296,344 Z" fill="#C8402E" mask="url(#hashCut)"/>
-  </g>
-
-  <!-- Góc giấy cuộn màu mực -->
-  <path d="M924,680 Q790,770 680,924 H739 A185,185 0 0 0 924,739 Z" fill="url(#curl)"/>
+<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024" role="img" aria-label="Nibmark">
+<rect x="100" y="100" width="824" height="824" rx="185" fill="#252422"/>
+<g transform="translate(234 302) scale(1.39)"><defs><mask id="text-n-cut"><rect width="400" height="300" fill="white"/><path d="M80 0H145L375 300H310Z" fill="black"/></mask></defs>
+<g mask="url(#text-n-cut)" fill="#B65A46"><rect x="14" y="0" width="386" height="82" rx="15"/><rect x="50" y="109" width="350" height="82" rx="15"/><rect x="0" y="218" width="400" height="82" rx="15"/></g></g>
 </svg>

@@ -1,0 +1,4 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="400" height="300" viewBox="0 0 400 300" role="img" aria-label="Nibmark">
+<defs><mask id="text-n-cut"><rect width="400" height="300" fill="white"/><path d="M80 0H145L375 300H310Z" fill="black"/></mask></defs>
+<g mask="url(#text-n-cut)" fill="currentColor"><rect x="14" y="0" width="386" height="82" rx="15"/><rect x="50" y="109" width="350" height="82" rx="15"/><rect x="0" y="218" width="400" height="82" rx="15"/></g>
+</svg>
