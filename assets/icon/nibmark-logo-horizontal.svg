@@ -1,6 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 1180 480" width="1180" height="480">
-  <!-- Logo ngang tối giản kiểu Nhật: icon + chữ Mincho mảnh -->
-  <rect width="1180" height="480" fill="#FAF7F1"/>
-  <image href="nibmark-icon.svg" xlink:href="nibmark-icon.svg" x="40" y="40" width="400" height="400"/>
-  <text x="478" y="290" font-family="Hiragino Mincho ProN, Yu Mincho, Noto Serif JP, Georgia, serif" font-size="140" font-weight="300" letter-spacing="6" fill="#1C1A18">Nibmark</text>
+<svg xmlns="http://www.w3.org/2000/svg" width="1500" height="420" viewBox="0 0 1500 420" role="img" aria-label="Nibmark">
+<rect width="1500" height="420" fill="#F8F4EC"/><g transform="translate(55 65) scale(.96)"><defs><mask id="text-n-cut"><rect width="400" height="300" fill="white"/><path d="M80 0H145L375 300H310Z" fill="black"/></mask></defs>
+<g mask="url(#text-n-cut)" fill="#B65A46"><rect x="14" y="0" width="386" height="82" rx="15"/><rect x="50" y="109" width="350" height="82" rx="15"/><rect x="0" y="218" width="400" height="82" rx="15"/></g></g><text x="495" y="287" font-family="Arial Black, Helvetica Neue, Arial, sans-serif" font-size="210" font-weight="900" letter-spacing="-9" fill="#252422">Nibmark</text>
 </svg>

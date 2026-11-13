@@ -24,6 +24,7 @@ A test profile never registers the global Quick Note shortcut, so it cannot figh
 | Script | What it does |
 | --- | --- |
 | `npm run dev` | Start the app with hot reload |
+| `npm run icons` | Regenerate Text N PNG assets and, on macOS, the ICNS app icon |
 | `npm run typecheck` | Type-check the whole project |
 | `npm run build` | Build main, preload and renderer into `out/` |
 | `npm run check:bundle` | Fail if main or preload `require()` anything other than `electron` and Node built-ins |
@@ -35,6 +36,10 @@ A test profile never registers the global Quick Note shortcut, so it cannot figh
 ### Why `check:bundle` and the smoke test exist
 
 The packaged app does not ship `node_modules`, so everything the main process and preload use must be bundled by electron-vite. A dependency left as a runtime `require()` works fine from the repository and crashes the installed app on launch. `check:bundle` catches that statically, and `test:smoke` runs the real packaged app, which is the only way to be sure.
+
+## Brand assets
+
+Use the Text N assets documented in [assets/icon/README.md](assets/icon/README.md). After changing SVG sources, run `npm run icons` on macOS and commit the generated PNG and ICNS files together. Packaging uses these checked-in assets on every platform.
 
 ## Before you open a pull request
 

@@ -46,6 +46,7 @@ function createWindow(noteId?: string): BrowserWindow {
     minHeight: noteId ? 360 : 520,
     show: false,
     title: 'Nibmark',
+    icon: app.isPackaged ? join(process.resourcesPath, 'icon.png') : join(__dirname, '../../resources/icon.png'),
     // macOS: sidebar trong mờ (vibrancy) cần nền cửa sổ trong suốt
     ...(process.platform === 'darwin'
       ? { vibrancy: 'sidebar' as const, visualEffectState: 'followWindow' as const, backgroundColor: '#00000000' }
