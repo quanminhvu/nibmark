@@ -73,9 +73,18 @@ const call = (method, params = {}) =>
     ws.send(JSON.stringify({ id: n, method, params }))
   })
 const evaluate = async (expression) => {
-  const res = await call('Runtime.evaluate', { expression, awaitPromise: true, returnByValue: true })
-  if (res.result?.exceptionDetails) throw new Error(res.result.exceptionDetails.exception?.description ?? 'evaluation failed')
-  return res.result?.result?.value
+  // Trang có thể vẫn đang tải lúc vừa kết nối (CI chậm): lỗi giao thức kiểu "Execution context
+  // was destroyed" thì đợi rồi thử lại, thay vì coi như kiểm tra thất bại
+  for (let attempt = 0; ; attempt++) {
+    const res = await call('Runtime.evaluate', { expression, awaitPromise: true, returnByValue: true })
+    if (res.error && attempt < 20) {
+      await sleep(500)
+      continue
+    }
+    if (res.error) throw new Error(res.error.message ?? 'evaluation failed')
+    if (res.result?.exceptionDetails) throw new Error(res.result.exceptionDetails.exception?.description ?? 'evaluation failed')
+    return res.result?.result?.value
+  }
 }
 process.on('uncaughtException', (err) => fail(err.stack ?? err.message))
 process.on('unhandledRejection', (err) => fail(String(err)))

@@ -32,6 +32,7 @@ Nibmark keeps your notes as plain Markdown, organized in nested notebooks, tags 
 - Hover a note link, in the editor or the preview, to see a preview card of that note
 - An outline panel (`⌘⇧O`) lists the note's headings, jumps to one on click and follows the section you are reading
 - Word count and reading time for the note, or for the selected text
+- Format Document (`⌥⇧F`) tidies Markdown with Prettier: heading spacing, list markers and numbering, aligned tables, blank lines; code blocks, math and front matter are left as they are
 - Paste a URL to get `[Page title](url)`, or paste it over selected text to link that text
 - Slash commands (`/`) for headings, lists, tasks, code, tables, diagrams, math, alerts, links and files
 - A floating toolbar on selected text, emoji (`:smile`) and code-language suggestions
@@ -120,6 +121,7 @@ Nibmark keeps your notes as plain Markdown, organized in nested notebooks, tags 
 | `⌘⌥←` / `⌘⌥→` | Back / forward between notes |
 | `⌘,` | Preferences |
 | `⌘B` / `⌘I` | Bold / italic |
+| `⌥⇧F` | Format the note's Markdown |
 | `⌘`-click | Follow a note link in the editor |
 
 On Windows and Linux, use `Ctrl` instead of `⌘`.

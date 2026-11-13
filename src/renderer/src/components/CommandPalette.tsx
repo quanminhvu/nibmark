@@ -23,6 +23,7 @@ import { copyId, copyNoteLink } from '@/lib/clipboard'
 import { gotoHeading, headingsOf, toggleOutline } from '@/lib/outline'
 import { openTodayNote } from '@/lib/dailyNote'
 import { presentNote } from '@/lib/slides'
+import { formatNote } from '@/lib/formatNote'
 import { openGraph } from '@/lib/graph'
 import { closeOtherTabs, reopenClosedTab, tabsEnabled } from '@/lib/tabs'
 import { noteWindowId, openInNewWindow } from '@/lib/windowMode'
@@ -109,6 +110,7 @@ function noteActionItems(id: string, withTargets = false): Item[] {
       if (s.saveTemplate(id)) s.showNotice(`Saved "${note.title || 'Untitled'}" as a template.`)
     }),
     ...(noteWindowId ? [] : [cmd('local-graph', 'Show Note in Graph', () => openGraph('local', id), undefined, 'links network map connections local')]),
+    cmd('format', 'Format Document', () => void formatNote(id), isMac() ? '⌥⇧F' : 'Alt+Shift+F', 'prettier markdown tidy clean beautify'),
     cmd('present', 'Start Presentation', () => presentNote(id), undefined, 'slides slideshow present deck'),
     cmd('export-note', 'Export Note as Markdown…', () => void exportNote(id)),
     cmd('export-html', 'Export Note as HTML…', () => void exportNoteHtml(id), undefined, 'web page save share'),
