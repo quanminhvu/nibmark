@@ -6,6 +6,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
+## [1.0.2] - 2026-11-13
+
+### Changed
+
+- macOS releases now target Apple Silicon (ARM64) only; removed Intel/x64 DMG and ZIP targets
+- Includes the Text N logo, updated README branding, app icons and SVG/PNG brand assets introduced in 1.0.1
+
 ## [1.0.1] - 2026-11-13
 
 ### Changed
