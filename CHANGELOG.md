@@ -6,6 +6,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
+## [1.0.2] - 2026-11-14
+
 ### Added
 
 - Format Document (⌥⇧F / Alt+Shift+F, the command palette or the note menu): tidies a note's Markdown with Prettier — heading spacing, one list marker, list numbering, aligned tables, blank lines and trailing spaces — without touching code blocks, math or front matter. The cursor stays put and ⌘Z undoes it in one step. An optional setting formats a note you edited when you leave it
