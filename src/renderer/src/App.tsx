@@ -11,6 +11,7 @@ import { exportNoteHtml, exportNotePdf } from '@/lib/exportHtml'
 import { toggleOutline } from '@/lib/outline'
 import { openTodayNote } from '@/lib/dailyNote'
 import { startMcpBridge } from '@/lib/mcpTools'
+import { formatNote, startFormatOnLeave } from '@/lib/formatNote'
 import { usePresentation } from '@/lib/slides'
 import { isGraphOpen, openGraph } from '@/lib/graph'
 import { GraphView } from './components/GraphView'
@@ -83,6 +84,8 @@ export function App(): React.JSX.Element {
 
   // AI agent (MCP): chỉ cửa sổ chính nhận yêu cầu
   useEffect(() => startMcpBridge(), [])
+  // Tùy chọn tự format khi rời ghi chú vừa sửa
+  useEffect(() => startFormatOnLeave(), [])
 
   // Lệnh từ menu ứng dụng (File, Preferences)
   useEffect(() => {
@@ -127,6 +130,14 @@ export function App(): React.JSX.Element {
       const inPopover = !!(document.activeElement as HTMLElement | null)?.closest?.('.nbp-pop, .stp-pop, .tag-field, .kanban-input, .preview-find')
       if (e.key === 'Escape' && s.distractionFree && !e.defaultPrevented && !inPopover) {
         s.toggleDistractionFree()
+        return
+      }
+      // ⌥⇧F / Alt+Shift+F: format Markdown của ghi chú đang mở (giống VS Code).
+      // Bắt theo vị trí phím (e.code): trên Mac tổ hợp này gõ ra "Ï", editor sẽ chèn chữ đó nếu để lọt
+      if (e.altKey && e.shiftKey && !e.metaKey && !e.ctrlKey && e.code === 'KeyF' && !(document.activeElement as HTMLElement | null)?.closest?.('input, textarea')) {
+        e.preventDefault()
+        e.stopPropagation()
+        void formatNote()
         return
       }
       if (!(e.metaKey || e.ctrlKey)) return

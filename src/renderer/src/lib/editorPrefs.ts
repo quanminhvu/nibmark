@@ -25,6 +25,8 @@ export interface EditorPrefs {
   codeLineNumbers: boolean
   /** Mở ghi chú thành tab phía trên khung ghi chú */
   tabs: boolean
+  /** Tự format Markdown của ghi chú vừa sửa khi chuyển sang ghi chú khác */
+  formatOnLeave: boolean
 }
 
 const KEY = 'nibmark:editor'
@@ -37,7 +39,8 @@ const defaults: EditorPrefs = {
   wrap: 'all',
   pasteLink: 'title',
   codeLineNumbers: true,
-  tabs: true
+  tabs: true,
+  formatOnLeave: false
 }
 
 function read(): EditorPrefs {
@@ -70,7 +73,8 @@ useEditorPrefs.subscribe((s) => {
     wrap: s.wrap,
     pasteLink: s.pasteLink,
     codeLineNumbers: s.codeLineNumbers,
-    tabs: s.tabs
+    tabs: s.tabs,
+    formatOnLeave: s.formatOnLeave
   }
   try {
     localStorage.setItem(KEY, JSON.stringify(prefs))

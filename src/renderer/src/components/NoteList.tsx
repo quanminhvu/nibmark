@@ -6,10 +6,11 @@ import { highlightWords, parseQuery } from '@/lib/search'
 import { countTasks } from '@/lib/markdown'
 import { getStatuses } from '@/lib/statuses'
 import type { Note, SortKey } from '@/lib/types'
-import { cx, relativeTime, snippet } from '@/lib/util'
+import { cx, isMac, relativeTime, snippet } from '@/lib/util'
 import { openInNewWindow } from '@/lib/windowMode'
 import { openInTab, tabsEnabled } from '@/lib/tabs'
 import { presentNote } from '@/lib/slides'
+import { formatNote } from '@/lib/formatNote'
 import { openGraph } from '@/lib/graph'
 import { exportNoteHtml, exportNotePdf } from '@/lib/exportHtml'
 import { exportNote } from '@/lib/actions'
@@ -58,6 +59,7 @@ export function noteMenu(note: Note): MenuItem[] {
     { label: 'Duplicate', onClick: () => a.duplicateNote(note._id) },
     ...(tabsEnabled() ? [{ label: 'Open in New Tab', onClick: () => openInTab(note._id) }] : []),
     ...(window.nibmark ? [{ label: 'Open in New Window', onClick: () => openInNewWindow(note._id) }] : []),
+    { label: 'Format Document', hint: isMac() ? '⌥⇧F' : 'Alt+Shift+F', onClick: () => void formatNote(note._id) },
     { label: 'Present', onClick: () => presentNote(note._id) },
     { label: 'Show in Graph', onClick: () => openGraph('local', note._id) },
     { label: 'Export as Markdown…', onClick: () => void exportNote(note._id) },
